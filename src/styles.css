@@ -1,0 +1,17 @@
+/* Foundation legibility; the approved design system belongs to a later slice. */
+html {
+  color-scheme: light;
+  font-family: system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  color: #202124;
+  background: #fff;
+}
+
+main {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}

@@ -1,0 +1,107 @@
+# Portfolio
+
+Local source and quality foundation, version **0.1.0**. This is not the finished
+portfolio or a public launch. Designed pages, four case studies and a native-scroll
+3D world are future work. Product requirements: [spec/portfolio.md](spec/portfolio.md).
+The foundation now uses **Vite + React + client-side React Router + ESLint 10**.
+Content is rendered in the browser; no SSR or build-time page pre-rendering.
+
+## Local setup
+
+Use **Node 24.21.0** and **npm 11.19.0** (`.nvmrc`, `.npmrc`, package engines).
+From this repository:
+
+```sh
+npm ci
+npx playwright install chromium
+npm run dev
+```
+
+Open <http://127.0.0.1:5173>. The shell shows foundation status and runtime version;
+there are no credentials, environment variables, remote data or world assets.
+On Linux, browser setup may need `npx playwright install --with-deps chromium`.
+Install commands download dependencies/browser binaries; they do not deploy.
+
+## Verification
+
+```sh
+npm run check
+```
+
+Runs format, code/documentation lint and strict TypeScript,
+version alignment, unit/component/rule regression tests, production build, then
+Chromium smoke tests. Browser tests launch a local preview of built static files on
+`127.0.0.1:3100`; keep that port free. They never reuse an unrelated local server.
+`npm run build` precedes standalone `npm run test:e2e`.
+
+Individual commands are in `package.json`; `npm run format` rewrites formatting.
+`npm run preview` inspects a previously built static bundle at
+<http://127.0.0.1:4173>; Vite preview is not a production server. Automated
+tests do not replace the author's manual localhost acceptance.
+
+## Layout and version contract
+
+- `index.html`: English document, static entry metadata, no-index policy and a
+  helpful noscript notice. The initial app container is empty.
+- `src/main.tsx`, `src/App.tsx`: browser rendering and client routing. Only `/`
+  and unknown-route recovery exist; designed product routes are future work.
+- `src/FoundationPage.tsx`, `src/NotFoundPage.tsx`: foundation status and a
+  keyboard-usable home link from unknown routes.
+- `src/content/project-schema.ts`: strict future metadata schema; no real records.
+  Schema validity does not prove disclosure approval, asset rights or claim truth.
+- `src/appVersion.ts`: runtime version; `scripts/check-version.mjs` checks it against
+  `package.json` and both root `package-lock.json` entries. Update all deliberately.
+- `tests`: isolated unit/component/documentation/version and production-browser
+  checks. Synthetic fixtures are not public project claims.
+- `.github`: checks-only CI and dependency-update proposals; no deployment.
+
+Generated `dist`, type caches, browser reports and dependencies are ignored.
+Legacy ignored `.next`/`next-env.d.ts` output may remain locally after migration;
+it is not loaded, linted, typechecked or part of the Vite artifact. Do not discard
+unrelated local files during migration. No remote fonts/images are needed.
+
+## Rendering and static hosting
+
+The application requires JavaScript. With it disabled, only the static notice and
+entry metadata remain; full case studies/navigation are not promised. Non-WebGL
+and reduced-motion alternatives in later work are still browser-rendered.
+
+Local preview demonstrates direct SPA entry and a client not-found view. Its
+fallback can return HTTP 200 for an unknown app route; that is separate from the
+not-found UI. A local-preview hook rejects missing `/assets/` and file-like URL
+requests instead of returning the HTML shell. Static production hosting must provide direct-route fallback without
+rewriting missing assets to HTML. That deployment contract/configuration belongs
+to PR 2, not this local foundation. Client-managed route metadata is not guaranteed
+for crawlers/link-preview clients that do not run JavaScript.
+
+## Compatibility and boundaries
+
+Dependencies are exact and locked. Vite 8.3.4 and its React plugin 6.1.2 match;
+TypeScript 5.9.3 stays within the selected TypeScript-ESLint/TSDoc dependency ranges.
+ESLint 10.12.0, TypeScript rules, React Hooks 7.1.1 and the existing documentation
+presence/structure plus TSDoc syntax gates form the supported baseline. The lockfile is authoritative
+for transitive packages; do not upgrade one tool in isolation without rerunning gates.
+
+The author chose the other Vite foundations' lint strategy, not a second JSX linter.
+Next.js/its lint bundle and the incompatible legacy React/JSX accessibility plugins
+are removed. Do not claim that generic TypeScript/Hooks lint preserves all their
+static checks. Existing documentation gates remain enforced; keyboard/semantic
+browser smoke is not full accessibility certification for future features.
+
+Run `npm run audit:dependencies` for fresh full and production dependency-graph
+audits; CI runs it as a separate blocking check. Removing a vulnerable chain does
+not prove the replacement has no vulnerabilities. Never use forced downgrades or
+unreviewed overrides to turn the audit green. Audit is dated graph evidence, not
+proof of exploitability or all bundled code.
+
+CI's check is **Foundation quality**. Source configuration does not prove that
+this check has run remotely or that main protection is enforced. The bootstrap
+procedure establishes the reviewed foundation as initial main after remediation
+and verification; later publication and governance review/bypass policy require
+their applicable authorization. No dev/staging/production target is provisioned or certified by
+these files. Later delivery work owns isolated exact-revision release and recovery.
+
+Local implementation does not authorize Git publication, remote settings, provider
+provisioning, deployment or production-data mutation. No merge, auto-merge or
+deployment is configured. Never commit secrets, private source, raw conversations,
+private planning exports or central operational memory. See [CONTRIBUTING.md](CONTRIBUTING.md).
