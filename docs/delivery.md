@@ -35,11 +35,14 @@ contract. Credentials must never enter Git, release metadata or evidence records
   competing Git auto-deployment path. Inventory/disable deploy hooks and other
   writers separately before enabling this mechanism.
 - Native GitHub `production` required-reviewer approval is mandatory, self-review
-  allowed, administrator bypass disabled. Runtime reads verify these controls;
-  unsupported/missing controls block production, not silently fall back to a
-  boolean input or a custom approval checkbox.
-  The current run's review history must also contain a native approval for that
-  exact environment. Production reruns are rejected: start a new dispatch and
+  allowed, administrator bypass disabled. GitHub enforces the environment gate
+  before the job starts. The operator must read back actual policies using the
+  local authenticated CLI/API during setup/readiness, before authorizing enablement
+  or promotion and after policy/access changes. Unsupported/missing controls or
+  uncertain evidence block authorization, not silently fall back to a boolean input
+  or custom approval checkbox. The controller does not query GitHub policy or review
+  history APIs and cannot detect later policy drift or a deleted/recreated environment.
+  Production reruns are rejected: start a new dispatch and
   obtain fresh approval after diagnosing a failure. The approval is requested before
   the environment job starts; the approver must inspect the exact run inputs and
   acceptance record. Rejected runs must not be bypassed or retried as dev.
@@ -72,12 +75,16 @@ Before remote enablement, obtain decisions/evidence for:
    without treating it as public launch. Test provider URL protection too.
 2. Actual protected-main `Foundation quality` check, agreed review count/bypass
    policy, force-push/deletion controls and provider access isolation. Do not assume
-   these from YAML or an old CI run. This implementation reads native production
-   approval at runtime; main governance/other provider writers are prerequisite
-   evidence reviewed by humans, not fully enforced by the script.
+   these from YAML or an old CI run. Main/environment governance and other provider
+   writers are prerequisite evidence reviewed by humans, not enforced by controller
+   policy reads. Use the owner's local CLI/API login without copying it into Actions.
 3. Native production approvals available on the repository/account plan, named
    required reviewers, self-review allowed and administrator bypass disabled.
-   Verify actual enforcement with a controlled run before claiming readiness.
+   Retain dated non-secret policy readback before authorizing enablement or promotion
+   and after policy/access changes. Missing/uncertain evidence blocks authorization;
+   discovered drift requires separately authorized correction before delivery resumes.
+   Do not cancel an active mutation. Verify actual enforcement with a controlled run
+   before claiming readiness; the script cannot enforce this operator prerequisite.
 4. Disconnect Vercel Git deployment, inventory/disable other automatic paths and
    deploy hooks, and authorize credential/project setup separately. Do not disable
    unrelated consumers. Protect environment variables and credentials against PR
@@ -110,15 +117,18 @@ Environment secrets:
   needs read access to dev for candidate verification. Verify actual provider
   token scope; separate project IDs do not prove least privilege. Prefer separate
   environment credentials and confirm supported account-level access controls.
-- `POLICY_READ_TOKEN`: separately approved read-only GitHub credential with source
-  metadata/compare, Actions review-history and environment policy read permissions. Do not grant write or
-  administration mutation access. Missing API visibility fails closed. Do not
-  assume `GITHUB_TOKEN` can read environment administration controls.
 - `SMOKE_BYPASS`: optional approved Vercel automation access secret for this
   target. `DEV_SMOKE_BYPASS` in production permits read-only dev verification when
   needed. Requests do not follow redirects or put bypass credentials in URLs.
   These are deployment-access credentials, never approval bypasses. Their
   existence/use requires authorization; the workflow does not generate them.
+
+No additional GitHub personal access token is required. The built-in `GITHUB_TOKEN`
+with `contents: read` handles source ancestry/freshness checks both before candidate
+execution and during delivery. It is not used for administration readback. Keep the
+owner's broader CLI credential local; native approval policy is verified by the
+operator rather than by a token copied into Actions. The pure approval validator
+supports setup readback, not runtime controller enforcement.
 
 The configuration digest covers project/account identity, known protection
 settings, target origin and a reviewed generation. It is **not** a complete provider

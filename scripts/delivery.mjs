@@ -17,8 +17,6 @@ import {
   applicationOrigin,
   assertCurrentSource,
   assertDevCandidate,
-  assertProductionApproval,
-  assertRunApproval,
   configurationDigest,
   hostingConfiguration,
   sourceRevision,
@@ -45,7 +43,7 @@ function required(name) {
 async function api(provider, path) {
   const github = provider === 'github';
   const origin = github ? 'https://api.github.com' : 'https://api.vercel.com';
-  const token = required(github ? 'POLICY_READ_TOKEN' : 'VERCEL_TOKEN');
+  const token = required(github ? 'GITHUB_TOKEN' : 'VERCEL_TOKEN');
   const suffix = github
     ? ''
     : `${path.includes('?') ? '&' : '?'}teamId=${encodeURIComponent(required('VERCEL_ORG_ID'))}`;
@@ -120,7 +118,8 @@ async function smoke(origin, identity, bypass) {
 }
 
 /**
- * Verify source/policy/configuration, upload one prebuilt target, then read-only smoke.
+ * Verify source/provider configuration, upload one prebuilt target, then read-only smoke.
+ * GitHub policy readback is an operator prerequisite; native approval gates the job.
  * Both target jobs share a mutation lock; external provider changes invalidate evidence.
  */
 export async function deliver() {
@@ -203,25 +202,13 @@ export async function deliver() {
   };
 
   /**
-   * Re-read the accepted dev candidate and native approval policy after any waiting.
+   * Re-read the accepted dev candidate after any waiting; GitHub gates job approval.
    */
   async function verifyPromotion() {
     assert.equal(
       required('GITHUB_RUN_ATTEMPT'),
       '1',
       'Production retries require a new dispatch and approval.',
-    );
-    const environment = await api(
-      'github',
-      `${repoPath}/environments/production`,
-    );
-    assertProductionApproval(environment);
-    assertRunApproval(
-      environment,
-      await api(
-        'github',
-        `${repoPath}/actions/runs/${required('GITHUB_RUN_ID')}/approvals`,
-      ),
     );
     const devProject = await api(
       'vercel',

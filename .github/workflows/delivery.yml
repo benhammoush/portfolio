@@ -33,6 +33,8 @@ jobs:
     if: github.ref == 'refs/heads/main' && vars.DELIVERY_ENABLED == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    # Operator readback must verify main-only policies and native production approval.
+    # The controller does not query GitHub administration/review-history endpoints.
     environment: ${{ inputs.target || 'dev' }}
     # Shared dev must not move while production revalidates/promotes its candidate.
     # Every future recovery workflow must use this same lock too.
@@ -85,7 +87,7 @@ jobs:
           READINESS_REFERENCE: ${{ vars.READINESS_REFERENCE }}
           DEV_DEPLOYMENT_ID: ${{ inputs.dev_deployment }}
           DEV_ACCEPTANCE_REFERENCE: ${{ inputs.dev_acceptance }}
-          POLICY_READ_TOKEN: ${{ secrets.POLICY_READ_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           SMOKE_BYPASS: ${{ secrets.SMOKE_BYPASS }}
           DEV_SMOKE_BYPASS: ${{ secrets.DEV_SMOKE_BYPASS }}
