@@ -129,6 +129,17 @@ resources or revoke shared credentials.
 Actual protections must use functioning CI names and an agreed review/bypass
 policy. Missing protection/environment evidence blocks release readiness.
 
+Approved Iris-style GitHub authentication adjustment: use the built-in read-only
+`GITHUB_TOKEN` for workflow source ancestry/freshness checks, with no additional
+GitHub personal access token and no copying of the owner's CLI credential into
+Actions. The operator reads back actual main/environment policies through the local
+authenticated CLI/API during setup/readiness, before authorizing enablement or
+promotion and after policy/access changes. Native production approval remains
+mandatory; the controller does not query policy/review-history APIs or detect later
+policy drift. Missing/uncertain operator evidence blocks authorization, not an
+automated runtime policy check. Preserve production's new-dispatch/no-rerun rule
+and exact accepted dev candidate validation.
+
 ### Delivery-foundation acceptance
 
 Before implementing remote delivery, confirm provider/account support for the

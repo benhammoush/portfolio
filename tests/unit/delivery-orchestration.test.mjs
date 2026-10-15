@@ -37,14 +37,11 @@ async function response(input, options) {
   let body;
   let status = 200;
   if (url.hostname === 'api.github.com') {
+    expect(options.headers.Authorization).toBe('Bearer test-github');
     if (url.pathname.endsWith('/compare/' + source + '...main'))
       body = { status: state.comparison };
     else if (url.pathname.endsWith('/git/ref/heads/main'))
       body = { object: { sha: state.main } };
-    else if (url.pathname.endsWith('/environments/production'))
-      body = state.approval;
-    else if (url.pathname.endsWith('/actions/runs/12/approvals'))
-      body = state.reviews;
   } else if (url.hostname === 'api.vercel.com') {
     if (url.pathname === '/v9/projects/prj_dev') body = state.devProject;
     else if (url.pathname === '/v9/projects/prj_prod') body = state.prodProject;
@@ -113,7 +110,7 @@ beforeEach(() => {
     DEV_CONFIG_ID: 'config-1',
     DEV_ORIGIN: 'https://dev.example.com',
     READINESS_REFERENCE: 'https://example.com/readiness',
-    POLICY_READ_TOKEN: 'test-policy',
+    GITHUB_TOKEN: 'test-github',
     VERCEL_TOKEN: 'test-vercel',
     GITHUB_RUN_ID: '12',
     GITHUB_RUN_ATTEMPT: '1',
@@ -161,25 +158,6 @@ beforeEach(() => {
         portfolioRun: '12-1',
       },
     },
-    approval: {
-      id: 42,
-      name: 'production',
-      can_admins_bypass: false,
-      protection_rules: [
-        {
-          type: 'required_reviewers',
-          prevent_self_review: false,
-          reviewers: [{ type: 'User' }],
-        },
-      ],
-    },
-    reviews: [
-      {
-        state: 'approved',
-        user: { login: 'reviewer' },
-        environments: [{ id: 42 }],
-      },
-    ],
   };
   mocks.exec.mockImplementation((command) => {
     if (command === 'git') return source;
@@ -271,22 +249,8 @@ it.each([
   },
 );
 
-it('fails closed when production policy is unavailable or dev acceptance drifted', async () => {
+it('fails closed when dev acceptance drifted', async () => {
   selectProduction();
-  state.approval = {};
-  await expect(deliver()).rejects.toThrow();
-  state.approval = {
-    id: 42,
-    name: 'production',
-    can_admins_bypass: false,
-    protection_rules: [
-      {
-        type: 'required_reviewers',
-        prevent_self_review: false,
-        reviewers: [{}],
-      },
-    ],
-  };
   state.devProject.targets.production.id = 'dpl_drift';
   await expect(deliver()).rejects.toThrow('no longer serves');
   expect(
@@ -294,19 +258,35 @@ it('fails closed when production policy is unavailable or dev acceptance drifted
   ).toHaveLength(0);
 });
 
-it('revalidates accepted dev identity before production mutation', async () => {
+it('revalidates accepted dev identity using built-in GitHub authentication without administration endpoints', async () => {
   selectProduction();
   await deliver();
-  const policyReads = fetch.mock.calls.filter(([url]) =>
-    url.endsWith('/environments/production'),
+  const candidateReads = fetch.mock.calls.filter(([url]) =>
+    new URL(url).pathname.endsWith('/deployments/dpl_accepted'),
   );
-  expect(policyReads).toHaveLength(2);
+  expect(candidateReads).toHaveLength(2);
   expect(
     mocks.summary.mock.calls.some(([, text]) => text.includes('dpl_prior')),
   ).toBe(true);
   expect(
     mocks.exec.mock.calls.filter(([command]) => command === 'npm'),
   ).toHaveLength(1);
+});
+
+it('rejects missing built-in GitHub authentication before mutation', async () => {
+  vi.stubEnv('GITHUB_TOKEN', '');
+  await expect(deliver()).rejects.toThrow('Missing GITHUB_TOKEN');
+  expect(fetch).not.toHaveBeenCalled();
+  expect(mocks.exec).not.toHaveBeenCalled();
+});
+
+it('requires a new production dispatch instead of retrying the approved run', async () => {
+  selectProduction();
+  vi.stubEnv('GITHUB_RUN_ATTEMPT', '2');
+  await expect(deliver()).rejects.toThrow('new dispatch and approval');
+  expect(
+    mocks.exec.mock.calls.filter(([command]) => command === 'npm'),
+  ).toHaveLength(0);
 });
 
 it('retains recovery checkpoints and never retries after hosted smoke fails', async () => {

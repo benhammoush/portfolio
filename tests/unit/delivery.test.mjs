@@ -8,7 +8,6 @@ import {
   assertCurrentSource,
   assertDevCandidate,
   assertProductionApproval,
-  assertRunApproval,
   configurationDigest,
   hostingConfiguration,
   sourceRevision,
@@ -88,25 +87,7 @@ describe('immutable source and safe application origin', () => {
   });
 });
 
-describe('native production approval', () => {
-  it('requires a real approval for the exact environment, not just configured reviewers', () => {
-    const environment = { id: 42 };
-    const approved = {
-      state: 'approved',
-      user: { login: 'reviewer' },
-      environments: [{ id: 42 }],
-    };
-    expect(() => assertRunApproval(environment, [approved])).not.toThrow();
-    for (const history of [
-      [],
-      undefined,
-      [{ ...approved, state: 'pending' }],
-      [{ ...approved, environments: [{ id: 99 }] }],
-      [approved, { ...approved, state: 'rejected' }],
-    ]) {
-      expect(() => assertRunApproval(environment, history)).toThrow();
-    }
-  });
+describe('operator setup validator for native production approval', () => {
   it('accepts the explicit required-reviewer and administrator policy', () => {
     expect(() => assertProductionApproval(approval)).not.toThrow();
   });

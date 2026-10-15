@@ -48,7 +48,8 @@ export function assertCurrentSource(source, main, automatic) {
 }
 
 /**
- * Require functioning native production approval, including explicit bypass policy.
+ * Validate operator setup readback of native approval and explicit bypass policy.
+ * The delivery controller relies on GitHub's gate, not runtime policy API checks.
  * @param environment - GitHub environment REST response, never inferred from YAML.
  */
 export function assertProductionApproval(environment) {
@@ -69,33 +70,6 @@ export function assertProductionApproval(environment) {
     review.prevent_self_review,
     false,
     'The approved policy permits self-review.',
-  );
-}
-
-/**
- * Require actual native approval of this environment in the current workflow run.
- * Configuration alone must not certify a job that started without a review gate.
- * @param environment - Current production environment response.
- * @param reviews - This workflow run's native environment review history.
- */
-export function assertRunApproval(environment, reviews) {
-  assert.ok(
-    Number.isInteger(environment.id),
-    'Production environment identity is missing.',
-  );
-  assert.ok(Array.isArray(reviews), 'Native review history is unavailable.');
-  const selected = reviews.filter((review) =>
-    review.environments?.some((item) => item.id === environment.id),
-  );
-  assert.ok(
-    selected.some(
-      (review) => review.state === 'approved' && review.user?.login,
-    ),
-    'This run has no native production approval.',
-  );
-  assert.ok(
-    !selected.some((review) => review.state === 'rejected'),
-    'Rejected runs require a new dispatch.',
   );
 }
 
