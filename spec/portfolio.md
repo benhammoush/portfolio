@@ -138,7 +138,12 @@ promotion and after policy/access changes. Native production approval remains
 mandatory; the controller does not query policy/review-history APIs or detect later
 policy drift. Missing/uncertain operator evidence blocks authorization, not an
 automated runtime policy check. Preserve production's new-dispatch/no-rerun rule
-and exact accepted dev candidate validation.
+and manual verification of the exact accepted dev candidate. Production uses only
+its own environment-scoped deployment credential; no dev-verification token or
+custom promotion manifest is required. The owner, not an automated cross-project
+controller, checks dev source/version/provider/configuration and recovery evidence
+after acceptance and immediately before native approval. Drift invalidates affected
+acceptance; a selected SHA or green CI is not acceptance evidence.
 
 ### Delivery-foundation acceptance
 

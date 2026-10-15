@@ -16,7 +16,6 @@ import { pathToFileURL } from 'node:url';
 import {
   applicationOrigin,
   assertCurrentSource,
-  assertDevCandidate,
   configurationDigest,
   hostingConfiguration,
   sourceRevision,
@@ -36,7 +35,7 @@ function required(name) {
 
 /**
  * Read fixed-origin APIs with explicit credentials, bounded time and no redirects.
- * @param provider - Either github or vercel, never supplied by workflow input.
+ * @param provider - Fixed GitHub or selected-target Vercel API role.
  * @param path - Trusted relative API path.
  * @returns Parsed JSON from the successful response.
  */
@@ -131,6 +130,19 @@ export async function deliver() {
   assert.equal(required('DELIVERY_ENABLED'), 'true', 'Delivery is disabled.');
   const target = required('DELIVERY_TARGET');
   assert.ok(['dev', 'production'].includes(target));
+  required('VERCEL_TOKEN');
+  if (target === 'production') {
+    assert.equal(
+      env.GITHUB_EVENT_NAME,
+      'workflow_dispatch',
+      'Production requires manual dispatch.',
+    );
+    assert.equal(
+      env.GITHUB_RUN_ATTEMPT,
+      '1',
+      'Production retries require a new dispatch and approval.',
+    );
+  }
   const source = sourceRevision(required('SOURCE_SHA'));
   const repository = required('GITHUB_REPOSITORY');
   assert.match(repository, /^[\w.-]+\/[\w.-]+$/);
@@ -201,55 +213,8 @@ export async function deliver() {
     run: `${required('GITHUB_RUN_ID')}-${required('GITHUB_RUN_ATTEMPT')}`,
   };
 
-  /**
-   * Re-read the accepted dev candidate after any waiting; GitHub gates job approval.
-   */
-  async function verifyPromotion() {
-    assert.equal(
-      required('GITHUB_RUN_ATTEMPT'),
-      '1',
-      'Production retries require a new dispatch and approval.',
-    );
-    const devProject = await api(
-      'vercel',
-      `/v9/projects/${encodeURIComponent(devProjectId)}`,
-    );
-    assert.equal(devProject.id, devProjectId);
-    const devOrigin = applicationOrigin(required('DEV_ORIGIN'));
-    const devConfiguration = configurationDigest(devProject, {
-      target: 'dev',
-      origin: devOrigin,
-      epoch: required('DEV_CONFIG_ID'),
-    });
-    const candidateId = required('DEV_DEPLOYMENT_ID');
-    assert.match(candidateId, /^dpl_[a-zA-Z0-9]+$/);
-    const deployment = await api('vercel', `/v13/deployments/${candidateId}`);
-    assertDevCandidate(deployment, {
-      deployment: candidateId,
-      current: devProject.targets?.production?.id,
-      project: devProjectId,
-      source,
-      version,
-      configuration: devConfiguration,
-    });
-    const acceptance = new URL(required('DEV_ACCEPTANCE_REFERENCE'));
-    assert.equal(acceptance.protocol, 'https:');
-    const devIdentity = {
-      source,
-      version,
-      target: 'dev',
-      configuration: devConfiguration,
-      run: deployment.meta.portfolioRun,
-    };
-    await smoke(devOrigin, devIdentity, env.DEV_SMOKE_BYPASS);
-    record('Dev candidate revalidated (human acceptance must be reviewed)', {
-      deployment: candidateId,
-      ...devIdentity,
-      acceptance: acceptance.href,
-    });
-  }
-
-  if (target === 'production') await verifyPromotion();
+  // Native approval is the owner's review of dev identity, acceptance and recovery.
+  // No dev credential is exposed to production and no custom promotion manifest is used.
   // Own generated output only; repository source/configuration is never uploaded.
   mkdirSync('.vercel/output', { recursive: true });
   cpSync('candidate/dist', '.vercel/output/static', { recursive: true });
@@ -282,7 +247,6 @@ export async function deliver() {
     configuration,
     'Target configuration drifted.',
   );
-  if (target === 'production') await verifyPromotion();
   const previous = project.targets?.production?.id ?? null;
   record('Before target mutation — retain for recovery', {
     project: projectId,
