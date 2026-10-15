@@ -99,12 +99,75 @@ content or metadata is available to crawlers/link-preview clients that do not
 execute JavaScript. Verify actual behavior before making indexing/preview claims;
 pre-rendering is not an implied remedy or release requirement.
 
-Governance, provider provisioning and dev/staging/production releases are
-separate authorized operations. No competing automatic release paths or ungated
-production-on-push. Promote exact reviewed commits, retain prior deployment
-identity, and verify recovery without mutating persistent production data.
+Approved topology (2026-10-14): local → shared dev → manually approved production,
+with isolated Vercel dev and production projects. Removing staging and completing
+these foundations is the user's main priority, ahead of unrelated feature work.
+Governance, provider provisioning and releases are separate authorized operations.
+Protected-main merges deploy dev after existing quality checks. Manual dev
+redeployment and production workflows run from main with an exact merged source
+revision and rerun existing checks against it; never substitute latest main.
+Production selects the same source accepted in dev, using native explicit approval,
+self-review allowed and administrator bypass disabled. Keep production disabled if
+enforcement is unavailable pending an explicitly approved alternative. Disable
+competing Vercel Git auto-deployment; serialize each target without cancelling an
+active mutation and reject superseded automatic dev runs before mutation.
+
+Record dev candidate source/version/provider identity and relevant configuration;
+recheck them after acceptance and before promotion. If a deployment or configuration
+change interrupts validation, repeat affected acceptance on the selected candidate.
+Evidence is reviewed manually; a source input alone does not prove dev acceptance.
+Move candidate walkthrough and applicable application rollback rehearsal to dev;
+retain prior deployment identity and verify recovery without mutating persistent
+production data. Restore and revalidate the selected dev candidate after rehearsal.
+Production smoke checks remain read-only. Operational hosting of the foundation
+shell is not acceptance of the completed portfolio or permission for public launch.
+
+Remove staging from active delivery targets and instructions. Inventory any existing
+resource/credential consumers, triggers and recovery evidence before separately
+authorized retirement. Preserve historical evidence; do not automatically delete
+resources or revoke shared credentials.
 Actual protections must use functioning CI names and an agreed review/bypass
 policy. Missing protection/environment evidence blocks release readiness.
+
+### Delivery-foundation acceptance
+
+Before implementing remote delivery, confirm provider/account support for the
+required approval and isolation controls, target identities, dev access/indexing
+policy, production domain/access policy and the main review/bypass policy. Missing
+decisions block the affected operation, not local requirements work. Do not record
+credentials in source or treat requirements approval as provisioning permission.
+
+The delivery implementation must provide testable evidence that:
+
+- Automatic dev delivery follows successful existing checks for the exact merged
+  source. Manual source inputs reject revisions not reachable from main; checks
+  run against the selected source, not merely the workflow revision.
+- Missing target configuration, missing approval or mismatched candidate evidence
+  prevents the affected deployment. Concurrent target mutations are serialized;
+  superseded automatic dev candidates cannot overwrite a newer candidate.
+- Each target reports source revision and application version, and records its
+  provider deployment identity and relevant configuration identity. Production
+  approval refers to the exact candidate accepted in dev; target-specific builds
+  do not imply identical artifacts or configuration.
+- Hosted direct routes, unknown-route recovery and missing-asset behavior satisfy
+  the SPA contract. Dev walkthrough and applicable read-only smoke checks verify
+  the selected deployment rather than only a local preview.
+- Recovery instructions identify the previous deployment and candidate, describe
+  application rollback and revalidation, and explicitly handle first deployment
+  when no previous deployment exists. Never invent recovery evidence or claim a
+  rollback rehearsal passed without an eligible previous deployment.
+
+Local implementation/checks and read-only review precede separately authorized
+remote configuration and deployment. Operational acceptance requires actual dev
+and production evidence; local tests alone cannot complete it. Stop this
+requirements slice after consistency checks and read-only review, before delivery
+implementation, publication, provisioning or deployment.
+
+The subsequent local delivery-implementation slice is authorized separately. It
+adds disabled-by-default workflows, exact-source/configuration guards, static
+hosting output, read-only smoke hooks, negative regression tests and delivery/
+recovery instructions. Its checkpoint is local checks and read-only review, not
+remote enablement or operational acceptance. See [delivery runbook](../docs/delivery.md).
 
 ## Foundation implementation contract (0.1.0)
 
@@ -133,7 +196,8 @@ retained; no second JSX linter is requested. Do not claim equivalent static JSX
 accessibility coverage. Verify keyboard/semantic foundation behavior in browser
 tests; future feature slices require appropriate broader accessibility checks.
 
-CI runs checks only; it does not deploy. Dependabot proposes npm and GitHub
+The current source foundation's CI runs checks only; delivery workflows belong to
+the separately authorized delivery implementation above. Dependabot proposes npm and GitHub
 Actions updates without auto-merge. README and contribution guidance explain
 setup, checks, generated artifacts and approval boundaries. Secrets, caches,
 generated builds, test reports and private operational files stay out of Git.
@@ -158,10 +222,10 @@ is still separately authorized; do not open a PR against a nonexistent base.
 
 Visual prototype, numeric asset/loading/render budgets and measurement devices;
 final media/licenses/profile/contact/resume and Apollo disclosure; sanitized
-workflow example; bootstrap publication authorization and governance review/bypass
-policy; Vercel
+workflow example; governance review/bypass policy; Vercel
 account capabilities, isolated target identities/access/indexing policy,
-release triggers/gates, domains and recovery acceptance. Ask before implementing
+domains and recovery acceptance. The dev/production triggers and gates above are
+approved requirements, not evidence of enforcement. Ask before implementing
 these forks. Do not invent priorities, deadlines, numeric guarantees or live
 environment readiness.
 

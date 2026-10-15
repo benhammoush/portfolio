@@ -53,7 +53,10 @@ tests do not replace the author's manual localhost acceptance.
   `package.json` and both root `package-lock.json` entries. Update all deliberately.
 - `tests`: isolated unit/component/documentation/version and production-browser
   checks. Synthetic fixtures are not public project claims.
-- `.github`: checks-only CI and dependency-update proposals; no deployment.
+- `.github`: foundation quality CI, dependency-update proposals and disabled-by-default
+  dev/production delivery workflows.
+- `scripts/delivery*.mjs`, `docs/delivery.md`: fail-closed delivery guards, hosting
+  output, HTTP smoke hooks and configuration/promotion/recovery instructions.
 
 Generated `dist`, type caches, browser reports and dependencies are ignored.
 Legacy ignored `.next`/`next-env.d.ts` output may remain locally after migration;
@@ -69,9 +72,9 @@ and reduced-motion alternatives in later work are still browser-rendered.
 Local preview demonstrates direct SPA entry and a client not-found view. Its
 fallback can return HTTP 200 for an unknown app route; that is separate from the
 not-found UI. A local-preview hook rejects missing `/assets/` and file-like URL
-requests instead of returning the HTML shell. Static production hosting must provide direct-route fallback without
-rewriting missing assets to HTML. That deployment contract/configuration belongs
-to PR 2, not this local foundation. Client-managed route metadata is not guaranteed
+requests instead of returning the HTML shell. The delivery implementation generates
+filesystem-first Vercel hosting output with asset errors and SPA fallback; actual
+hosted behavior still needs deployed verification. Client-managed route metadata is not guaranteed
 for crawlers/link-preview clients that do not run JavaScript.
 
 ## Compatibility and boundaries
@@ -98,10 +101,19 @@ CI's check is **Foundation quality**. Source configuration does not prove that
 this check has run remotely or that main protection is enforced. The bootstrap
 procedure establishes the reviewed foundation as initial main after remediation
 and verification; later publication and governance review/bypass policy require
-their applicable authorization. No dev/staging/production target is provisioned or certified by
-these files. Later delivery work owns isolated exact-revision release and recovery.
+their applicable authorization. No dev/production target is provisioned or certified by
+these files. Local delivery tooling owns isolated exact-revision release and recovery
+contracts, not evidence that remote controls work.
+
+The approved delivery topology is local → shared dev → manually approved production,
+using isolated Vercel projects and no active staging target. This is a requirement,
+not a claim that hosting or approval controls exist. See the
+[delivery requirements and acceptance checkpoint](spec/portfolio.md#delivery-foundation-acceptance)
+and the [delivery runbook](docs/delivery.md). `DELIVERY_ENABLED` must remain unset
+until separately authorized remote setup and readiness review; no workflow was
+enabled or deployment performed by adding these files.
 
 Local implementation does not authorize Git publication, remote settings, provider
-provisioning, deployment or production-data mutation. No merge, auto-merge or
-deployment is configured. Never commit secrets, private source, raw conversations,
+provisioning, deployment or production-data mutation. No merge or auto-merge is
+configured; the added delivery path is disabled by default. Never commit secrets, private source, raw conversations,
 private planning exports or central operational memory. See [CONTRIBUTING.md](CONTRIBUTING.md).

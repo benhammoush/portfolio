@@ -1,0 +1,92 @@
+name: Dev and production delivery
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Delivery target (production requires native environment approval)
+        type: choice
+        options: [dev, production]
+        required: true
+      source:
+        description: Exact merged 40-character source SHA; never a branch or tag
+        type: string
+        required: true
+      dev_deployment:
+        description: Production only — accepted current dev dpl_ identity
+        type: string
+      dev_acceptance:
+        description: Production only — HTTPS evidence record for walkthrough/recovery acceptance
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: portfolio-delivery-${{ inputs.target || 'dev' }}
+  cancel-in-progress: false
+
+jobs:
+  deliver:
+    if: github.ref == 'refs/heads/main' && vars.DELIVERY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment: ${{ inputs.target || 'dev' }}
+    # Shared dev must not move while production revalidates/promotes its candidate.
+    # Every future recovery workflow must use this same lock too.
+    concurrency:
+      group: portfolio-delivery-mutation
+      cancel-in-progress: false
+    steps:
+      - name: Checkout trusted delivery tooling
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Reject unmerged source before any candidate code executes
+        env:
+          SELECTED_SOURCE: ${{ inputs.source || github.sha }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/check-delivery-source.mjs
+      - name: Checkout exact candidate
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ inputs.source || github.sha }}
+          path: candidate
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: candidate/.nvmrc
+          cache: npm
+          cache-dependency-path: candidate/package-lock.json
+      - name: Pin npm
+        run: npm install --global npm@11.19.0
+      - name: Reproduce and check selected source without deployment secrets
+        working-directory: candidate
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          npm run audit:dependencies
+          npm run check
+      - name: Guard, deploy prebuilt static output and read-only smoke
+        env:
+          DELIVERY_ENABLED: ${{ vars.DELIVERY_ENABLED }}
+          DELIVERY_TARGET: ${{ inputs.target || 'dev' }}
+          SOURCE_SHA: ${{ inputs.source || github.sha }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          DEV_PROJECT_ID: ${{ vars.DEV_PROJECT_ID }}
+          PRODUCTION_PROJECT_ID: ${{ vars.PRODUCTION_PROJECT_ID }}
+          TARGET_ORIGIN: ${{ vars.TARGET_ORIGIN }}
+          DEV_ORIGIN: ${{ vars.DEV_ORIGIN }}
+          DELIVERY_CONFIG_ID: ${{ vars.DELIVERY_CONFIG_ID }}
+          DEV_CONFIG_ID: ${{ vars.DEV_CONFIG_ID }}
+          READINESS_REFERENCE: ${{ vars.READINESS_REFERENCE }}
+          DEV_DEPLOYMENT_ID: ${{ inputs.dev_deployment }}
+          DEV_ACCEPTANCE_REFERENCE: ${{ inputs.dev_acceptance }}
+          POLICY_READ_TOKEN: ${{ secrets.POLICY_READ_TOKEN }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          SMOKE_BYPASS: ${{ secrets.SMOKE_BYPASS }}
+          DEV_SMOKE_BYPASS: ${{ secrets.DEV_SMOKE_BYPASS }}
+        run: node scripts/delivery.mjs
