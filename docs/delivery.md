@@ -47,7 +47,7 @@ contract. Credentials must never enter Git, release metadata or evidence records
   the environment job starts; the approver must inspect the exact run inputs and
   acceptance record. Rejected runs must not be bypassed or retried as dev.
 - Per-target workflow concurrency and one shared `portfolio-delivery-mutation`
-  job lock serialize deployment jobs, including production revalidation of dev.
+  job lock serialize deployment jobs. Dev acceptance is reviewed manually.
   Active runs are not cancelled by newer runs. GitHub may replace pending runs;
   this is not a FIFO delivery queue. Immediately before mutation, automatic dev
   runs reject a source superseded by current main. A main update after that read
@@ -113,13 +113,19 @@ Each GitHub environment, `dev` and `production`, additionally provides:
 
 Environment secrets:
 
-- `VERCEL_TOKEN`: approved scoped provider credential. The production step also
-  needs read access to dev for candidate verification. Verify actual provider
-  token scope; separate project IDs do not prove least privilege. Prefer separate
-  environment credentials and confirm supported account-level access controls.
+- `VERCEL_TOKEN`: a separate project-scoped provider credential for each target.
+  Dev's token is restricted to the dev project; production's token is restricted
+  to the production project. Do not use team-wide or full-account tokens.
+  Password-manager labels use `<project>-<environment>-<provider>-<purpose>`,
+  for example `portfolio-production-vercel-deploy`; GitHub keeps `VERCEL_TOKEN`.
+- Production receives no dev-verification token. The owner verifies the accepted
+  dev candidate and recovery manually before native approval. Vercel project-scoped
+  tokens grant project read/write access, not read-only authorization. Verify scopes
+  and expiry without recording values; remove obsolete credentials only after
+  separately authorized consumer inventory and cleanup.
 - `SMOKE_BYPASS`: optional approved Vercel automation access secret for this
-  target. `DEV_SMOKE_BYPASS` in production permits read-only dev verification when
-  needed. Requests do not follow redirects or put bypass credentials in URLs.
+  target only. Production does not receive a dev access credential.
+  Requests do not follow redirects or put bypass credentials in URLs.
   These are deployment-access credentials, never approval bypasses. Their
   existence/use requires authorization; the workflow does not generate them.
 
@@ -155,15 +161,16 @@ evidence; fingerprints are not proof of human approval.
    dev deployment identity, walkthrough, smoke and recovery results/limitations,
    acceptance decision and reviewer. Do not publish private screenshots or raw
    operational exports in this public repository. A URL alone proves none of this.
-5. Dispatch production from main with `source`, `dev_deployment` and `dev_acceptance`.
+5. Dispatch production from main with the exact dev-accepted `sha`.
    The native approver must review the record's actual contents and current dev
    identity. Reject incomplete/mismatched acceptance; the workflow cannot determine
    whether an arbitrary evidence record is truthful or approved.
-6. After approval and all selected-source checks, the script verifies dev still
-   points to that deployment, reads provider source/version/configuration metadata
-   and hosted `release.json`, then rereads immediately before production mutation.
-   Target-specific hosting identity differs; same source is not a promise of the
-   same deployment ID or byte-identical target artifacts.
+6. Immediately before native approval, the owner rechecks the current dev deployment,
+   source/version/configuration, acceptance and recovery records. Any intervening
+   deployment/configuration change requires affected acceptance again. The script
+   does not query dev, validate a custom promotion manifest or prove acceptance.
+   It retains source ancestry/freshness and selected-target safety checks.
+   Target-specific builds need not have the same deployment ID or bytes.
 7. Retain the sanitized run-summary checkpoints **before** and after mutation.
    They include prior identity even when creation/smoke fails. Confirm hosted
    browser/version behavior with read-only production acceptance. HTTP smoke passes

@@ -3,6 +3,7 @@
  * @file
  */
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
 import {
   applicationOrigin,
   assertCurrentSource,
@@ -49,6 +50,15 @@ const deployment = {
     portfolioConfig: 'digest',
   },
 };
+
+it('wires only the target deployment credential without enabling delivery', () => {
+  const workflow = readFileSync('.github/workflows/delivery.yml', 'utf8');
+  expect(workflow).toContain('VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}');
+  expect(workflow).not.toContain('DEV_VERCEL_TOKEN');
+  expect(workflow).not.toContain('DEV_SMOKE_BYPASS');
+  expect(workflow).toContain('inputs.sha || github.sha');
+  expect(workflow).toContain("vars.DELIVERY_ENABLED == 'true'");
+});
 
 describe('immutable source and safe application origin', () => {
   it('accepts only complete immutable revisions', () => {

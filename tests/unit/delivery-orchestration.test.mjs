@@ -43,6 +43,11 @@ async function response(input, options) {
     else if (url.pathname.endsWith('/git/ref/heads/main'))
       body = { object: { sha: state.main } };
   } else if (url.hostname === 'api.vercel.com') {
+    expect(options.headers.Authorization).toBe('Bearer test-vercel');
+    if (process.env.DELIVERY_TARGET === 'production') {
+      expect(url.pathname).not.toContain('prj_dev');
+      expect(url.pathname).not.toContain('dpl_accepted');
+    }
     if (url.pathname === '/v9/projects/prj_dev') body = state.devProject;
     else if (url.pathname === '/v9/projects/prj_prod') body = state.prodProject;
     else if (url.pathname === '/v13/deployments/dpl_accepted')
@@ -159,9 +164,11 @@ beforeEach(() => {
       },
     },
   };
-  mocks.exec.mockImplementation((command) => {
+  mocks.exec.mockImplementation((command, args) => {
     if (command === 'git') return source;
     expect(command).toBe('npm');
+    expect(args[args.indexOf('--token') + 1]).toBe('test-vercel');
+    expect(args).not.toContain('test-dev-verification');
     expect(mocks.summary).toHaveBeenCalled();
     const targetProject =
       process.env.DELIVERY_TARGET === 'dev'
@@ -249,22 +256,13 @@ it.each([
   },
 );
 
-it('fails closed when dev acceptance drifted', async () => {
-  selectProduction();
-  state.devProject.targets.production.id = 'dpl_drift';
-  await expect(deliver()).rejects.toThrow('no longer serves');
-  expect(
-    mocks.exec.mock.calls.filter(([command]) => command === 'npm'),
-  ).toHaveLength(0);
-});
-
-it('revalidates accepted dev identity using built-in GitHub authentication without administration endpoints', async () => {
+it('production uses only its target token; dev acceptance is reviewed by the native approver', async () => {
   selectProduction();
   await deliver();
   const candidateReads = fetch.mock.calls.filter(([url]) =>
     new URL(url).pathname.endsWith('/deployments/dpl_accepted'),
   );
-  expect(candidateReads).toHaveLength(2);
+  expect(candidateReads).toHaveLength(0);
   expect(
     mocks.summary.mock.calls.some(([, text]) => text.includes('dpl_prior')),
   ).toBe(true);
@@ -278,6 +276,29 @@ it('rejects missing built-in GitHub authentication before mutation', async () =>
   await expect(deliver()).rejects.toThrow('Missing GITHUB_TOKEN');
   expect(fetch).not.toHaveBeenCalled();
   expect(mocks.exec).not.toHaveBeenCalled();
+});
+
+it.each(['VERCEL_TOKEN'])(
+  'rejects missing production credential %s without fallback or network access',
+  async (name) => {
+    selectProduction();
+    vi.stubEnv(name, '');
+    await expect(deliver()).rejects.toThrow(`Missing ${name}`);
+    expect(fetch).not.toHaveBeenCalled();
+    expect(mocks.exec).not.toHaveBeenCalled();
+    expect(mocks.copy).not.toHaveBeenCalled();
+  },
+);
+
+it('rejects automatic production execution before network access', async () => {
+  selectProduction();
+  vi.stubEnv('GITHUB_EVENT_NAME', 'push');
+  await expect(deliver()).rejects.toThrow('manual dispatch');
+  expect(fetch).not.toHaveBeenCalled();
+  expect(mocks.copy).not.toHaveBeenCalled();
+  expect(
+    mocks.exec.mock.calls.filter(([command]) => command === 'npm'),
+  ).toHaveLength(0);
 });
 
 it('requires a new production dispatch instead of retrying the approved run', async () => {
