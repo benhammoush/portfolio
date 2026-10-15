@@ -150,6 +150,18 @@ export async function deliver() {
   );
   const origin = applicationOrigin(required('TARGET_ORIGIN'));
   const epoch = required('DELIVERY_CONFIG_ID');
+  if (target === 'dev') {
+    assert.equal(
+      origin,
+      applicationOrigin(required('DEV_ORIGIN')),
+      'Dev target origin must match the promotion origin.',
+    );
+    assert.equal(
+      epoch,
+      required('DEV_CONFIG_ID'),
+      'Dev configuration generation must match the promotion generation.',
+    );
+  }
   const governance = new URL(required('READINESS_REFERENCE'));
   assert.equal(governance.protocol, 'https:');
   const comparison = await api(

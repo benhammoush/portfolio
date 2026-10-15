@@ -255,6 +255,22 @@ it('does not mutate on disabled delivery, non-main execution, unmerged or supers
   ).toHaveLength(0);
 });
 
+it.each([
+  ['DEV_ORIGIN', 'https://other.example.com'],
+  ['DEV_ORIGIN', ''],
+  ['DEV_CONFIG_ID', 'config-2'],
+  ['DEV_CONFIG_ID', ''],
+])(
+  'rejects inconsistent or missing dev promotion configuration: %s=%s',
+  async (name, value) => {
+    vi.stubEnv(name, value);
+    await expect(deliver()).rejects.toThrow();
+    expect(fetch).not.toHaveBeenCalled();
+    expect(mocks.exec).not.toHaveBeenCalled();
+    expect(mocks.copy).not.toHaveBeenCalled();
+  },
+);
+
 it('fails closed when production policy is unavailable or dev acceptance drifted', async () => {
   selectProduction();
   state.approval = {};
