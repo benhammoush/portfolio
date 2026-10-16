@@ -67,6 +67,13 @@ contract. Credentials must never enter Git, release metadata or evidence records
 
 ## Separately authorized configuration checklist
 
+Current owner decisions (2026-10-16): both foundation targets may be publicly
+reachable with `noindex, nofollow`; this is not authorization for public launch.
+First-production recovery policy is accepted as described below; production
+execution remains deferred. These decisions do not authorize publication,
+deployment or enablement; keep `DELIVERY_ENABLED` false until readiness is accepted
+and enablement is separately authorized.
+
 Before remote enablement, obtain decisions/evidence for:
 
 1. Vercel account, two distinct owned project IDs, target domains and access policy.
@@ -183,7 +190,8 @@ The workflow intentionally does not contain destructive cleanup, resource deleti
 credential revocation or production-data mutation.
 
 Before any deployment, retain the last known-good provider deployment ID, source,
-version, target/configuration generation and evidence. Export accepted run-summary
+version, target/configuration generation and evidence when a prior deployment exists;
+otherwise explicitly record that none exists. Export accepted run-summary
 identities to the approved durable operational record before workflow retention
 expires. A failed/timeout run may already have changed hosting: inspect provider
 state and alias pointers before retrying. Never infer failure means no mutation.
@@ -213,7 +221,32 @@ native approvals. Choose the supported provider operation only after current
 capabilities/eligibility are verified; these files do not certify one.
 
 On the first deployment, `previous: null` means **no rollback candidate exists**.
-Do not invent an ID or report rehearsal success. Record the limitation and agree
-first-deployment recovery acceptance before an operational release; if a previous
-deployment is required by that acceptance, stop until one is eligible. A second dev
-candidate can establish a real rehearsal path without claiming the first had one.
+Do not invent an ID or report rehearsal success. A second dev candidate can
+establish a real rehearsal path without claiming the first had one.
+
+### Accepted first-production recovery policy (2026-10-16)
+
+The owner accepts the absence of a previous production deployment for the first
+production release, under these safeguards:
+
+1. Before first production, complete dev acceptance and a real application rollback
+   rehearsal using an eligible previous dev deployment. Restore the selected dev
+   candidate and repeat affected acceptance before promotion.
+2. If first production fails or times out, stop. Inspect actual deployment state
+   and domain/alias pointers; failure does not prove that hosting was unchanged.
+   Retain the available identity/checkpoint evidence and diagnose before recovery.
+3. With separate recovery authorization, start a **new** production dispatch from
+   main selecting an exact merged, dev-accepted revision. Recheck dev acceptance,
+   configuration and recovery evidence and obtain fresh native production approval.
+   Changed source or configuration requires affected dev acceptance again. Do not
+   rerun the failed production run, bypass approval, blindly retry, or mutate
+   production data. Recovery remains blocked if no eligible dev-accepted revision
+   is available.
+4. Once production is accepted, retain its provider deployment ID, source/version,
+   configuration and acceptance evidence as the rollback candidate for later
+   releases. Recheck availability and compatibility before any later rollback;
+   retention alone does not establish future eligibility.
+
+This resolves the initial recovery-policy decision only. It does not claim a dev
+rehearsal or production deployment has occurred and does not authorize publication,
+enablement, deployment or recovery execution.
