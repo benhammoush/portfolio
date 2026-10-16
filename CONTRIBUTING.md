@@ -43,7 +43,8 @@ production promotion. See [delivery acceptance](spec/portfolio.md#delivery-found
 and the [configuration/recovery runbook](docs/delivery.md). Remote enablement,
 configuration, publication and deployment require separate authorization.
 Future production release requires accepted exact-revision dev evidence, actual required
-checks/protections, explicit approval and verified previous-deployment recovery.
+checks/protections, explicit approval and the accepted first-production recovery
+policy or applicable verified previous-deployment recovery. See the delivery runbook.
 
 ## Browser rendering and lint coverage
 

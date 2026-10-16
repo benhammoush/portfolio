@@ -173,6 +173,17 @@ The delivery implementation must provide testable evidence that:
   when no previous deployment exists. Never invent recovery evidence or claim a
   rollback rehearsal passed without an eligible previous deployment.
 
+First-production recovery policy approved 2026-10-16: complete dev acceptance and
+a real dev application rollback rehearsal, then restore and revalidate the selected
+candidate before first production. The owner accepts that no prior production
+deployment exists to restore. On failure, stop and inspect actual provider state;
+recovery requires separate authorization, a new production dispatch selecting an
+exact dev-accepted revision, and fresh native approval. No blind retries, approval
+bypasses or production-data changes are allowed. Retain the first accepted
+production deployment as a rollback candidate for later releases, subject to the
+same eligibility/configuration checks. Policy acceptance alone does not authorize
+publication, enablement or deployment.
+
 Local implementation/checks and read-only review precede separately authorized
 remote configuration and deployment. Operational acceptance requires actual dev
 and production evidence; local tests alone cannot complete it. Stop this
