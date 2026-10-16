@@ -56,6 +56,7 @@ it('wires only the target deployment credential without enabling delivery', () =
   expect(workflow).toContain('VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}');
   expect(workflow).not.toContain('DEV_VERCEL_TOKEN');
   expect(workflow).not.toContain('DEV_SMOKE_BYPASS');
+  expect(workflow).not.toContain('READINESS_REFERENCE');
   expect(workflow).toContain('inputs.sha || github.sha');
   expect(workflow).toContain("vars.DELIVERY_ENABLED == 'true'");
 });

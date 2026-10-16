@@ -173,8 +173,6 @@ export async function deliver() {
       'Dev configuration generation must match the promotion generation.',
     );
   }
-  const governance = new URL(required('READINESS_REFERENCE'));
-  assert.equal(governance.protocol, 'https:');
   const comparison = await api(
     'github',
     `${repoPath}/compare/${source}...main`,
@@ -253,7 +251,6 @@ export async function deliver() {
     origin,
     previous,
     ...identity,
-    readiness: governance.href,
   });
   // Pinned CLI; no latest tool resolution, project linking, remote build or source upload.
   const output = execFileSync(

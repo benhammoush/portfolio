@@ -89,8 +89,9 @@ Before remote enablement, obtain decisions/evidence for:
    deploy hooks, and authorize credential/project setup separately. Do not disable
    unrelated consumers. Protect environment variables and credentials against PR
    access; environment deployment branches must restrict execution to main.
-5. A durable HTTPS readiness record containing these decisions and dated checks.
-   Set `READINESS_REFERENCE` only to that accepted record, never an invented URL.
+5. Retain these decisions and dated setup checks for the owner's readiness review.
+   No dedicated readiness URL or environment variable is required by the controller;
+   operator verification and authorization remain prerequisites to enablement.
 
 Repository variables (nonsecret):
 
@@ -103,13 +104,12 @@ Repository variables (nonsecret):
 
 Each GitHub environment, `dev` and `production`, additionally provides:
 
-| Name                  | Meaning                                                           |
-| --------------------- | ----------------------------------------------------------------- |
-| `VERCEL_ORG_ID`       | Confirmed provider `team_` identity                               |
-| `VERCEL_PROJECT_ID`   | This environment's exact project, matching repository identity    |
-| `TARGET_ORIGIN`       | Approved HTTPS origin, no path/query/credentials                  |
-| `DELIVERY_CONFIG_ID`  | Reviewed configuration generation; dev must equal `DEV_CONFIG_ID` |
-| `READINESS_REFERENCE` | Accepted HTTPS governance/configuration evidence record           |
+| Name                 | Meaning                                                           |
+| -------------------- | ----------------------------------------------------------------- |
+| `VERCEL_ORG_ID`      | Confirmed provider `team_` identity                               |
+| `VERCEL_PROJECT_ID`  | This environment's exact project, matching repository identity    |
+| `TARGET_ORIGIN`      | Approved HTTPS origin, no path/query/credentials                  |
+| `DELIVERY_CONFIG_ID` | Reviewed configuration generation; dev must equal `DEV_CONFIG_ID` |
 
 Environment secrets:
 

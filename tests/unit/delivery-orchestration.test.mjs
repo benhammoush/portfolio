@@ -114,7 +114,6 @@ beforeEach(() => {
     DELIVERY_CONFIG_ID: 'config-1',
     DEV_CONFIG_ID: 'config-1',
     DEV_ORIGIN: 'https://dev.example.com',
-    READINESS_REFERENCE: 'https://example.com/readiness',
     GITHUB_TOKEN: 'test-github',
     VERCEL_TOKEN: 'test-vercel',
     GITHUB_RUN_ID: '12',
@@ -205,6 +204,7 @@ function selectProduction() {
 }
 
 it('records prior identity before exactly one dev mutation and completes read-only smoke', async () => {
+  vi.stubEnv('READINESS_REFERENCE', '');
   await deliver();
   const mutations = mocks.exec.mock.calls.filter(
     ([command]) => command === 'npm',
@@ -217,6 +217,7 @@ it('records prior identity before exactly one dev mutation and completes read-on
     { recursive: true },
   );
   expect(mocks.summary.mock.calls[0][1]).toContain('dpl_accepted');
+  expect(mocks.summary.mock.calls[0][1]).not.toContain('readiness');
   expect(mocks.summary.mock.calls.at(-1)[1]).toContain('HTTP smoke passed');
 });
 
@@ -257,6 +258,7 @@ it.each([
 );
 
 it('production uses only its target token; dev acceptance is reviewed by the native approver', async () => {
+  vi.stubEnv('READINESS_REFERENCE', '');
   selectProduction();
   await deliver();
   const candidateReads = fetch.mock.calls.filter(([url]) =>
