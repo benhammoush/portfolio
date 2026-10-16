@@ -78,7 +78,6 @@ jobs:
           DEV_ORIGIN: ${{ vars.DEV_ORIGIN }}
           DELIVERY_CONFIG_ID: ${{ vars.DELIVERY_CONFIG_ID }}
           DEV_CONFIG_ID: ${{ vars.DEV_CONFIG_ID }}
-          READINESS_REFERENCE: ${{ vars.READINESS_REFERENCE }}
           GITHUB_TOKEN: ${{ github.token }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           SMOKE_BYPASS: ${{ secrets.SMOKE_BYPASS }}
