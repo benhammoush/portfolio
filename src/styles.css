@@ -1,17 +1,233 @@
-/* Foundation legibility; the approved design system belongs to a later slice. */
+/* Motion-free profile tokens and layouts; no remote fonts or world dependencies. */
+:root {
+  --ink: #202b33;
+  --muted: #52616b;
+  --accent: #17574e;
+  --surface: #f3f5f4;
+  --line: #dce2df;
+  --radius: 1.25rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 html {
   color-scheme: light;
   font-family: system-ui, sans-serif;
+  line-height: 1.6;
+  color: var(--ink);
 }
 
 body {
   margin: 0;
-  color: #202124;
-  background: #fff;
+  background: #fcfcfa;
 }
 
-main {
+a {
+  color: var(--accent);
+  text-underline-offset: 0.25em;
+}
+a:hover {
+  text-decoration-thickness: 0.15em;
+}
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 5px;
+}
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+h1,
+h2,
+h3 {
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+}
+h1 {
+  font-size: clamp(2.8rem, 7vw, 5.75rem);
+  max-width: 13ch;
+  margin-bottom: 1rem;
+}
+h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin-bottom: 1.5rem;
+}
+h3 {
+  font-size: 1.4rem;
+}
+.container {
+  width: min(100% - 3rem, 72rem);
+  margin-inline: auto;
+}
+main:not(.container) {
   max-width: 48rem;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 2rem 1.5rem;
+}
+.skip-link {
+  position: absolute;
+  top: 0.75rem;
+  left: 1rem;
+  padding: 0.75rem 1rem;
+  background: white;
+  z-index: 1;
+  transform: translateY(-200%);
+}
+.skip-link:focus {
+  transform: translateY(0);
+}
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 1.75rem;
+  border-bottom: 1px solid var(--line);
+}
+.wordmark {
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: none;
+}
+.wordmark span {
+  color: var(--accent);
+}
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.5rem;
+}
+nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.hero {
+  padding-block: clamp(4rem, 10vw, 8rem);
+  max-width: 56rem;
+}
+.eyebrow {
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+.hero-headline {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  letter-spacing: -0.03em;
+  margin-bottom: 1.25rem;
+}
+.intro {
+  color: var(--muted);
+  font-size: 1.2rem;
+  max-width: 38rem;
+}
+.actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
+  margin-top: 2.5rem;
+}
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.9rem 1.3rem;
+  background: var(--accent);
+  color: white;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  font-weight: 600;
+}
+.button:hover {
+  text-decoration: underline;
+}
+.text-link {
+  padding-block: 0.75rem;
+}
+section[id] {
+  scroll-margin-top: 2rem;
+}
+.section-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  border-top: 1px solid var(--line);
+  padding-block: 4rem;
+}
+.section-copy {
+  font-size: 1.1rem;
+}
+.muted {
+  color: var(--muted);
+}
+.expertise-section {
+  padding-block: 3rem 5rem;
+}
+.capability-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+.card {
+  border: 1px solid var(--line);
+  background: white;
+  padding: 1.75rem;
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px #202b3306;
+}
+.card p {
+  color: var(--muted);
+}
+.card .card-detail {
+  color: var(--accent);
+  font-size: 0.85rem;
+  margin-bottom: 0;
+}
+.contact-section {
+  padding: clamp(1.5rem, 5vw, 4rem);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.contact-link {
+  display: inline-block;
+  font-size: clamp(1rem, 2.5vw, 1.5rem);
+  overflow-wrap: anywhere;
+  padding-block: 0.5rem;
+}
+.site-footer {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 2rem;
+  padding-block: 2.5rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.site-footer p {
+  margin: 0;
+}
+
+@media (max-width: 48rem) {
+  .site-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .section-grid,
+  .capability-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .section-grid {
+    padding-block: 3rem;
+  }
 }

@@ -36,8 +36,12 @@ traceable and recoverable delivery.
   missing assets must not be rewritten to the HTML shell. Unknown application
   routes show a client-rendered not-found/recovery view; do not assume its HTTP
   status is 404 under an SPA fallback.
-- Homepage chapter order: introduction, Iris, 0x, Dripperz, Apollo, AI/FSE,
-  contact. A shared chapter configuration connects HTML IDs and world poses.
+- Homepage chapter order: introduction, engineering workflow, Apollo, Iris,
+  Crypto gateway, contact. The owner explicitly removed the duplicate Apollo entry.
+  A shared chapter configuration connects HTML IDs and world poses. Section content
+  and composition are proposed in the [storyboard](../docs/section-storyboard.md)
+  before choosing 3D objects/animation. This order does not accept the rejected Iris
+  object or silently cancel separately specified case studies outside the homepage.
 - Mobile, keyboard, focus/skip navigation, reduced motion, static/loading/error,
   unsupported WebGL and context-loss fallbacks are first-class. Reduced motion
   avoids camera travel. Rendering pauses when appropriate; resources and
@@ -56,6 +60,9 @@ records; validation is not proof that a claim is true.
   accessibility scope; no additional requirements for the Iris project.
 - 0x: Shopify cart through native SOL **Devnet** payment, verified settlement
   and exactly one demo order. Never claim mainnet or commercial certification.
+- Crypto gateway is the newly requested homepage chapter. Its final story must be
+  reconciled with active gateway contracts/evidence; do not transfer legacy 0x
+  Shopify, network, settlement/order or readiness claims to the current product.
 - Dripperz: distinguish historical work from the approved faithful local/3D
   showcase rebuild without Web3. Do not expand that project's scope.
 - Apollo: private source remains private. Narrative, public-safe diagrams and
@@ -245,7 +252,92 @@ The agreed bootstrap procedure is to publish the reviewed foundation as the
 initial main baseline, after tooling remediation and verification. Publication
 is still separately authorized; do not open a PR against a nonexistent base.
 
+## Accessible profile shell (0.2.0 local slice)
+
+The next authorized local slice adds a responsive, motion-free HTML profile shell
+and reusable visual tokens: white/soft-gray surfaces, dark text, restrained accents,
+native section links, a keyboard skip link, visible focus and real email contact.
+The owner supplied their CV for profile information: Guillaume Ammouche,
+Full-Stack Developer, React/TypeScript and Python/FastAPI, and the email destination
+used in the shell. Profile/skills copy is bounded to that supplied material. Do not
+publish the PDF, invent project outcomes or treat this as Apollo disclosure approval.
+The homepage exposes introduction, about, expertise and contact only; the complete
+chapter sequence, dedicated routes, case studies and world remain later work.
+No dead navigation or fake resume download is needed to represent those future slices.
+
+This feature candidate deliberately aligns package, lockfile and runtime at 0.2.0;
+the 0.1.0 foundation contract above describes the preceding foundation, not this
+candidate. Preserve noindex and the JavaScript-disabled notice. Check native anchor
+entry/reload/history, keyboard/focus, narrow layouts and reduced motion. Stop after
+local checks, read-only review and owner visual acceptance; no publication or
+deployment is authorized by this slice.
+
+## Local visual-direction checkpoint
+
+The local `/design` route presents the proposed hub/Iris architectural gallery as
+original static vector artwork, not live 3D. It is a review-only addition to the
+0.2.0 local candidate, not a launch route or another shipped version. See
+[art direction](../docs/design-direction.md). Stop for owner visual feedback before
+installing world dependencies or treating this proposal as the accepted prototype.
+Actual WebGL fallback/lifecycle behavior and measured performance remain unverified.
+
+## Hub + Iris local prototype (0.3.0)
+
+Owner visual direction acceptance permits the bounded real-3D hub/Iris prototype,
+not expansion to the completed world. The local `/world` route pairs native HTML
+chapter anchors with shared camera poses. Independently loaded React Three Fiber
+and Three.js render original procedural geometry, without external assets or data.
+Reduced-motion and narrow-viewport users receive the static illustrated alternative,
+without automatically loading the engine. An explicit stationary-3D option explains
+the fallback and permits real 3D without camera travel under those policies.
+Module/render failures and context loss preserve HTML
+and a still view; rendering is demand-driven and pauses offscreen/while hidden.
+
+The new optional-world feature deliberately aligns package/lock/runtime at 0.3.0.
+Renderer settings are provisional implementation choices, not accepted performance
+budgets. Collect preliminary local browser evidence and report its limitations;
+physical devices, budgets and full-world expansion remain future decisions.
+See [prototype checkpoint](../docs/world-prototype.md). Stop after local checks,
+read-only review and owner walkthrough; no publication or deployment is included.
+
+## Integrated page-composition revision
+
+Owner clarification supersedes the boxed viewport/split-column presentation:
+3D must be part of the page composition, not a window embedded beside content.
+Rebuild the local homepage as one viewport-sized world beneath native HTML sections,
+with reserved readable space and the same composition for static/error/mobile modes.
+Keep `/world` as a preview alias and the retained profile at `/about`. This remains
+the ongoing 0.3.0 prototype, not a new shipped release. The current Iris object was
+rejected; retaining it temporarily is for composition assessment only, not art acceptance.
+The complete world, final project art and measured budgets remain later checkpoints.
+Stop after local checks/review and owner visual feedback; no publication/deployment.
+
+## Approved introduction integration checkpoint
+
+The owner accepted Blender `review-06` as the introduction's visual baseline:
+rear three-quarter desk scene, black hoodie/joggers, black ergonomic chair,
+plant, green flask and both parallettes on the desk. The next authorized local
+slice derives a static web model and transparent poster, integrates them behind
+the introduction HTML with responsive framing, and verifies loading, model/engine
+failure, reduced-motion/mobile and context-loss fallbacks. No character animation,
+new scene art, final section-copy rollout, publication or deployment is included.
+
+Keep the old hub/Iris installation clearly provisional and separate from the
+introduction; the approved scene must not acquire its display platform. Preserve
+the existing native-scroll policy and stationary-3D opt-in, with no idle animation.
+The Blender procedural materials require a browser visual checkpoint rather than
+a claim of pixel-identical export. Remain within the ongoing 0.3.0 local prototype.
+
 ## Unresolved later decisions
+
+### Approved text-first section rollout
+
+The owner authorized adding the approved text sections ahead of their 3D scenes.
+Use `docs/approved-section-copy.md` without narrative rewrites: Introduction,
+Engineering workflow, Apollo, Iris, Crypto gateway and Dripperz. Place Dripperz
+after the gateway provisionally; Contact retains the earlier unfinalized copy.
+Add native section links and readable responsive HTML, without introducing media,
+live demos, wallet connections, extra disclosures or new scene art/animation.
 
 Visual prototype, numeric asset/loading/render budgets and measurement devices;
 final media/licenses/profile/contact/resume and Apollo disclosure; sanitized

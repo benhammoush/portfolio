@@ -1,17 +1,35 @@
 /**
- * Component coverage for the scaffold, not acceptance of the final portfolio UX.
+ * Profile-shell content and native navigation contracts, not final launch acceptance.
  * @packageDocumentation
  */
 import { render, screen } from '@testing-library/react';
 import { expect, test } from 'vitest';
-import FoundationPage from '../../src/FoundationPage';
+import HomePage from '../../src/HomePage';
 import { APP_VERSION } from '../../src/appVersion';
 
-test('shows foundation status and the runtime identity without project claims', () => {
-  render(<FoundationPage />);
+test('shows the approved identity, contact and native section links', () => {
+  render(<HomePage />);
   expect(
-    screen.getByRole('heading', { level: 1, name: 'Portfolio foundation' }),
+    screen.getByRole('heading', { level: 1, name: 'Guillaume Ammouche' }),
   ).toBeInTheDocument();
   expect(screen.getByTestId('app-version')).toHaveTextContent(APP_VERSION);
-  expect(screen.getByText(/are not implemented yet/)).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: /Get in touch/ })).toHaveAttribute(
+    'href',
+    'mailto:guillaumeammouche@protonmail.com',
+  );
+  for (const name of ['About', 'Expertise', 'Contact']) {
+    const link = screen.getByRole('link', { name });
+    const target = link.getAttribute('href');
+    expect(target).toBe(`#${name.toLowerCase()}`);
+    expect(document.querySelector(target!)).toBeInTheDocument();
+  }
+  expect(screen.getByRole('link', { name: 'Skip to content' })).toHaveAttribute(
+    'href',
+    '#main-content',
+  );
+  expect(screen.getByRole('main')).toHaveAttribute('id', 'main-content');
+  expect(screen.getByRole('main')).toHaveAttribute('tabindex', '-1');
+  expect(
+    screen.queryByRole('link', { name: /resume/i }),
+  ).not.toBeInTheDocument();
 });
