@@ -1,8 +1,24 @@
 # Portfolio
 
-Local source and quality foundation, version **0.1.0**. This is not the finished
-portfolio or a public launch. Designed pages, four case studies and a native-scroll
-3D world are future work. Product requirements: [spec/portfolio.md](spec/portfolio.md).
+First 3D model milestone, version **0.3.0**. This is not the finished portfolio or
+a public launch. Final project scenes, character animation and the completed
+connected world are future work. Product requirements: [spec/portfolio.md](spec/portfolio.md).
+The homepage now composes readable HTML through one full-viewport world, rather
+than placing a bordered canvas beside text. `/world` is an alias of this composition;
+`/about` retains the approved CV-based profile. No CV PDF or private project material
+is published. The original desk/character scene is the accepted introduction
+baseline; the older Iris object remains provisional and was not accepted.
+The [approved text](docs/approved-section-copy.md) is implemented in this order:
+Introduction → Engineering workflow → Apollo → Iris → Crypto gateway → Dripperz,
+followed by the still-provisional Contact section. Dripperz placement is provisional.
+See [model source, export and review boundaries](docs/intro-scene.md).
+The [evidence/frame plan](docs/section-frames.md) and [layout contact sheet](docs/section-frames.svg)
+select source-grounded content anchors before new objects or animation are chosen.
+Local visual direction is available at `/design`: an original static hub/Iris
+composition study, not live 3D or a finished case study. See
+[art direction and its visual checkpoint](docs/design-direction.md).
+Optional WebGL is independently loaded; static, loading and failure views share
+the same page composition. See [prototype behavior and measurement limits](docs/world-prototype.md).
 The foundation now uses **Vite + React + client-side React Router + ESLint 10**.
 Content is rendered in the browser; no SSR or build-time page pre-rendering.
 
@@ -17,8 +33,8 @@ npx playwright install chromium
 npm run dev
 ```
 
-Open <http://127.0.0.1:5173>. The shell shows foundation status and runtime version;
-there are no credentials, environment variables, remote data or world assets.
+Open <http://127.0.0.1:5173>. The shell shows the profile and runtime version;
+there are no credentials, environment variables, remote data or external world assets.
 On Linux, browser setup may need `npx playwright install --with-deps chromium`.
 Install commands download dependencies/browser binaries; they do not deploy.
 
@@ -43,9 +59,10 @@ tests do not replace the author's manual localhost acceptance.
 
 - `index.html`: English document, static entry metadata, no-index policy and a
   helpful noscript notice. The initial app container is empty.
-- `src/main.tsx`, `src/App.tsx`: browser rendering and client routing. Only `/`
-  and unknown-route recovery exist; designed product routes are future work.
-- `src/FoundationPage.tsx`, `src/NotFoundPage.tsx`: foundation status and a
+- `src/main.tsx`, `src/App.tsx`: browser rendering and client routing. `/` and
+  `/world` use the integrated composition, `/about` the retained profile, `/design`
+  the earlier static study. Unknown routes recover; case-study routes are future work.
+- `src/HomePage.tsx`, `src/NotFoundPage.tsx`: accessible profile and a
   keyboard-usable home link from unknown routes.
 - `src/content/project-schema.ts`: strict future metadata schema; no real records.
   Schema validity does not prove disclosure approval, asset rights or claim truth.
@@ -53,7 +70,7 @@ tests do not replace the author's manual localhost acceptance.
   `package.json` and both root `package-lock.json` entries. Update all deliberately.
 - `tests`: isolated unit/component/documentation/version and production-browser
   checks. Synthetic fixtures are not public project claims.
-- `.github`: foundation quality CI, dependency-update proposals and disabled-by-default
+- `.github`: foundation quality CI, dependency-update proposals and
   dev/production delivery workflows.
 - `scripts/delivery*.mjs`, `docs/delivery.md`: fail-closed delivery guards, hosting
   output, HTTP smoke hooks and configuration/promotion/recovery instructions.
@@ -67,7 +84,7 @@ unrelated local files during migration. No remote fonts/images are needed.
 
 The application requires JavaScript. With it disabled, only the static notice and
 entry metadata remain; full case studies/navigation are not promised. Non-WebGL
-and reduced-motion alternatives in later work are still browser-rendered.
+and reduced-motion alternatives in the prototype are still browser-rendered.
 
 Local preview demonstrates direct SPA entry and a client not-found view. Its
 fallback can return HTTP 200 for an unknown app route; that is separate from the

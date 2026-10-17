@@ -12,8 +12,8 @@ export default function NotFoundPage() {
   return (
     <main>
       <h1>Page not found</h1>
-      <p>This route is not part of the portfolio foundation.</p>
-      <Link to="/">Return to the foundation</Link>
+      <p>We couldn’t find that page. You can return to the portfolio home.</p>
+      <Link to="/">Return to home</Link>
     </main>
   );
 }
