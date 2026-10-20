@@ -11,6 +11,7 @@ import './workflow-screen.css';
  * @returns Cleanup for the media-query listener.
  */
 function subscribeMotion(listener: () => void) {
+  if (typeof window.matchMedia !== 'function') return () => {};
   const media = window.matchMedia('(prefers-reduced-motion: reduce)');
   media.addEventListener('change', listener);
   return () => media.removeEventListener('change', listener);
@@ -21,7 +22,10 @@ function subscribeMotion(listener: () => void) {
  * @returns Whether the artwork must remain still.
  */
 function readReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  return (
+    typeof window.matchMedia !== 'function' ||
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
 }
 
 /**
@@ -39,7 +43,7 @@ export default function WorkflowScreenPage() {
   const artwork = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const element = artwork.current;
-    if (!element) return;
+    if (!element || typeof IntersectionObserver === 'undefined') return;
     let intersecting = false;
     /** Gate CSS playback on both document visibility and artwork intersection. */
     function updateVisibility() {

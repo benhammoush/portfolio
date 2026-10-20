@@ -7,6 +7,36 @@ import type { MonitorChapter } from './workflow-focus';
 /** Brief tab action; the shell persists while only the selected view is replaced. */
 export const TAB_ACTION_SECONDS = 0.85;
 
+/** A short window transition's active clock, independent of renderer throughput. */
+export interface WorkspaceClock {
+  /** Bounded action seconds already consumed. */
+  elapsed: number;
+  /** Last eligible frame in milliseconds; null seeds a fresh or resumed clock. */
+  previous: number | null;
+}
+
+/**
+ * Let sparse visible frames finish a short action without counting suspended time.
+ * The caller clears previous on visibility/policy changes and direction reversals.
+ * @param clock - Current active seconds and last eligible frame timestamp.
+ * @param now - Monotonic frame timestamp in milliseconds.
+ * @param active - Whether this frame permits the window transition to advance.
+ * @returns A bounded clock; inactive/invalid frames discard the timestamp baseline.
+ */
+export function advanceWorkspaceClock(
+  clock: WorkspaceClock,
+  now: number,
+  active: boolean,
+): WorkspaceClock {
+  const elapsed = Math.min(TAB_ACTION_SECONDS, Math.max(0, clock.elapsed));
+  if (!active || !Number.isFinite(now)) return { elapsed, previous: null };
+  const delta = clock.previous === null ? 0 : Math.max(0, now - clock.previous);
+  return {
+    elapsed: Math.min(TAB_ACTION_SECONDS, elapsed + delta / 1000),
+    previous: now,
+  };
+}
+
 /**
  * Open or close the application only after the deliberate pointer click.
  * @param from - Current visible window amount, retained when direction reverses.

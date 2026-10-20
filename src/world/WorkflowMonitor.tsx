@@ -27,6 +27,7 @@ import {
   workspaceFrame,
   workspaceTab,
   TAB_ACTION_SECONDS,
+  advanceWorkspaceClock,
 } from './monitor-workspace';
 
 /** Policy and owned clone supplied by the introduction boundary. */
@@ -65,6 +66,7 @@ export default function WorkflowMonitor(props: WorkflowMonitorProps) {
   const previousPaint = useRef(-Infinity);
   const paintedFrames = useRef(0);
   const wasPlaying = useRef<MonitorChapter | null>(null);
+  const previousWindowFrame = useRef<number | null>(null);
   const paintedChapter = useRef<MonitorChapter | null>(null);
   const paintedWindow = useRef(-1);
   const action = useRef<{
@@ -83,6 +85,7 @@ export default function WorkflowMonitor(props: WorkflowMonitorProps) {
     /** Freeze the first returning frame, even when the demand loop skipped hidden frames. */
     function suspendClock() {
       wasPlaying.current = null;
+      previousWindowFrame.current = null;
       window.clearTimeout(timer.current);
     }
     document.addEventListener('visibilitychange', suspendClock);
@@ -138,6 +141,7 @@ export default function WorkflowMonitor(props: WorkflowMonitorProps) {
     action.current = null;
     wasBusy.current = false;
     windowAction.current = null;
+    previousWindowFrame.current = null;
     for (const chapter of ['workflow', 'apollo'] as const) {
       const item = owned.images[chapter];
       item.image.onload = () => {
@@ -187,6 +191,7 @@ export default function WorkflowMonitor(props: WorkflowMonitorProps) {
     };
   }, [props.scene, gl, invalidate]);
   useEffect(() => {
+    previousWindowFrame.current = null;
     invalidate();
     return () => window.clearTimeout(timer.current);
   }, [props.animate, props.cameraTravel, invalidate]);
@@ -254,11 +259,16 @@ export default function WorkflowMonitor(props: WorkflowMonitorProps) {
           !!section &&
           section.bottom > 0 &&
           section.top < window.innerHeight));
-    if (playing && !windowChanged && wasPlaying.current !== null)
-      windowState.elapsed = Math.min(
-        TAB_ACTION_SECONDS,
-        windowState.elapsed + Math.min(delta, 0.1),
-      );
+    const windowClock = advanceWorkspaceClock(
+      {
+        elapsed: windowState.elapsed,
+        previous: windowChanged ? null : previousWindowFrame.current,
+      },
+      performance.now(),
+      playing,
+    );
+    windowState.elapsed = windowClock.elapsed;
+    previousWindowFrame.current = windowClock.previous;
     const windowAmount = workspaceWindow(
       windowState.from,
       windowState.open,

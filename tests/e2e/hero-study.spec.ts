@@ -26,9 +26,7 @@ for (const path of ['/hero-study', '/hero-study/immersive']) {
       await page.emulateMedia({ reducedMotion: 'reduce' });
       await page.goto(path);
       await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-        path.endsWith('/immersive')
-          ? 'Hi, I’m Guillaume, a full-stack developer'
-          : 'I’m a full-stack developer.',
+        'Hi, I’m Guillaume, a full-stack developer',
       );
       await expect(
         page.getByText(/Static artwork · Not live 3D/),

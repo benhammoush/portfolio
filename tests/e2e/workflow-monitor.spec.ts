@@ -43,6 +43,22 @@ test('Workflow keeps a quiet reading pose with optional fixed-lens inspection', 
   await expect(canvas).toHaveAttribute('data-camera-mode', 'inspect');
   await expect(canvas).toHaveAttribute('data-camera-fov', fov!);
   await page
+    .getByRole('navigation')
+    .getByRole('link', { name: 'Introduction', exact: true })
+    .click();
+  await expect(
+    page.getByRole('button', { name: 'Return to reading', exact: true }),
+  ).toHaveCount(0);
+  await page
+    .getByRole('navigation')
+    .getByRole('link', { name: 'Work', exact: true })
+    .click();
+  await expect(
+    page.getByRole('button', { name: 'View screen', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'false');
+  await expect(canvas).toHaveAttribute('data-camera-mode', 'reading');
+  await page.getByRole('button', { name: 'View screen', exact: true }).click();
+  await page
     .getByRole('button', { name: 'Return to reading', exact: true })
     .click();
   await expect(canvas).toHaveAttribute('data-camera-pose', pose!);

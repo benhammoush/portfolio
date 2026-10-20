@@ -4,6 +4,11 @@
  */
 import { expect, test } from '@playwright/test';
 
+test.beforeEach(async ({ page }) => {
+  // Control performance.now and animation timers before application code loads.
+  await page.clock.install();
+});
+
 test('Workflow opens a window over the original screen, with pause and static reverse intent', async ({
   page,
 }, testInfo) => {
@@ -27,7 +32,9 @@ test('Workflow opens a window over the original screen, with pause and static re
   await expect(
     page.locator('#world-workflow .world-workflow-poster'),
   ).toBeHidden();
-  // Freeze a real partial window rather than relying on software-render wall time.
+  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 60_000));
+  // Drive a real partial window deterministically, even if software rendering
+  // would otherwise skip straight from the first frame to the finished action.
   await page.evaluate(() => {
     const canvas = document.querySelector('canvas')!;
     const observer = new MutationObserver(() => {
@@ -50,6 +57,9 @@ test('Workflow opens a window over the original screen, with pause and static re
         320,
     );
   });
+  await page.clock.runFor(50);
+  await page.clock.fastForward(600);
+  await page.clock.runFor(50);
   await expect(
     page.getByRole('button', { name: 'Resume motion', exact: true }),
   ).toBeVisible({ timeout: 25_000 });
@@ -58,10 +68,10 @@ test('Workflow opens a window over the original screen, with pause and static re
   await expect(canvas).toHaveAttribute('data-monitor-painted-window', amount!);
   const clock = await canvas.getAttribute('data-monitor-window-time');
   const frames = await canvas.getAttribute('data-workflow-frames');
-  await page.evaluate(async () => {
+  await page.evaluate(() => {
     window.dispatchEvent(new Event('scroll'));
-    await new Promise<void>((resolve) => setTimeout(resolve, 200));
   });
+  await page.clock.runFor(200);
   await expect(canvas).toHaveAttribute('data-monitor-window-amount', amount!);
   await expect(canvas).toHaveAttribute('data-monitor-window-time', clock!);
   await expect(canvas).toHaveAttribute('data-workflow-frames', frames!);
@@ -76,6 +86,15 @@ test('Workflow opens a window over the original screen, with pause and static re
   await page
     .getByRole('button', { name: 'Resume motion', exact: true })
     .click();
+  await page.clock.runFor(50);
+  await expect
+    .poll(async () => {
+      await page.clock.runFor(50);
+      return canvas.getAttribute('data-workflow-motion');
+    })
+    .toBe('playing');
+  await page.clock.fastForward(1000);
+  await page.clock.runFor(50);
   await expect(canvas).toHaveAttribute('data-monitor-window', 'open', {
     timeout: 25_000,
   });
@@ -83,15 +102,18 @@ test('Workflow opens a window over the original screen, with pause and static re
   await expect(canvas).toHaveAttribute('data-monitor-chapter', 'workflow');
   await page.getByRole('button', { name: 'Pause motion', exact: true }).click();
   await page.evaluate(() => window.scrollBy(0, -200));
+  await page.clock.runFor(50);
   await expect(canvas).toHaveAttribute('data-monitor-window', 'closed');
   await expect(canvas).toHaveAttribute('data-workflow-active', 'false');
   await page.evaluate(() => window.scrollBy(0, 200));
+  await page.clock.runFor(50);
   await expect(canvas).toHaveAttribute('data-monitor-window', 'open');
   await expect(canvas).toHaveAttribute('data-monitor-window-amount', '1');
   await page
     .getByRole('navigation')
     .getByRole('link', { name: 'Introduction', exact: true })
     .click();
+  await page.clock.runFor(50);
   await expect(canvas).toHaveAttribute('data-monitor-window', 'closed');
   await expect(canvas).toHaveAttribute('data-workflow-active', 'false');
 });
@@ -106,6 +128,7 @@ test('a running launch freezes while hidden and reverses from its partial window
   await expect(canvas).toHaveAttribute('data-workflow-ready', 'true', {
     timeout: 25_000,
   });
+  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 60_000));
   await page.evaluate(() => {
     const canvas = document.querySelector('canvas')!;
     const observer = new MutationObserver(() => {
@@ -130,6 +153,9 @@ test('a running launch freezes while hidden and reverses from its partial window
         320,
     );
   });
+  await page.clock.runFor(50);
+  await page.clock.fastForward(600);
+  await page.clock.runFor(50);
   await expect
     .poll(() => page.evaluate(() => document.hidden), { timeout: 25_000 })
     .toBe(true);
@@ -139,10 +165,10 @@ test('a running launch freezes while hidden and reverses from its partial window
   await expect(
     page.getByRole('button', { name: 'Pause motion', exact: true }),
   ).toBeVisible();
-  await page.evaluate(async () => {
+  await page.evaluate(() => {
     window.scrollBy(0, -200);
-    await new Promise<void>((resolve) => setTimeout(resolve, 200));
   });
+  await page.clock.fastForward(60_000);
   await expect(canvas).toHaveAttribute('data-monitor-window-amount', amount!);
   await expect(canvas).toHaveAttribute('data-monitor-window-time', clock!);
   await expect(canvas).toHaveAttribute('data-workflow-frames', frames!);
@@ -153,7 +179,10 @@ test('a running launch freezes while hidden and reverses from its partial window
     });
     document.dispatchEvent(new Event('visibilitychange'));
   });
+  await page.clock.runFor(50);
   await expect(canvas).toHaveAttribute('data-monitor-window', 'closing');
+  await page.clock.fastForward(1000);
+  await page.clock.runFor(50);
   await expect(canvas).toHaveAttribute('data-monitor-window', 'closed', {
     timeout: 25_000,
   });

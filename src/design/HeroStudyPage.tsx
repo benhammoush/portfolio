@@ -65,18 +65,7 @@ export default function HeroStudyPage(props: HeroStudyProps) {
           aria-labelledby="hero-study-title"
         >
           <div className="hero-study-copy">
-            {direction === 'immersive' ? (
-              <h1 id="hero-study-title">{introduction.blocks[0]!.text}</h1>
-            ) : (
-              <>
-                <p className="hero-study-greeting">Hi, I’m Guillaume.</p>
-                <h1 id="hero-study-title">
-                  <span className="hero-study-prefix">I’m a </span>
-                  <span className="hero-study-title-line">full-stack</span>{' '}
-                  <span className="hero-study-title-line">developer.</span>
-                </h1>
-              </>
-            )}
+            <h1 id="hero-study-title">{introduction.blocks[0]!.text}</h1>
             <p className="hero-study-description">
               {introduction.blocks[1]!.text}
             </p>

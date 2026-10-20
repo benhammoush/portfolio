@@ -150,8 +150,19 @@ class WorldBoundary extends Component<BoundaryProps, BoundaryState> {
  * @returns One decorative viewport plus an accessible mode control and status.
  */
 export default function WorldViewport() {
+  const [inspect, setInspect] = useState(false);
+  // Reset from the native reading event, not during render or after a stale
+  // inspection has already reached the next visit's canvas.
+  const subscribeInspection = useCallback(
+    (listener: () => void) =>
+      subscribeReading(() => {
+        if (!readScreenContext()) setInspect(false);
+        listener();
+      }),
+    [],
+  );
   const screenContext = useSyncExternalStore(
-    subscribeReading,
+    subscribeInspection,
     readScreenContext,
     () => false,
   );
@@ -164,7 +175,6 @@ export default function WorldViewport() {
   const [lost, setLost] = useState(false);
   const [failed, setFailed] = useState(false);
   const [motionPaused, setMotionPaused] = useState(false);
-  const [inspect, setInspect] = useState(false);
   const onContextLost = useCallback(() => setLost(true), []);
   const onFailure = useCallback(() => setFailed(true), []);
   const requested =
@@ -192,7 +202,7 @@ export default function WorldViewport() {
                   onContextLost={onContextLost}
                   cameraTravel={cameraTravel}
                   animateIntro={cameraTravel && !motionPaused}
-                  inspect={cameraTravel && inspect}
+                  inspect={cameraTravel && screenContext && inspect}
                 />
               </div>
             </Suspense>

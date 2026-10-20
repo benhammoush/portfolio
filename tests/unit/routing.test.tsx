@@ -62,6 +62,26 @@ test('selects the independent, original Apollo artwork review', () => {
   expect(document.querySelectorAll('[data-concept]')).toHaveLength(4);
 });
 
+test('Workflow artwork stays readable and still when browser motion APIs are absent', () => {
+  vi.stubGlobal('matchMedia', undefined);
+  vi.stubGlobal('IntersectionObserver', undefined);
+  try {
+    render(
+      <MemoryRouter initialEntries={['/screen-study/workflow']}>
+        <App />
+      </MemoryRouter>,
+    );
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+      'One workspace, from idea to delivery.',
+    );
+    expect(
+      screen.getByText('Still artwork: reduced motion is enabled.'),
+    ).toBeInTheDocument();
+  } finally {
+    vi.unstubAllGlobals();
+  }
+});
+
 test('retains the approved profile at the about route', () => {
   render(
     <MemoryRouter initialEntries={['/about']}>
@@ -84,16 +104,9 @@ for (const [path, direction] of [
       </MemoryRouter>,
     );
     const introduction = SECTION_COPY[0]!;
-    if (path === '/hero-study/immersive') {
-      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-        'Hi, I’m Guillaume, a full-stack developer',
-      );
-    } else {
-      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-        'I’m a full-stack developer.',
-      );
-      expect(screen.getByText('Hi, I’m Guillaume.')).toBeInTheDocument();
-    }
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+      introduction.blocks[0]!.text,
+    );
     expect(screen.getByText(introduction.blocks[1]!.text)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: direction! })).toHaveAttribute(
       'aria-current',

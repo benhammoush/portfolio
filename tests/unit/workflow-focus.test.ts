@@ -18,6 +18,7 @@ import {
   workspaceWindow,
   workspaceFrame,
   drawDesktopScreen,
+  advanceWorkspaceClock,
 } from '../../src/world/monitor-workspace';
 import { shouldPaintWorkflow } from '../../src/world/workflow-texture';
 
@@ -83,6 +84,36 @@ test('the application opens after its click and reverses from its current amount
   expect(workspaceWindow(1, false, 0.39)).toBe(1);
   expect(workspaceFrame(1)).toEqual({ scale: 1, left: 0, top: 0 });
   expect(workspaceFrame(0)).toEqual({ scale: 0.08, left: 22.4, top: 401.44 });
+});
+
+test('sparse visible frames finish a window action without a frame-count slowdown', () => {
+  let clock = advanceWorkspaceClock({ elapsed: 0, previous: null }, 100, true);
+  expect(clock.elapsed).toBe(0);
+  clock = advanceWorkspaceClock(clock, 500, true);
+  expect(clock.elapsed).toBe(0.4);
+  clock = advanceWorkspaceClock(clock, 2100, true);
+  expect(clock.elapsed).toBe(TAB_ACTION_SECONDS);
+  expect(workspaceWindow(0.5, false, clock.elapsed)).toBe(0);
+  expect(advanceWorkspaceClock(clock, 10_000, true).elapsed).toBe(
+    TAB_ACTION_SECONDS,
+  );
+});
+
+test('suspended window time is excluded and resuming or reversing seeds a fresh clock', () => {
+  const initial = { elapsed: 0.5, previous: 100 };
+  const paused = advanceWorkspaceClock(initial, 200, false);
+  expect(paused).toEqual({ elapsed: 0.5, previous: null });
+  const resumed = advanceWorkspaceClock(paused, 60_000, true);
+  expect(resumed.elapsed).toBe(0.5);
+  expect(advanceWorkspaceClock(resumed, 60_100, true).elapsed).toBeCloseTo(0.6);
+  const reversed = advanceWorkspaceClock(
+    { elapsed: 0, previous: null },
+    90_000,
+    true,
+  );
+  expect(reversed.elapsed).toBe(0);
+  expect(advanceWorkspaceClock(reversed, 89_000, true).elapsed).toBe(0);
+  expect(advanceWorkspaceClock(resumed, NaN, true)).toEqual(paused);
 });
 
 test('the default desktop has window chrome and a persistent visible launcher without loading section art', () => {
