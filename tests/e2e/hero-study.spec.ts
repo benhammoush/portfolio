@@ -107,6 +107,24 @@ for (const path of ['/hero-study', '/hero-study/immersive']) {
   }
 }
 
+test('editorial heading contains wider fallback-font metrics without clipping', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1920, height: 600 });
+  await page.goto('/hero-study');
+  await page.addStyleTag({
+    content:
+      '.hero-study h1 { font-family: monospace; letter-spacing: normal; }',
+  });
+  const heading = page.getByRole('heading', { level: 1 });
+  await expect(heading).toHaveText('Hi, I’m Guillaume, a full-stack developer');
+  expect(
+    await heading.evaluate(
+      (element) => element.scrollWidth <= element.clientWidth,
+    ),
+  ).toBe(true);
+});
+
 test('directions support direct entry, reload, history and actual project navigation', async ({
   page,
 }) => {

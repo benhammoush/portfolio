@@ -101,6 +101,7 @@
 }
 .hero-study h1 {
   max-width: none;
+  overflow-wrap: anywhere;
   margin-bottom: 1.75rem;
   font-size: clamp(3.5rem, 6.5vw, 6.5rem);
   font-weight: 550;

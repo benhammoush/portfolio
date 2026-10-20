@@ -57,7 +57,15 @@ test('Workflow opens a window over the original screen, with pause and static re
         320,
     );
   });
-  await page.clock.runFor(50);
+  await expect
+    .poll(
+      async () => {
+        await page.clock.runFor(16);
+        return canvas.getAttribute('data-monitor-window');
+      },
+      { timeout: 25_000 },
+    )
+    .toBe('opening');
   await page.clock.fastForward(600);
   await page.clock.runFor(50);
   await expect(
@@ -153,7 +161,15 @@ test('a running launch freezes while hidden and reverses from its partial window
         320,
     );
   });
-  await page.clock.runFor(50);
+  await expect
+    .poll(
+      async () => {
+        await page.clock.runFor(16);
+        return canvas.getAttribute('data-monitor-window');
+      },
+      { timeout: 25_000 },
+    )
+    .toBe('opening');
   await page.clock.fastForward(600);
   await page.clock.runFor(50);
   await expect
