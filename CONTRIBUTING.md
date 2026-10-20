@@ -23,6 +23,12 @@ not prove accuracy. Generated outputs alone are excluded, not handwritten tests.
 
 ## Before considering publication
 
+The owner assigns a bounded task and authorizes its endpoint; no backlog pickup is automatic. The assistant owns implementation, affected checks, authorized PR publication and valid CI/CodeRabbit review repairs, including resuming paused reviews. `.coderabbit.yaml` enables approvals after completed review and disables author-triggered approval/resolve overrides. The owner decides when to merge after current-head checks and approval pass; no automatic merger, merge PAT or orchestration service is required.
+
+Protect `main` with strict **Foundation quality** (GitHub Actions) and **CodeRabbit** checks bound to their respective apps, at least one approval, stale-review dismissal, independent last-push approval and resolved conversations. Enforce protections for administrators; block force pushes/deletion. Verify the integration and native settings separately: source configuration is not hosted enforcement, and a successful CodeRabbit status alone is not current-head approval.
+
+After an authorized human merge, the existing main-push delivery workflow deploys dev when enabled. Verify the exact source/provider identity and affected behavior before reporting dev acceptance. Production remains a separate manually approved promotion of that exact dev-tested SHA under the [delivery runbook](docs/delivery.md); no deployment flags or permissions are enabled by ordinary publication.
+
 1. Use the pinned Node/npm toolchain and `npm ci`.
 2. Install the pinned Chromium binary and run `npm run check`.
    Also run `npm run audit:dependencies` and investigate reported findings; never

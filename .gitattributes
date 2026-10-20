@@ -1,0 +1,2 @@
+# Keep source and Markdown fixtures consistent across Windows and CI checkouts.
+* text=auto eol=lf
