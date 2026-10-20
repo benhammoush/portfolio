@@ -1,0 +1,331 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="1040"
+  height="640"
+  viewBox="0 0 1040 640"
+  class="workflow-screen-art"
+  aria-hidden="true"
+>
+  <rect width="1040" height="640" rx="12" fill="#17232f"></rect>
+  <path d="M0 50h1040" stroke="#344454"></path>
+  <g font-family="system-ui, sans-serif">
+    <rect x="26" y="18" width="14" height="14" rx="4" fill="#b1cdb3"></rect>
+    <text x="51" y="30" fill="#e6eee8" font-size="13" font-weight="600">
+      WORKFLOW
+    </text>
+    <text
+      x="1009"
+      y="30"
+      text-anchor="end"
+      fill="#acbdcc"
+      font-size="10"
+      letter-spacing="1"
+    >
+      VISUAL CONCEPT
+    </text>
+    <text x="42" y="101" fill="#eaf1f3" font-size="29" font-weight="550">
+      One connected process.
+    </text>
+    <text x="42" y="127" fill="#aebfce" font-size="13">
+      From the experience people see to the systems behind it.
+    </text>
+    <path
+      class="workflow-link"
+      d="M310 302h48m324 0h48"
+      stroke="#a6dbea"
+      stroke-width="3"
+    ></path>
+    <circle
+      class="workflow-signal"
+      cx="334"
+      cy="302"
+      r="6"
+      fill="#8c9eae"
+    ></circle>
+    <circle
+      class="workflow-signal"
+      style="animation-delay: 1s"
+      cx="706"
+      cy="302"
+      r="6"
+      fill="#8c9eae"
+    ></circle>
+    <g data-concept="interface">
+      <rect
+        x="42"
+        y="165"
+        width="268"
+        height="268"
+        rx="18"
+        fill="#223f50"
+        stroke="#558fa5"
+      ></rect>
+      <rect x="63" y="187" width="31" height="5" rx="2.5" fill="#8fd5ed"></rect>
+      <text x="63" y="225" fill="#c0eafb" font-size="23" font-weight="550">
+        Interface
+      </text>
+      <text x="63" y="248" fill="#a8c7d6" font-size="12">
+        Design · interaction · experience
+      </text>
+      <rect
+        x="80"
+        y="278"
+        width="193"
+        height="121"
+        rx="10"
+        fill="#142e3d"
+        stroke="#69aac3"
+      ></rect>
+      <path d="M80 303h193" stroke="#47778d"></path>
+      <circle cx="93" cy="291" r="3" fill="#91cce1"></circle>
+      <circle cx="104" cy="291" r="3" fill="#527c90"></circle>
+      <rect x="93" y="317" width="48" height="67" rx="6" fill="#365b70"></rect>
+      <rect
+        class="workflow-interface-highlight"
+        x="152"
+        y="317"
+        width="107"
+        height="28"
+        rx="6"
+        fill="#91d1e5"
+      ></rect>
+      <rect x="152" y="355" width="48" height="29" rx="6" fill="#4e90a9"></rect>
+      <rect x="211" y="355" width="48" height="29" rx="6" fill="#396a82"></rect>
+    </g>
+    <g data-concept="services">
+      <rect
+        x="358"
+        y="165"
+        width="324"
+        height="268"
+        rx="18"
+        fill="#3a3453"
+        stroke="#8f7ab8"
+      ></rect>
+      <rect
+        x="379"
+        y="187"
+        width="31"
+        height="5"
+        rx="2.5"
+        fill="#cdb0f1"
+      ></rect>
+      <text x="379" y="225" fill="#e2ccfc" font-size="23" font-weight="550">
+        Services
+      </text>
+      <text x="379" y="248" fill="#c0b1d4" font-size="12">
+        Logic · integration · coordination
+      </text>
+      <path
+        d="M415 342h62m86 0h62m-105-49v98"
+        stroke="#a38bc9"
+        stroke-width="2"
+      ></path>
+      <rect
+        x="395"
+        y="322"
+        width="40"
+        height="40"
+        rx="10"
+        fill="#9c83bf"
+      ></rect>
+      <rect
+        class="workflow-core"
+        x="477"
+        y="299"
+        width="86"
+        height="86"
+        rx="20"
+        fill="#c5a8ed"
+      ></rect>
+      <rect
+        x="605"
+        y="322"
+        width="40"
+        height="40"
+        rx="10"
+        fill="#9c83bf"
+      ></rect>
+      <circle
+        class="workflow-pulse"
+        cx="520"
+        cy="342"
+        r="16"
+        fill="#76608f"
+      ></circle>
+      <circle cx="520" cy="291" r="8" fill="#ae92d4"></circle>
+      <circle cx="520" cy="393" r="8" fill="#ae92d4"></circle>
+    </g>
+    <g data-concept="data">
+      <rect
+        x="730"
+        y="165"
+        width="268"
+        height="268"
+        rx="18"
+        fill="#49402f"
+        stroke="#ac9054"
+      ></rect>
+      <rect
+        x="751"
+        y="187"
+        width="31"
+        height="5"
+        rx="2.5"
+        fill="#e9cb85"
+      ></rect>
+      <text x="751" y="225" fill="#f3dca7" font-size="23" font-weight="550">
+        Data
+      </text>
+      <text x="751" y="248" fill="#d2c1a1" font-size="12">
+        Structure · flow · information
+      </text>
+      <g class="workflow-data">
+        <path d="M810 305v72c0 24 108 24 108 0v-72" fill="#a98b53"></path>
+        <ellipse cx="864" cy="305" rx="54" ry="17" fill="#ebce8d"></ellipse>
+        <path
+          d="M810 329c0 23 108 23 108 0m-108 25c0 23 108 23 108 0"
+          fill="none"
+          stroke="#e8c987"
+          stroke-width="2"
+        ></path>
+      </g>
+      <circle
+        class="workflow-pulse"
+        style="animation-delay: 2s"
+        cx="936"
+        cy="294"
+        r="7"
+        fill="#c2a567"
+      ></circle>
+      <circle cx="794" cy="382" r="5" fill="#e8c987"></circle>
+    </g>
+    <rect
+      x="42"
+      y="454"
+      width="956"
+      height="54"
+      rx="12"
+      fill="#263d37"
+      stroke="#547a67"
+    ></rect>
+    <text x="63" y="487" fill="#c8e4cb" font-size="13" font-weight="550">
+      Quality throughout
+    </text>
+    <g transform="translate(275 467)">
+      <circle cx="6" cy="14" r="4" fill="#9cc8a6"></circle>
+      <text x="21" y="18" fill="#bdd5c5" font-size="12">Accessibility</text>
+    </g>
+    <g transform="translate(452 467)">
+      <circle cx="6" cy="14" r="4" fill="#9cc8a6"></circle>
+      <text x="21" y="18" fill="#bdd5c5" font-size="12">Reliability</text>
+    </g>
+    <g transform="translate(629 467)">
+      <circle cx="6" cy="14" r="4" fill="#9cc8a6"></circle>
+      <text x="21" y="18" fill="#bdd5c5" font-size="12">Security</text>
+    </g>
+    <g transform="translate(806 467)">
+      <circle cx="6" cy="14" r="4" fill="#9cc8a6"></circle>
+      <text x="21" y="18" fill="#bdd5c5" font-size="12">Performance</text>
+    </g>
+    <g transform="translate(42 548)">
+      <rect
+        class="workflow-stage-card"
+        style="animation-delay: 0s"
+        width="176"
+        height="58"
+        rx="10"
+        fill="#223240"
+      ></rect>
+      <circle
+        class="workflow-step"
+        style="animation-delay: 0s"
+        cx="24"
+        cy="29"
+        r="9"
+        fill="#8fd5ed"
+      ></circle>
+      <text x="44" y="34" fill="#d7e3eb" font-size="13">Understand</text>
+      <path d="m183 26 4 3-4 3" fill="none" stroke="#8c9eae"></path>
+    </g>
+    <g transform="translate(237 548)">
+      <rect
+        class="workflow-stage-card"
+        style="animation-delay: 1.2s"
+        width="176"
+        height="58"
+        rx="10"
+        fill="#223240"
+      ></rect>
+      <circle
+        class="workflow-step"
+        style="animation-delay: 1.2s"
+        cx="24"
+        cy="29"
+        r="9"
+        fill="#efb6aa"
+      ></circle>
+      <text x="44" y="34" fill="#d7e3eb" font-size="13">Design</text>
+      <path d="m183 26 4 3-4 3" fill="none" stroke="#8c9eae"></path>
+    </g>
+    <g transform="translate(432 548)">
+      <rect
+        class="workflow-stage-card"
+        style="animation-delay: 2.4s"
+        width="176"
+        height="58"
+        rx="10"
+        fill="#223240"
+      ></rect>
+      <circle
+        class="workflow-step"
+        style="animation-delay: 2.4s"
+        cx="24"
+        cy="29"
+        r="9"
+        fill="#cdb0f1"
+      ></circle>
+      <text x="44" y="34" fill="#d7e3eb" font-size="13">Build</text>
+      <path d="m183 26 4 3-4 3" fill="none" stroke="#8c9eae"></path>
+    </g>
+    <g transform="translate(627 548)">
+      <rect
+        class="workflow-stage-card"
+        style="animation-delay: 3.5999999999999996s"
+        width="176"
+        height="58"
+        rx="10"
+        fill="#223240"
+      ></rect>
+      <circle
+        class="workflow-step"
+        style="animation-delay: 3.5999999999999996s"
+        cx="24"
+        cy="29"
+        r="9"
+        fill="#a3d5ad"
+      ></circle>
+      <text x="44" y="34" fill="#d7e3eb" font-size="13">Check</text>
+      <path d="m183 26 4 3-4 3" fill="none" stroke="#8c9eae"></path>
+    </g>
+    <g transform="translate(822 548)">
+      <rect
+        class="workflow-stage-card"
+        style="animation-delay: 4.8s"
+        width="176"
+        height="58"
+        rx="10"
+        fill="#223240"
+      ></rect>
+      <circle
+        class="workflow-step"
+        style="animation-delay: 4.8s"
+        cx="24"
+        cy="29"
+        r="9"
+        fill="#e9cb85"
+      ></circle>
+      <text x="44" y="34" fill="#d7e3eb" font-size="13">Deliver</text>
+    </g>
+  </g>
+</svg>

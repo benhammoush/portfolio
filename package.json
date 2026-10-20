@@ -9,6 +9,11 @@
     "npm": "11.19.0"
   },
   "scripts": {
+    "generate:desktop-poster": "node scripts/capture-desktop-poster.mjs",
+    "generate:workflow-art": "node scripts/export-workflow-art.mjs",
+    "generate:apollo-art": "node scripts/export-workflow-art.mjs --apollo",
+    "check:apollo-art": "node scripts/export-workflow-art.mjs --apollo --check",
+    "check:workflow-art": "node scripts/export-workflow-art.mjs --check",
     "dev": "vite",
     "build": "npm run check:version && npm run typecheck && vite build",
     "preview": "vite preview",

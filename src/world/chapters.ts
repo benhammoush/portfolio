@@ -12,11 +12,11 @@ interface Chapter {
   id: string;
   /** Human-readable navigation label. */
   label: string;
-  /** Orthographic camera location in scene units. */
+  /** Perspective camera location in scene units. */
   position: Point;
   /** The world point the camera looks toward. */
   target: Point;
-  /** Vertical framing in scene units; orthographic distance alone cannot zoom. */
+  /** Vertical span at the look-at plane, adjusted to preserve responsive framing. */
   viewHeight: number;
 }
 
@@ -24,9 +24,11 @@ export const CHAPTERS: readonly Chapter[] = [
   {
     id: 'world-hub',
     label: 'Introduction',
-    position: [3, 4.2, 6.2],
-    target: [0.25, 0.7, 0.03],
-    viewHeight: 3.5,
+    position: [0.1, 0.84, 7.14],
+    target: [0.1, 0.8, 0],
+    // Desk-height rear pullback; 2.5 / 0.7 keeps the scene approximately
+    // 30% smaller than the original desk-height framing at the target plane.
+    viewHeight: 2.5 / 0.7,
   },
   {
     id: 'world-iris',

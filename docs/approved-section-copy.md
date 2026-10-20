@@ -8,9 +8,7 @@ The owner subsequently authorized local text-section integration ahead of the ot
 
 ## Introduction
 
-### Hi, I’m Guillaume.
-
-#### I’m a full-stack developer.
+### Hi, I’m Guillaume, a full-stack developer
 
 I enjoy building things, taking on technical challenges and learning something new along the way. I’ve worked in corporate, freelance and startup environments.
 

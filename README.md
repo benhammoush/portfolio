@@ -1,13 +1,26 @@
 # Portfolio
 
 First 3D model milestone, version **0.3.0**. This is not the finished portfolio or
-a public launch. Final project scenes, character animation and the completed
+a public launch. Final project scenes, final animation and the completed
 connected world are future work. Product requirements: [spec/portfolio.md](spec/portfolio.md).
 The homepage now composes readable HTML through one full-viewport world, rather
 than placing a bordered canvas beside text. `/world` is an alias of this composition;
 `/about` retains the approved CV-based profile. No CV PDF or private project material
 is published. The original desk/character scene is the accepted introduction
 baseline; the older Iris object remains provisional and was not accepted.
+The current introduction uses the approved desk-height rear view, black crewneck,
+plant, small Vietnam flag and green flask, without parallettes, a floor or cast
+ground shadows. Both the web model and poster use a transparent composition.
+The accepted plant/straight-monitor scene now has a local subtle working-animation
+trial with a pause control. The current rework adds articulated two-hand typing,
+keyboard/mouse handovers and connected arm movement, pending visual acceptance.
+Reduced-motion and narrow stationary 3D remain still.
+The latest local view is back behind the character, with travelling flag folds,
+a fixed pole and occasional seated leg/foot adjustments, pending visual acceptance.
+It uses lazy Draco decoding: about 1,392 KB for the GLB plus 251 KB for the requested
+decoder files. A local red/charcoal keyboard and large black desk-mat trial is
+included in both the model and transparent poster.
+The decoder is supplied by Three.js; its license is in `public/third-party/`.
 The [approved text](docs/approved-section-copy.md) is implemented in this order:
 Introduction → Engineering workflow → Apollo → Iris → Crypto gateway → Dripperz,
 followed by the still-provisional Contact section. Dripperz placement is provisional.

@@ -11,7 +11,8 @@ import {
   useSyncExternalStore,
 } from 'react';
 import type { ReactNode } from 'react';
-import introPoster from '../assets/intro/intro-scene.png';
+import introPoster from '../assets/intro/desktop-poster.png';
+import { readMonitorFocus } from './workflow-focus';
 
 const LazyCanvas = lazy(() => import('./WorldCanvas'));
 const WIDTH_MEDIA = '(min-width: 768px)';
@@ -50,6 +51,28 @@ function subscribePolicy(listener: () => void) {
 function readPolicy(): ViewPolicy {
   if (window.matchMedia(MOTION_MEDIA).matches) return 'reduced-motion';
   return window.matchMedia(WIDTH_MEDIA).matches ? 'desktop' : 'narrow';
+}
+
+/**
+ * Update the optional inspection affordance only as the reading context changes.
+ * @param listener - React snapshot invalidation callback.
+ * @returns Native scroll/resize listener cleanup.
+ */
+function subscribeReading(listener: () => void) {
+  window.addEventListener('scroll', listener, { passive: true });
+  window.addEventListener('resize', listener);
+  return () => {
+    window.removeEventListener('scroll', listener);
+    window.removeEventListener('resize', listener);
+  };
+}
+
+/**
+ * Keep the inspection control out of the introduction and unfinished chapters.
+ * @returns Whether either accepted screen chapter is at the reading line.
+ */
+function readScreenContext() {
+  return readMonitorFocus().progress > 0;
 }
 
 /**
@@ -127,6 +150,11 @@ class WorldBoundary extends Component<BoundaryProps, BoundaryState> {
  * @returns One decorative viewport plus an accessible mode control and status.
  */
 export default function WorldViewport() {
+  const screenContext = useSyncExternalStore(
+    subscribeReading,
+    readScreenContext,
+    () => false,
+  );
   const policy = useSyncExternalStore(
     subscribePolicy,
     readPolicy,
@@ -135,6 +163,8 @@ export default function WorldViewport() {
   const [choice, setChoice] = useState<ViewChoice | null>(null);
   const [lost, setLost] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [motionPaused, setMotionPaused] = useState(false);
+  const [inspect, setInspect] = useState(false);
   const onContextLost = useCallback(() => setLost(true), []);
   const onFailure = useCallback(() => setFailed(true), []);
   const requested =
@@ -161,6 +191,8 @@ export default function WorldViewport() {
                 <LazyCanvas
                   onContextLost={onContextLost}
                   cameraTravel={cameraTravel}
+                  animateIntro={cameraTravel && !motionPaused}
+                  inspect={cameraTravel && inspect}
                 />
               </div>
             </Suspense>
@@ -170,14 +202,17 @@ export default function WorldViewport() {
         )}
       </div>
       <figcaption>
-        <span role={failed || lost ? 'status' : undefined}>
+        <span
+          className={failed || lost ? 'world-visual-status' : 'visually-hidden'}
+          role={failed || lost ? 'status' : undefined}
+        >
           {failed
             ? '3D could not load. The illustrated view and all content remain available. Reload to retry.'
             : lost
               ? 'Graphics context lost. Still view retained; reload to retry.'
               : live
                 ? cameraTravel
-                  ? '3D view — scroll the page to move the camera toward Iris.'
+                  ? '3D supports the reading. View screen offers an optional closer look during Workflow and Apollo.'
                   : 'Stationary 3D view — camera travel is off for this viewport or motion preference.'
                 : policy === 'reduced-motion'
                   ? 'Still view: reduced motion is enabled. Optional 3D keeps the camera stationary.'
@@ -185,6 +220,20 @@ export default function WorldViewport() {
                     ? 'Still view: this window is under 768 pixels wide. Optional 3D is stationary; widen the window for camera travel.'
                     : 'Still view. The complete story stays in HTML.'}
         </span>
+        {live && cameraTravel && screenContext && (
+          <button
+            type="button"
+            aria-pressed={inspect}
+            onClick={() => setInspect(!inspect)}
+          >
+            {inspect ? 'Return to reading' : 'View screen'}
+          </button>
+        )}
+        {live && cameraTravel && (
+          <button type="button" onClick={() => setMotionPaused(!motionPaused)}>
+            {motionPaused ? 'Resume motion' : 'Pause motion'}
+          </button>
+        )}
         {!lost && !failed && (
           <button
             type="button"

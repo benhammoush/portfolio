@@ -1,0 +1,524 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="1040"
+  height="640"
+  viewBox="0 0 1040 640"
+  class="workflow-screen-art"
+  aria-hidden="true"
+>
+  <rect width="1040" height="640" rx="12" fill="#17232f"></rect>
+  <path d="M0 50h1040" stroke="#344454"></path>
+  <g font-family="system-ui, sans-serif">
+    <path
+      d="m25 32 9-16 9 16m-14-5h10"
+      fill="none"
+      stroke="#e6bd84"
+      stroke-width="3"
+      stroke-linejoin="round"
+    ></path>
+    <text
+      x="56"
+      y="31"
+      fill="#f0dfc3"
+      font-size="14"
+      font-weight="600"
+      letter-spacing="1.5"
+    >
+      APOLLO
+    </text>
+    <text
+      x="1009"
+      y="30"
+      text-anchor="end"
+      fill="#acbdcc"
+      font-size="10"
+      letter-spacing="1"
+    >
+      VISUAL CONCEPT · NOT LIVE
+    </text>
+    <text x="42" y="101" fill="#eaf1f3" font-size="29" font-weight="550">
+      A connected trading workspace.
+    </text>
+    <text x="42" y="127" fill="#aebfce" font-size="13">
+      Strategy, independent components and a clear view of the system.
+    </text>
+    <g data-concept="market-context">
+      <rect
+        x="42"
+        y="153"
+        width="596"
+        height="272"
+        rx="16"
+        fill="#213541"
+        stroke="#587e8d"
+      ></rect>
+      <text x="64" y="188" fill="#c7e4ed" font-size="18" font-weight="550">
+        Market context
+      </text>
+      <text x="615" y="187" text-anchor="end" fill="#9fb8c4" font-size="10">
+        ABSTRACT SHAPES / NO REAL DATA
+      </text>
+      <path d="M64 234h552" stroke="#38515e"></path>
+      <path d="M64 282h552" stroke="#38515e"></path>
+      <path d="M64 330h552" stroke="#38515e"></path>
+      <path d="M64 378h552" stroke="#38515e"></path>
+      <g transform="translate(81 0)">
+        <g class="apollo-candle" style="animation-delay: 0s">
+          <path d="M0 249v63" stroke="#e5a29a" stroke-width="1.5"></path>
+          <rect
+            x="-6"
+            y="261"
+            width="12"
+            height="39"
+            rx="2"
+            fill="#e5a29a"
+          ></rect>
+        </g>
+      </g>
+      <g transform="translate(108 0)">
+        <g class="apollo-candle" style="animation-delay: 0.12s">
+          <path d="M0 264v65" stroke="#e5a29a" stroke-width="1.5"></path>
+          <rect
+            x="-6"
+            y="276"
+            width="12"
+            height="41"
+            rx="2"
+            fill="#e5a29a"
+          ></rect>
+        </g>
+      </g>
+      <g transform="translate(135 0)">
+        <g class="apollo-candle" style="animation-delay: 0.24s">
+          <path d="M0 255v61" stroke="#96cfb8" stroke-width="1.5"></path>
+          <rect
+            x="-6"
+            y="267"
+            width="12"
+            height="37"
+            rx="2"
+            fill="#96cfb8"
+          ></rect>
+        </g>
+      </g>
+      <g transform="translate(162 0)">
+        <g class="apollo-candle" style="animation-delay: 0.36s">
+          <path d="M0 232v59" stroke="#96cfb8" stroke-width="1.5"></path>
+          <rect
+            x="-6"
+            y="244"
+            width="12"
+            height="35"
+            rx="2"
+            fill="#96cfb8"
+          ></rect>
+        </g>
+      </g>
+      <g transform="translate(189 0)">
+        <g class="apollo-candle" style="animation-delay: 0.48s">
+          <path d="M0 220v59" stroke="#96cfb8" stroke-width="1.5"></path>
+          <rect
+            x="-6"
+            y="232"
+            width="12"
+            height="35"
+            rx="2"
+            fill="#96cfb8"
+          ></rect>
+        </g>
+      </g>
+      <g transform="translate(216 0)">
+        <g class="apollo-candle" style="animation-delay: 0.6s">
+          <path d="M0 238v59" stroke="#e5a29a" stroke-width="1.5"></path>
+          <rect
+            x="-6"
+            y="250"
+            width="12"
+            height="35"
+            rx="2"
+            fill="#e5a29a"
+          ></rect>
+        </g>
+      </g>
+      <g transform="translate(243 0)">
+        <g class="apollo-candle" style="animation-delay: 0.72s">
+          <path d="M0 258v59" stroke="#e5a29a" stroke-width="1.5"></path>
+          <rect
+            x="-6"
+            y="270"
+            width="12"
+            height="35"
+            rx="2"
+            fill="#e5a29a"
+          ></rect>
+        </g>
+      </g>
+      <g transform="translate(270 0)">
+        <g class="apollo-candle" style="animation-delay: 0.84s">
+          <path d="M0 281v62" stroke="#e5a29a" stroke-width="1.5"></path>
+          <rect
+            x="-6"
+            y="293"
+            width="12"
+            height="38"
+            rx="2"
+            fill="#e5a29a"
+          ></rect>
+        </g>
+      </g>
+      <g transform="translate(297 0)">
+        <g class="apollo-candle" style="animation-delay: 0.96s">
+          <path d="M0 272v59" stroke="#96cfb8" stroke-width="1.5"></path>
+          <rect
+            x="-6"
+            y="284"
+            width="12"
+            height="35"
+            rx="2"
+            fill="#96cfb8"
+          ></rect>
+        </g>
+      </g>
+      <g transform="translate(324 0)">
+        <g class="apollo-candle" style="animation-delay: 1.08s">
+          <path d="M0 253v61" stroke="#96cfb8" stroke-width="1.5"></path>
+          <rect
+            x="-6"
+            y="265"
+            width="12"
+            height="37"
+            rx="2"
+            fill="#96cfb8"
+          ></rect>
+        </g>
+      </g>
+      <g transform="translate(351 0)">
+        <g class="apollo-candle" style="animation-delay: 1.2s">
+          <path d="M0 241v57" stroke="#96cfb8" stroke-width="1.5"></path>
+          <rect
+            x="-6"
+            y="253"
+            width="12"
+            height="33"
+            rx="2"
+            fill="#96cfb8"
+          ></rect>
+        </g>
+      </g>
+      <g transform="translate(378 0)">
+        <g class="apollo-candle" style="animation-delay: 1.3199999999999998s">
+          <path d="M0 257v57" stroke="#e5a29a" stroke-width="1.5"></path>
+          <rect
+            x="-6"
+            y="269"
+            width="12"
+            height="33"
+            rx="2"
+            fill="#e5a29a"
+          ></rect>
+        </g>
+      </g>
+      <g transform="translate(405 0)">
+        <g class="apollo-candle" style="animation-delay: 1.44s">
+          <path d="M0 275v61" stroke="#e5a29a" stroke-width="1.5"></path>
+          <rect
+            x="-6"
+            y="287"
+            width="12"
+            height="37"
+            rx="2"
+            fill="#e5a29a"
+          ></rect>
+        </g>
+      </g>
+      <g transform="translate(432 0)">
+        <g class="apollo-candle" style="animation-delay: 1.56s">
+          <path d="M0 298v57" stroke="#e5a29a" stroke-width="1.5"></path>
+          <rect
+            x="-6"
+            y="310"
+            width="12"
+            height="33"
+            rx="2"
+            fill="#e5a29a"
+          ></rect>
+        </g>
+      </g>
+      <g transform="translate(459 0)">
+        <g class="apollo-candle" style="animation-delay: 1.68s">
+          <path d="M0 286v56" stroke="#96cfb8" stroke-width="1.5"></path>
+          <rect
+            x="-6"
+            y="298"
+            width="12"
+            height="32"
+            rx="2"
+            fill="#96cfb8"
+          ></rect>
+        </g>
+      </g>
+      <g transform="translate(486 0)">
+        <g class="apollo-candle" style="animation-delay: 1.7999999999999998s">
+          <path d="M0 267v61" stroke="#96cfb8" stroke-width="1.5"></path>
+          <rect
+            x="-6"
+            y="279"
+            width="12"
+            height="37"
+            rx="2"
+            fill="#96cfb8"
+          ></rect>
+        </g>
+      </g>
+      <g transform="translate(513 0)">
+        <g class="apollo-candle" style="animation-delay: 1.92s">
+          <path d="M0 254v57" stroke="#96cfb8" stroke-width="1.5"></path>
+          <rect
+            x="-6"
+            y="266"
+            width="12"
+            height="33"
+            rx="2"
+            fill="#96cfb8"
+          ></rect>
+        </g>
+      </g>
+      <g transform="translate(540 0)">
+        <g class="apollo-candle" style="animation-delay: 2.04s">
+          <path d="M0 269v57" stroke="#e5a29a" stroke-width="1.5"></path>
+          <rect
+            x="-6"
+            y="281"
+            width="12"
+            height="33"
+            rx="2"
+            fill="#e5a29a"
+          ></rect>
+        </g>
+      </g>
+      <g transform="translate(567 0)">
+        <g class="apollo-candle" style="animation-delay: 2.16s">
+          <path d="M0 282v59" stroke="#e5a29a" stroke-width="1.5"></path>
+          <rect
+            x="-6"
+            y="294"
+            width="12"
+            height="35"
+            rx="2"
+            fill="#e5a29a"
+          ></rect>
+        </g>
+      </g>
+      <g transform="translate(594 0)">
+        <g class="apollo-candle" style="animation-delay: 2.28s">
+          <path d="M0 272v56" stroke="#96cfb8" stroke-width="1.5"></path>
+          <rect
+            x="-6"
+            y="284"
+            width="12"
+            height="32"
+            rx="2"
+            fill="#96cfb8"
+          ></rect>
+        </g>
+      </g>
+    </g>
+    <g data-concept="strategy">
+      <rect
+        x="662"
+        y="153"
+        width="336"
+        height="272"
+        rx="16"
+        fill="#39334f"
+        stroke="#8c77b5"
+      ></rect>
+      <rect x="684" y="175" width="29" height="4" rx="2" fill="#cdb0f1"></rect>
+      <text x="684" y="212" fill="#e1ccf9" font-size="22" font-weight="550">
+        Strategy
+      </text>
+      <text x="684" y="236" fill="#bfb1d2" font-size="12">
+        Intent, constraints and decisions.
+      </text>
+      <path d="M711 289h205m-103 0v76" stroke="#9581b5" stroke-width="2"></path>
+      <rect
+        x="689"
+        y="269"
+        width="44"
+        height="40"
+        rx="10"
+        fill="#9c83bf"
+      ></rect>
+      <rect
+        class="workflow-core"
+        x="782"
+        y="258"
+        width="62"
+        height="62"
+        rx="15"
+        fill="#c5a8ed"
+      ></rect>
+      <circle cx="916" cy="289" r="20" fill="#9c83bf"></circle>
+      <rect x="784" y="345" width="58" height="35" rx="8" fill="#75628e"></rect>
+      <text x="711" y="337" text-anchor="middle" fill="#cfbfdf" font-size="11">
+        Rules
+      </text>
+      <text x="916" y="337" text-anchor="middle" fill="#cfbfdf" font-size="11">
+        Limits
+      </text>
+      <text x="813" y="400" text-anchor="middle" fill="#cfbfdf" font-size="11">
+        Decisions
+      </text>
+    </g>
+    <g data-concept="engine">
+      <rect
+        x="42"
+        y="449"
+        width="596"
+        height="149"
+        rx="16"
+        fill="#443a2e"
+        stroke="#ac9054"
+      ></rect>
+      <text x="64" y="483" fill="#efd6a5" font-size="20" font-weight="550">
+        Trading engine
+      </text>
+      <text x="615" y="481" text-anchor="end" fill="#ccbd9f" font-size="10">
+        CONCEPTUAL CONNECTIONS
+      </text>
+      <path
+        class="apollo-link"
+        d="M208 548h65m149 0h65"
+        stroke="#b39b71"
+        stroke-width="2"
+      ></path>
+      <circle
+        class="workflow-signal"
+        cx="240"
+        cy="548"
+        r="5"
+        fill="#f0cf93"
+      ></circle>
+      <circle
+        class="workflow-signal"
+        style="animation-delay: 1s"
+        cx="454"
+        cy="548"
+        r="5"
+        fill="#f0cf93"
+      ></circle>
+      <g transform="translate(64 520)">
+        <rect width="144" height="56" rx="10" fill="#766143"></rect>
+        <circle cx="22" cy="28" r="7" fill="#e5cb97"></circle>
+        <text x="39" y="33" fill="#f3e5ca" font-size="13">Inputs</text>
+      </g>
+      <g transform="translate(273 520)">
+        <rect width="144" height="56" rx="10" fill="#ae8c57"></rect>
+        <circle cx="22" cy="28" r="7" fill="#e5cb97"></circle>
+        <text x="39" y="33" fill="#f3e5ca" font-size="13">Engine</text>
+      </g>
+      <g transform="translate(487 520)">
+        <rect width="128" height="56" rx="10" fill="#766143"></rect>
+        <circle cx="22" cy="28" r="7" fill="#e5cb97"></circle>
+        <text x="39" y="33" fill="#f3e5ca" font-size="13">Interface</text>
+      </g>
+    </g>
+    <g data-concept="monitoring">
+      <rect
+        x="662"
+        y="449"
+        width="336"
+        height="149"
+        rx="16"
+        fill="#243e46"
+        stroke="#5e98a9"
+      ></rect>
+      <text x="684" y="483" fill="#bde5ed" font-size="20" font-weight="550">
+        Monitoring
+      </text>
+      <text x="684" y="505" fill="#a9c6ce" font-size="12">
+        Visibility · checks · limits
+      </text>
+      <path
+        d="m686 548 14-9 14 5 15-12 14 9 15-4 14 9 15-6 14 5"
+        fill="none"
+        stroke="#97d4df"
+        stroke-width="2.5"
+        stroke-linejoin="round"
+      ></path>
+      <rect
+        class="apollo-meter"
+        style="animation-delay: 0s"
+        x="842"
+        y="545"
+        width="9"
+        height="22"
+        rx="3"
+        fill="#466f7d"
+      ></rect>
+      <rect
+        class="apollo-meter"
+        style="animation-delay: 0.18s"
+        x="860"
+        y="536"
+        width="9"
+        height="31"
+        rx="3"
+        fill="#73b2bd"
+      ></rect>
+      <rect
+        class="apollo-meter"
+        style="animation-delay: 0.36s"
+        x="878"
+        y="549"
+        width="9"
+        height="18"
+        rx="3"
+        fill="#466f7d"
+      ></rect>
+      <rect
+        class="apollo-meter"
+        style="animation-delay: 0.54s"
+        x="896"
+        y="539"
+        width="9"
+        height="28"
+        rx="3"
+        fill="#73b2bd"
+      ></rect>
+      <rect
+        class="apollo-meter"
+        style="animation-delay: 0.72s"
+        x="914"
+        y="543"
+        width="9"
+        height="24"
+        rx="3"
+        fill="#466f7d"
+      ></rect>
+      <rect
+        class="apollo-meter"
+        style="animation-delay: 0.8999999999999999s"
+        x="932"
+        y="533"
+        width="9"
+        height="34"
+        rx="3"
+        fill="#73b2bd"
+      ></rect>
+      <rect
+        class="apollo-meter"
+        style="animation-delay: 1.08s"
+        x="950"
+        y="547"
+        width="9"
+        height="20"
+        rx="3"
+        fill="#466f7d"
+      ></rect>
+      <text x="684" y="580" fill="#9dbac5" font-size="9">
+        ILLUSTRATIVE ONLY / NO TELEMETRY
+      </text>
+    </g>
+  </g>
+</svg>

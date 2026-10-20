@@ -3,18 +3,65 @@
  * @packageDocumentation
  */
 import { expect, test } from '@playwright/test';
+import type { Page } from '@playwright/test';
+
+/**
+ * Observe actual worker creation/termination without exposing app diagnostics.
+ * @param page - Isolated browser page for this lifecycle fixture.
+ * @returns Installation of the wrapper before application scripts execute.
+ */
+function observeDecoderWorkers(page: Page) {
+  return page.addInitScript(() => {
+    const NativeWorker = window.Worker;
+    Reflect.set(window, '__decoderCreated', 0);
+    Reflect.set(window, '__decoderTerminated', 0);
+    /** Keep the native worker API while counting lifecycle transitions. */
+    class ObservedWorker extends NativeWorker {
+      /**
+       * Forward the native worker constructor unchanged.
+       * @param args - Native worker URL and optional worker options.
+       */
+      constructor(...args: ConstructorParameters<typeof Worker>) {
+        super(...args);
+        Reflect.set(
+          window,
+          '__decoderCreated',
+          Number(Reflect.get(window, '__decoderCreated')) + 1,
+        );
+      }
+      /** Count disposal, then terminate the real worker. */
+      terminate() {
+        Reflect.set(
+          window,
+          '__decoderTerminated',
+          Number(Reflect.get(window, '__decoderTerminated')) + 1,
+        );
+        super.terminate();
+      }
+    }
+    window.Worker = ObservedWorker;
+  });
+}
 
 test('first wheel input visibly changes the rendered camera view', async ({
   page,
 }) => {
+  // Cold software-rendered model/shader startup is not a five-second device budget.
+  test.setTimeout(60_000);
   await page.setViewportSize({ width: 1440, height: 1200 });
   await page.goto('/world');
   const canvas = page.locator('canvas[data-world-ready="true"]');
-  await expect(canvas).toHaveAttribute('data-camera-pose', '3,4.2,6.2');
+  await expect(canvas).toHaveAttribute('data-camera-pose', '0.1,0.84,7.14', {
+    timeout: 15_000,
+  });
   const before = await canvas.screenshot();
+  const offsetBefore = await canvas.getAttribute('data-camera-offset-y');
   expect(await page.evaluate(() => window.scrollY)).toBe(0);
   await page.mouse.wheel(0, 140);
-  await expect(canvas).not.toHaveAttribute('data-camera-pose', '3,4.2,6.2');
+  await expect(canvas).not.toHaveAttribute(
+    'data-camera-offset-y',
+    offsetBefore!,
+  );
   const after = await canvas.screenshot();
   expect(after.equals(before)).toBe(false);
 });
@@ -22,19 +69,44 @@ test('first wheel input visibly changes the rendered camera view', async ({
 test('desktop loads a real scene, supports native anchors and deliberate still mode', async ({
   page,
 }) => {
+  // Software-rendered CI now compiles skinning shaders as well as the static
+  // scene. This is a functional lifecycle test, not a five-second device budget.
+  test.setTimeout(60_000);
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/world');
   const canvas = page.locator('canvas[data-world-ready="true"]');
-  await expect(canvas).toBeVisible();
-  await expect(canvas).toHaveAttribute('data-camera-pose', '3,4.2,6.2');
+  await expect(canvas).toBeVisible({ timeout: 15_000 });
+  await expect(canvas).toHaveAttribute('data-camera-pose', '0.1,0.84,7.14');
   await expect(canvas).toHaveAttribute('data-intro-ready', 'true');
+  // Use a 2x backing buffer even on 1x displays; raising only the DPR cap
+  // would leave those displays' diagonal outlines unchanged.
+  await expect
+    .poll(() =>
+      canvas.evaluate((element) => {
+        const bounds = element.getBoundingClientRect();
+        const buffer = element as HTMLCanvasElement;
+        return (
+          Math.abs(buffer.width - bounds.width * 2) <= 1 &&
+          Math.abs(buffer.height - bounds.height * 2) <= 1
+        );
+      }),
+    )
+    .toBe(true);
+  expect(
+    await canvas.evaluate(
+      (element) =>
+        (element as HTMLCanvasElement)
+          .getContext('webgl2')
+          ?.getContextAttributes()?.alpha,
+    ),
+  ).toBe(true);
   await page
     .getByRole('navigation')
     .getByRole('link', { name: 'Iris', exact: true })
     .click();
   await expect(page).toHaveURL(/#world-iris$/);
-  await expect(canvas).toHaveAttribute('data-camera-pose', '15.8,3.4,5.5');
+  await expect(canvas).toHaveAttribute('data-camera-pose', '2.55,1.95,5.7');
   await expect(
     page.getByRole('heading', { name: 'From Stacks to Solana.' }),
   ).toBeInViewport();
@@ -42,8 +114,8 @@ test('desktop loads a real scene, supports native anchors and deliberate still m
   await expect(
     page.getByRole('heading', { name: 'From Stacks to Solana.' }),
   ).toBeInViewport();
-  await expect(canvas).toBeVisible();
-  await expect(canvas).toHaveAttribute('data-camera-pose', '15.8,3.4,5.5');
+  await expect(canvas).toBeVisible({ timeout: 15_000 });
+  await expect(canvas).toHaveAttribute('data-camera-pose', '2.55,1.95,5.7');
   const wideZoom = Number(await canvas.getAttribute('data-camera-zoom'));
   await page.setViewportSize({ width: 900, height: 900 });
   await expect
@@ -52,7 +124,9 @@ test('desktop loads a real scene, supports native anchors and deliberate still m
   await page.getByRole('button', { name: 'Use still view' }).click();
   await expect(page.locator('canvas')).toHaveCount(0);
   await page.getByRole('button', { name: 'Enable 3D' }).click();
-  await expect(canvas).toBeVisible();
+  // Stacked tablet reading keeps the enabled renderer for hero/inspection only.
+  await expect(canvas).toHaveCount(1, { timeout: 15_000 });
+  await expect(canvas).toBeHidden();
   expect(errors).toEqual([]);
 });
 
@@ -61,7 +135,11 @@ test('mobile and reduced motion do not request the engine chunk', async ({
 }) => {
   const engineRequests: string[] = [];
   page.on('request', (request) => {
-    if (/WorldCanvas-.*\.js|intro-scene-.*\.glb/.test(request.url()))
+    if (
+      /WorldCanvas-.*\.js|intro-scene-.*\.glb|draco_(?:decoder|wasm_wrapper)-/.test(
+        request.url(),
+      )
+    )
       engineRequests.push(request.url());
   });
   await page.setViewportSize({ width: 390, height: 844 });
@@ -94,13 +172,13 @@ test('reduced motion explains the fallback and permits only stationary 3D', asyn
   await page.getByRole('button', { name: 'View stationary 3D' }).click();
   const canvas = page.locator('canvas[data-world-ready="true"]');
   await expect(canvas).toBeVisible();
-  await expect(canvas).toHaveAttribute('data-camera-pose', '3,4.2,6.2');
+  await expect(canvas).toHaveAttribute('data-camera-pose', '0.1,0.84,7.14');
   await page
     .getByRole('navigation')
     .getByRole('link', { name: 'Iris', exact: true })
     .click();
   await expect(page.getByText(/Stationary 3D view/)).toBeVisible();
-  await expect(canvas).toHaveAttribute('data-camera-pose', '3,4.2,6.2');
+  await expect(canvas).toHaveAttribute('data-camera-pose', '0.1,0.84,7.14');
 });
 
 test('narrow viewport can deliberately load stationary 3D and widen for travel', async ({
@@ -112,7 +190,28 @@ test('narrow viewport can deliberately load stationary 3D and widen for travel',
   await page.getByRole('button', { name: 'View stationary 3D' }).click();
   await expect(page.locator('canvas[data-world-ready="true"]')).toBeVisible();
   await page.setViewportSize({ width: 1440, height: 900 });
-  await expect(page.getByText(/3D view — scroll the page/)).toBeVisible();
+  await expect(page.getByText(/3D supports the reading/)).toBeVisible();
+});
+
+test('camera framing follows the CSS breakpoint despite the scrollbar width', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 768, height: 900 });
+  await page.goto('/');
+  const canvas = page.locator('canvas[data-intro-ready="true"]');
+  expect(
+    Number(await canvas.getAttribute('data-camera-offset-y')),
+  ).toBeLessThan(0);
+  await page.setViewportSize({ width: 767, height: 900 });
+  await expect(page.locator('canvas')).toHaveCount(0);
+  await page.getByRole('button', { name: 'View stationary 3D' }).click();
+  expect(
+    Number(await canvas.getAttribute('data-camera-offset-y')),
+  ).toBeLessThan(0);
+  await page.setViewportSize({ width: 1920, height: 600 });
+  expect(
+    Number(await canvas.getAttribute('data-camera-offset-y')),
+  ).toBeLessThan(0);
 });
 
 test('lost context unmounts WebGL and preserves chapter content', async ({
@@ -161,7 +260,7 @@ test('delayed engine loading shows the poster without blocking navigation', asyn
   });
   await page.goto('/world', { waitUntil: 'domcontentloaded' });
   await expect(page.getByRole('status')).toContainText('Loading 3D');
-  await expect(page.locator('.world-still img')).toBeVisible();
+  await expect(page.locator('.world-intro-poster')).toBeVisible();
   await page
     .getByRole('navigation')
     .getByRole('link', { name: 'Iris', exact: true })
@@ -170,7 +269,11 @@ test('delayed engine loading shows the poster without blocking navigation', asyn
     page.getByRole('heading', { name: 'From Stacks to Solana.' }),
   ).toBeInViewport();
   release();
-  await expect(page.locator('canvas[data-world-ready="true"]')).toBeVisible();
+  // Decoder requests finish quickly; skinning shader initialization can exceed
+  // the default assertion timeout on the software renderer used by this suite.
+  await expect(page.locator('canvas[data-world-ready="true"]')).toBeVisible({
+    timeout: 15_000,
+  });
 });
 
 test('engine download failure leaves a useful illustration and navigation', async ({
@@ -179,7 +282,7 @@ test('engine download failure leaves a useful illustration and navigation', asyn
   await page.route('**/WorldCanvas-*.js', (route) => route.abort());
   await page.goto('/world');
   await expect(page.getByRole('status')).toContainText('3D could not load');
-  await expect(page.locator('.world-still img')).toBeVisible();
+  await expect(page.locator('.world-intro-poster')).toBeVisible();
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await expect(page.getByRole('status')).toContainText('Reload to retry');
@@ -218,7 +321,7 @@ test('unavailable WebGL fails safely without losing HTML', async ({ page }) => {
   });
   await page.goto('/world');
   await expect(page.getByRole('status')).toContainText('3D could not load');
-  await expect(page.locator('.world-still img')).toBeVisible();
+  await expect(page.locator('.world-intro-poster')).toBeVisible();
 });
 
 test('introduction model download failure retains the approved poster and HTML', async ({
@@ -227,8 +330,116 @@ test('introduction model download failure retains the approved poster and HTML',
   await page.route('**/intro-scene-*.glb', (route) => route.abort());
   await page.goto('/');
   await expect(page.getByRole('status')).toContainText('3D could not load');
-  await expect(page.locator('.world-still img')).toBeVisible();
+  await expect(page.locator('.world-intro-poster')).toBeVisible();
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  await expect(page.locator('canvas')).toHaveCount(0);
+});
+
+test('decoder download failure retains the approved poster and HTML', async ({
+  page,
+}) => {
+  await page.route('**/draco_decoder-*.wasm', (route) => route.abort());
+  await page.goto('/');
+  await expect(page.getByRole('status')).toContainText('3D could not load');
+  await expect(page.locator('.world-intro-poster')).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  await expect(page.locator('canvas')).toHaveCount(0);
+});
+
+test('compressed model and local decoder download once across mode toggles', async ({
+  page,
+}) => {
+  const models: string[] = [];
+  const decoders: string[] = [];
+  page.on('request', (request) => {
+    if (/intro-scene-.*\.glb/.test(request.url())) models.push(request.url());
+    if (/draco_(?:decoder|wasm_wrapper)-/.test(request.url()))
+      decoders.push(request.url());
+  });
+  await page.goto('/');
+  await expect(page.locator('canvas[data-intro-ready="true"]')).toBeVisible();
+  await expect
+    .poll(async () =>
+      Number(await page.locator('canvas').getAttribute('data-intro-time')),
+    )
+    .toBeGreaterThan(0.05);
+  await page.getByRole('button', { name: 'Use still view' }).click();
+  await page.getByRole('button', { name: 'Enable 3D' }).click();
+  await expect(page.locator('canvas[data-intro-ready="true"]')).toBeVisible();
+  await expect(page.locator('canvas')).toHaveAttribute(
+    'data-intro-motion',
+    'playing',
+  );
+  await expect
+    .poll(async () =>
+      Number(await page.locator('canvas').getAttribute('data-intro-time')),
+    )
+    .toBeGreaterThan(0.05);
+  expect(models).toHaveLength(1);
+  expect(decoders).toHaveLength(2);
+  expect(
+    decoders.every((url) => new URL(url).origin === new URL(page.url()).origin),
+  ).toBe(true);
+});
+
+test('switching to still during loading releases the completed decoder without a React commit', async ({
+  page,
+}) => {
+  await observeDecoderWorkers(page);
+  /** Release the model request only after its suspended component unmounts. */
+  let release: () => void = () => {};
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route('**/intro-scene-*.glb', async (route) => {
+    await gate;
+    await route.continue();
+  });
+  await page.goto('/');
+  await expect(page.getByRole('status')).toContainText('Loading 3D');
+  await page.getByRole('button', { name: 'Use still view' }).click();
+  release();
+  await expect
+    .poll(() =>
+      page.evaluate(() => Number(Reflect.get(window, '__decoderTerminated'))),
+    )
+    .toBe(1);
+  await expect(page.locator('canvas')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Enable 3D' }).click();
+  await expect(page.locator('canvas[data-intro-ready="true"]')).toBeVisible();
+  expect(
+    await page.evaluate(() => Number(Reflect.get(window, '__decoderCreated'))),
+  ).toBe(1);
+});
+
+test('malformed compressed geometry releases its worker and falls back to the poster', async ({
+  page,
+}) => {
+  await observeDecoderWorkers(page);
+  await page.route('**/intro-scene-*.glb', async (route) => {
+    const response = await route.fetch();
+    const body = await response.body();
+    const jsonLength = body.readUInt32LE(12);
+    const model = JSON.parse(
+      body.subarray(20, 20 + jsonLength).toString('utf8'),
+    );
+    const view =
+      model.bufferViews[
+        model.meshes[0].primitives[0].extensions.KHR_draco_mesh_compression
+          .bufferView
+      ];
+    const start = 20 + jsonLength + 8 + (view.byteOffset ?? 0);
+    body.fill(0, start, start + Math.min(16, view.byteLength));
+    await route.fulfill({ response, body });
+  });
+  await page.goto('/');
+  await expect(page.getByRole('status')).toContainText('3D could not load');
+  await expect(page.locator('.world-intro-poster')).toBeVisible();
+  await expect
+    .poll(() =>
+      page.evaluate(() => Number(Reflect.get(window, '__decoderTerminated'))),
+    )
+    .toBe(1);
   await expect(page.locator('canvas')).toHaveCount(0);
 });
 
@@ -254,11 +465,14 @@ test('narrow stationary-3D loading keeps its inline poster until the model is re
   await expect(page.locator('.world-intro-poster')).toBeHidden();
 });
 
-test('demand rendering pauses while hidden or unlaid-out and resumes on return', async ({
+test('demand rendering pauses while hidden, outside intro or unlaid-out and resumes on return', async ({
   page,
 }) => {
+  test.setTimeout(60_000);
   await page.goto('/world');
-  await expect(page.locator('canvas[data-world-ready="true"]')).toBeVisible();
+  await expect(page.locator('canvas[data-world-ready="true"]')).toBeVisible({
+    timeout: 25_000,
+  });
   await page.evaluate(() => {
     const canvas = document.querySelector('canvas')!;
     const gl = canvas.getContext('webgl2')!;
@@ -341,4 +555,64 @@ test('demand rendering pauses while hidden or unlaid-out and resumes on return',
       page.evaluate(() => Number(Reflect.get(window, '__worldDraws'))),
     )
     .toBeGreaterThan(offscreen);
+});
+
+test('intro motion can pause and resume without moving the idle camera', async ({
+  page,
+}) => {
+  test.setTimeout(60_000);
+  await page.setViewportSize({ width: 900, height: 600 });
+  await page.goto('/');
+  const canvas = page.locator('canvas[data-intro-ready="true"]');
+  await expect(canvas).toHaveAttribute('data-intro-motion', 'playing');
+  await expect
+    .poll(async () => Number(await canvas.getAttribute('data-intro-time')))
+    .toBeGreaterThan(0.15);
+  await page.getByRole('button', { name: 'Pause motion', exact: true }).click();
+  await expect(canvas).toHaveAttribute('data-intro-motion', 'paused');
+  const before = await canvas.screenshot();
+  await page
+    .getByRole('button', { name: 'Resume motion', exact: true })
+    .click();
+  // The right hand must actually transfer to the keyboard, not merely advance
+  // an animation clock while the geometry remains static.
+  await expect
+    .poll(async () => Number(await canvas.getAttribute('data-intro-time')), {
+      timeout: 30_000,
+    })
+    .toBeGreaterThan(1.4);
+  await page.getByRole('button', { name: 'Pause motion', exact: true }).click();
+  await expect(canvas).toHaveAttribute('data-intro-motion', 'paused');
+  const after = await canvas.screenshot();
+  expect(after.equals(before)).toBe(false);
+  await expect(canvas).toHaveAttribute('data-camera-pose', '0.1,0.84,7.14');
+  const frozen = await canvas.getAttribute('data-intro-time');
+  await page.waitForTimeout(250);
+  expect(await canvas.getAttribute('data-intro-time')).toBe(frozen);
+  await page
+    .getByRole('button', { name: 'Resume motion', exact: true })
+    .click();
+  await expect(canvas).toHaveAttribute('data-intro-motion', 'playing');
+  await expect
+    .poll(async () => Number(await canvas.getAttribute('data-intro-time')))
+    .toBeGreaterThan(Number(frozen));
+});
+
+test('reduced-motion and narrow stationary opt-ins never animate the character', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'View stationary 3D' }).click();
+  const canvas = page.locator('canvas[data-intro-ready="true"]');
+  await expect(canvas).toHaveAttribute('data-intro-motion', 'paused');
+  await expect(page.getByRole('button', { name: 'Pause motion' })).toHaveCount(
+    0,
+  );
+  await page.waitForTimeout(250);
+  expect(Number(await canvas.getAttribute('data-intro-time'))).toBe(0);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.getByRole('button', { name: 'View stationary 3D' }).click();
+  await expect(canvas).toHaveAttribute('data-intro-motion', 'paused');
 });

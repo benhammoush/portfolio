@@ -4,6 +4,65 @@
  */
 import { expect, test } from '@playwright/test';
 
+for (const viewport of [
+  { width: 320, height: 740 },
+  { width: 390, height: 844 },
+  { width: 768, height: 1024 },
+  { width: 1024, height: 768 },
+  { width: 1440, height: 900 },
+]) {
+  test(`hero copy and actions stay readable at ${viewport.width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(viewport);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/');
+    const hero = page.locator('.world-intro');
+    const title = hero.getByRole('heading', { level: 1 });
+    await expect(title).toHaveText('Hi, I’m Guillaume, a full-stack developer');
+    const titleBox = await title.boundingBox();
+    const headerBox = await page.locator('.world-header').boundingBox();
+    expect(titleBox!.y).toBeGreaterThan(headerBox!.y + headerBox!.height);
+    expect(
+      await title.evaluate(
+        (element) => element.scrollWidth <= element.clientWidth,
+      ),
+    ).toBe(true);
+    if (viewport.width >= 768) {
+      const copyBox = await hero.locator('.world-section-inner').boundingBox();
+      const stillBox = await page.locator('.world-intro-art').boundingBox();
+      expect(stillBox!.y).toBeGreaterThanOrEqual(copyBox!.y + copyBox!.height);
+    }
+    const work = hero.getByRole('link', { name: /Explore my work/ });
+    await expect(work).toHaveAttribute('href', '#world-apollo');
+    const contact = hero.getByRole('link', { name: /Get in touch/ });
+    await expect(contact).toHaveAttribute(
+      'href',
+      'mailto:guillaumeammouche@protonmail.com',
+    );
+    for (const action of [work, contact]) {
+      const box = await action.boundingBox();
+      expect(box!.height).toBeGreaterThanOrEqual(44);
+      expect(box!.x).toBeGreaterThanOrEqual(0);
+      expect(box!.x + box!.width).toBeLessThanOrEqual(viewport.width);
+      await action.focus();
+      await expect(action).toBeFocused();
+      expect(
+        await action.evaluate((element) => element.matches(':focus-visible')),
+      ).toBe(true);
+    }
+    await work.click();
+    await expect(page).toHaveURL(/#world-apollo$/);
+    await expect(
+      page.getByRole('heading', {
+        name: 'From strategy automation to a full-stack trading platform.',
+      }),
+    ).toBeInViewport();
+    await page.goBack();
+    await expect(title).toBeInViewport();
+  });
+}
+
 test('homepage keeps the world edge-to-edge while native HTML chapters scroll', async ({
   page,
 }) => {
@@ -11,14 +70,14 @@ test('homepage keeps the world edge-to-edge while native HTML chapters scroll', 
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-    'Hi, I’m Guillaume.',
+    'Hi, I’m Guillaume, a full-stack developer',
   );
   const opening = await page.locator('.world-stage').boundingBox();
   expect(opening).toEqual({ x: 0, y: 0, width: 1440, height: 900 });
-  await expect(page.locator('.world-still img')).toBeVisible();
+  await expect(page.locator('.world-intro-poster')).toBeVisible();
   expect(
     await page
-      .locator('.world-still img')
+      .locator('.world-intro-poster')
       .evaluate((image) => (image as HTMLImageElement).naturalWidth),
   ).toBe(1200);
   expect(
@@ -80,9 +139,11 @@ test('narrow composition retains keyboard navigation, contact and viewport bound
   const copyBox = await page
     .locator('.world-intro .world-section-inner')
     .boundingBox();
-  expect(posterBox!.y).toBeGreaterThanOrEqual(copyBox!.y + copyBox!.height);
-  expect(posterBox!.x).toBeGreaterThanOrEqual(0);
-  expect(posterBox!.x + posterBox!.width).toBeLessThanOrEqual(320);
+  const artworkBox = await page.locator('.world-intro-art').boundingBox();
+  expect(artworkBox!.y).toBeGreaterThanOrEqual(copyBox!.y + copyBox!.height);
+  expect(artworkBox!.x).toBeGreaterThanOrEqual(0);
+  expect(artworkBox!.x + artworkBox!.width).toBeLessThanOrEqual(320);
+  expect(posterBox!.width).toBeGreaterThan(artworkBox!.width);
 });
 
 test('lower-page profile navigation opens at the top and history restores its chapter', async ({
@@ -98,7 +159,10 @@ test('lower-page profile navigation opens at the top and history restores its ch
   const controlsBox = await page
     .locator('.world-viewport figcaption')
     .boundingBox();
-  expect(linkBox!.y + linkBox!.height).toBeLessThanOrEqual(controlsBox!.y);
+  // Visual controls now live above the content, not in a bottom ribbon.
+  expect(linkBox!.y).toBeGreaterThanOrEqual(
+    controlsBox!.y + controlsBox!.height,
+  );
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/\/about$/);
   await expect(

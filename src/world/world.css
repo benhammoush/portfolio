@@ -1,12 +1,203 @@
-/* One page-sized composition: the world is never framed as a content card. */
+/* Content owns the page. Geometry is framed in its negative space, never washed over text. */
+.world-viewport .visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.world-visual-status {
+  background: #f7f8f3;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+}
+/* The optional close-up is confined to the visual rail, never placed behind copy. */
+.world-stage:has(canvas[data-camera-mode='inspect']) {
+  clip-path: inset(0 0 0 62%);
+}
+.world-workflow-poster {
+  position: absolute;
+  top: 7rem;
+  right: 5vw;
+  width: min(27vw, 24rem);
+  height: auto;
+  border-radius: 0.5rem;
+}
+@media (min-width: 1200px) and (prefers-reduced-motion: no-preference) {
+  /* A ready native desktop owns the visual rail even before its app opens.
+     Keep each independent alternative available if its own artwork failed. */
+  .world-viewport:has(
+      canvas[data-monitor-desktop='ready'][data-workflow-ready='true']
+    )
+    ~ .world-main
+    #world-workflow
+    img.world-workflow-poster,
+  .world-viewport:has(
+      canvas[data-monitor-desktop='ready'][data-apollo-ready='true']
+    )
+    ~ .world-main
+    #world-apollo
+    img.world-workflow-poster {
+    /* Retain the small artwork footprint so late decoding cannot move anchors. */
+    visibility: hidden;
+  }
+}
+
+/* Editorial reading, not a second column beside a 3D showcase. */
+.world-page .world-section:not(.world-intro) .world-section-inner {
+  width: min(100%, 46rem);
+  margin-inline: auto;
+  padding: 1.75rem 2rem;
+  background: #f8faf6;
+  border: 1px solid #d6ded6;
+  border-radius: 1rem;
+  box-shadow: 0 8px 32px #20372d06;
+}
+.world-page .world-copy-section .world-eyebrow {
+  font-size: 2rem;
+  letter-spacing: -0.04em;
+  color: #20372d;
+  margin-bottom: 0.75rem;
+}
+.world-page .world-copy-section h2 {
+  font-size: clamp(1.75rem, 2.7vw, 2.4rem);
+  margin-bottom: 1.1rem;
+}
+.world-page .world-workflow-poster {
+  position: static;
+  width: min(100%, 12rem);
+  margin: 1rem auto 0;
+  align-self: center;
+  opacity: 0.8;
+}
+.world-page .world-workflow-section {
+  flex-direction: column;
+}
+.world-stage:has(canvas[data-camera-mode='reading']) .world-canvas,
+.world-stage:has(canvas[data-camera-mode='stationary-reading']) .world-canvas {
+  opacity: 1;
+}
+@media (min-width: 1200px) {
+  .world-page .world-section:not(.world-intro) {
+    padding-inline: 5vw;
+  }
+  .world-page .world-section:not(.world-intro) .world-section-inner {
+    width: min(48%, 46rem);
+    margin-inline: 0 auto;
+  }
+  .world-page .world-section.world-copy-right .world-section-inner {
+    margin-inline: auto 0;
+  }
+  .world-page:has(canvas[data-camera-mode='inspect'])
+    .world-main
+    .world-section:not(.world-intro)
+    .world-section-inner {
+    width: min(48%, 46rem);
+    margin-inline: 0 auto;
+  }
+  .world-page .world-workflow-poster {
+    position: absolute;
+    top: 3rem;
+    right: 5vw;
+    width: min(36vw, 34rem);
+    margin: 0;
+    opacity: 1;
+  }
+  .world-page .world-copy-right .world-workflow-poster {
+    right: auto;
+    left: 5vw;
+  }
+}
+@media (min-width: 768px) and (max-width: 1199px) {
+  .world-stage:has(canvas[data-camera-mode='reading']),
+  .world-stage:has(canvas[data-camera-mode='stationary-reading']) {
+    visibility: hidden;
+  }
+}
+/* Only an explicit inspection request restores the split reading/screen study. */
+.world-page:has(canvas[data-camera-mode='inspect'])
+  .world-section:not(.world-intro)
+  .world-section-inner {
+  width: min(100%, 46rem);
+  margin-inline: 0;
+}
+@media (max-width: 767px) {
+  .world-page .world-workflow-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .world-workflow-poster {
+    position: static;
+    width: 100%;
+    transform: none;
+    margin-top: 2rem;
+  }
+}
 .world-page {
   position: relative;
   isolation: isolate;
   min-height: 100svh;
-  background: #eeeee5;
-  color: #20372d;
+  background: #f0f3ef;
+  color: #202626;
+}
+/* Accepted centered introduction; the poster rectangle also anchors live framing. */
+.world-page .world-intro {
+  display: block;
+  min-height: 0;
+  padding: 10rem 6vw 0;
+}
+.world-page .world-intro .world-section-inner {
+  width: min(100%, 72rem);
+  margin-inline: auto;
+  text-align: center;
+}
+.world-page .world-intro h1 {
+  max-width: 24ch;
+  margin: 0 auto 1.5rem;
+  font-size: clamp(1.9rem, 4.7vw, 5.25rem);
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+.world-page .world-intro .world-section-inner > .world-intro-detail {
+  max-width: 64ch;
+  margin-inline: auto;
+  font-size: 0.95rem;
+  line-height: 1.8;
+}
+.world-intro .world-actions {
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+.world-intro-art {
+  position: relative;
+  height: clamp(25rem, 42vw, 46rem);
+  margin: 1rem -6vw 0;
+  overflow: hidden;
+}
+.world-intro .world-intro-poster {
+  display: block;
+  position: absolute;
+  top: 0;
+  right: 50%;
+  width: min(100vw, 110rem);
+  height: auto;
+  margin: 0;
+  transform: translate(50%, -15%);
+}
+.world-viewport:has(canvas[data-intro-ready='true'])
+  ~ .world-main
+  .world-intro-poster {
+  visibility: hidden;
+}
+.world-page .world-still img {
+  display: none;
 }
 .world-page::before {
+  display: none;
   content: '';
   position: fixed;
   inset: 0;
@@ -30,7 +221,7 @@
   flex-wrap: wrap;
   gap: 0.5rem 2rem;
   padding: 1.6rem 5vw;
-  background: linear-gradient(#f7f8f3ed, #f7f8f300);
+  background: #f0f3ef;
 }
 .world-header a {
   color: #20372d;
@@ -64,10 +255,10 @@
 }
 .world-section {
   position: relative;
-  min-height: 100svh;
+  min-height: 0;
   display: flex;
-  align-items: center;
-  padding: 8rem 6vw 9rem;
+  align-items: flex-start;
+  padding: 2rem 6vw 2.5rem;
 }
 .world-page .world-section[id] {
   scroll-margin-top: 7.5rem;
@@ -77,7 +268,7 @@
   scroll-margin-block: 7rem;
 }
 .world-section-inner {
-  width: min(38vw, 33rem);
+  width: min(52vw, 46rem);
 }
 .world-intro {
   min-height: 100svh;
@@ -86,72 +277,78 @@
   scroll-margin-top: 0;
 }
 .world-intro .world-section-inner {
-  width: min(42vw, 39rem);
+  width: min(40vw, 36rem);
+}
+.world-intro .world-section-inner > p:not(.world-eyebrow, .world-lead) {
+  max-width: 42ch;
 }
 .world-intro-poster {
   display: none;
 }
-.world-still img,
-.world-intro-poster {
-  filter: drop-shadow(0 12px 12px #20372d20);
-  mask-image:
-    linear-gradient(to bottom, transparent, #000 8%, #000 84%, transparent),
-    linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
-  mask-composite: intersect;
-}
 .world-eyebrow {
-  color: #7d4b2e;
+  color: #294b3d;
   font:
-    0.65rem/1.6 ui-monospace,
-    monospace;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-bottom: 2rem;
+    600 1.3rem/1.4 system-ui,
+    sans-serif;
+  letter-spacing: -0.025em;
+  margin-bottom: 1.5rem;
+}
+.world-eyebrow span {
+  font-size: 0.7rem;
+  color: #63736c;
+  margin-right: 1rem;
+  font-weight: 400;
 }
 .world-intro h1 {
-  font-size: clamp(3.5rem, 6vw, 6.8rem);
+  font-size: clamp(3.5rem, 6.5vw, 6.5rem);
   font-weight: 500;
-  line-height: 0.97;
-  letter-spacing: -0.075em;
-  max-width: none;
-  margin-bottom: 2rem;
-}
-.world-intro h1 span {
-  color: #a2623a;
+  line-height: 1.02;
+  letter-spacing: -0.06em;
+  max-width: 10ch;
+  text-wrap: balance;
+  margin-bottom: 1.5rem;
 }
 .world-lead {
-  font-size: clamp(1.05rem, 1.45vw, 1.4rem);
+  font-size: clamp(1.15rem, 1.6vw, 1.5rem);
+  font-weight: 500;
   line-height: 1.6;
   max-width: 32ch;
+  margin-bottom: 1rem;
 }
 .world-intro-detail {
-  color: #53665a;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
+  line-height: 1.75;
+  margin-bottom: 0;
 }
 .world-actions {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 1rem 2rem;
-  margin-top: 2rem;
+  gap: 0.75rem 1.5rem;
+  margin-top: 2.25rem;
 }
 .world-actions a {
-  color: #20372d;
-  font-size: 0.8rem;
-  padding-block: 0.7rem;
-}
-.world-link {
   display: inline-flex;
   align-items: center;
-  gap: 2rem;
+  justify-content: center;
+  gap: 1.5rem;
+  min-height: 48px;
   color: #20372d;
-  border-bottom: 1px solid #718371;
-  padding-block: 0.8rem;
-  text-decoration: none;
   font-size: 0.85rem;
+  padding-block: 0.8rem;
 }
-.world-link:hover {
-  color: #98512b;
+.world-actions .world-link {
+  padding-inline: 1.25rem;
+  border: 1px solid #20372d;
+  border-radius: 0.35rem;
+  background: #20372d;
+  color: #f7f8f3;
+  text-decoration: none;
+}
+.world-actions .world-link:hover {
+  background: #345344;
+  border-color: #345344;
+  text-decoration: underline;
 }
 .world-scroll-cue {
   position: absolute;
@@ -171,10 +368,12 @@
     sans-serif;
 }
 .world-section h2 {
-  font-size: clamp(2.5rem, 4vw, 4.25rem);
+  font-size: clamp(2rem, 2.8vw, 3rem);
   font-weight: 500;
-  line-height: 1.03;
-  letter-spacing: -0.06em;
+  line-height: 1.16;
+  letter-spacing: -0.04em;
+  margin-bottom: 1.8rem;
+  text-wrap: balance;
 }
 .world-section .world-copy-subtitle {
   margin-top: 2.5rem;
@@ -183,7 +382,15 @@
 }
 .world-copy-section p,
 .world-profile p {
-  line-height: 1.8;
+  font-size: 1.1875rem;
+  line-height: 1.65;
+  margin-bottom: 1.1rem;
+}
+.world-section:not(.world-intro) .world-section-inner > :last-child {
+  margin-bottom: 0;
+}
+.world-copy-section .world-eyebrow {
+  font-size: 1.3rem;
 }
 .world-project-links {
   display: flex;
@@ -193,11 +400,26 @@
   padding: 0;
   margin-top: 2rem;
 }
+.world-copy-details {
+  margin-top: 1rem;
+  border-top: 1px solid #d6ded6;
+}
+.world-copy-details summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding-block: 0.8rem;
+  color: #294b3d;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.world-copy-details[open] summary {
+  margin-bottom: 0.5rem;
+}
 .world-project-links a {
   font-size: 0.85rem;
 }
 .world-section-inner > p:not(.world-eyebrow, .world-lead) {
-  color: #53665a;
+  color: #26342c;
 }
 .world-section-inner .world-study-note {
   font-size: 0.75rem;
@@ -205,10 +427,10 @@
   max-width: 43ch;
 }
 .world-iris-section {
-  min-height: 110svh;
+  min-height: 0;
 }
 .world-contact {
-  min-height: 85svh;
+  min-height: 0;
 }
 .world-contact .world-section-inner {
   width: min(47vw, 43rem);
@@ -228,7 +450,7 @@
   inset: 0;
   z-index: 0;
   overflow: hidden;
-  background: #eeeee5;
+  background: #f0f3ef;
 }
 .world-canvas,
 .world-still {
@@ -241,26 +463,27 @@
 }
 .world-still img {
   position: absolute;
-  right: -5vw;
+  right: 2vw;
   top: 50%;
   transform: translateY(-50%);
-  width: min(68vw, 65rem);
+  width: min(51vw, 49rem);
   height: auto;
 }
 .world-viewport figcaption {
   position: fixed;
-  inset: auto 0 0;
+  inset: 5.5rem 5vw auto auto;
   z-index: 15;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem 5vw;
+  flex-wrap: wrap;
+  max-width: calc(100vw - 3rem);
+  gap: 0.4rem;
+  padding: 0;
   color: #485e50;
   font:
     0.6rem/1.5 ui-monospace,
     monospace;
-  background: linear-gradient(#f7f8f300, #f7f8f3f5 65%);
   pointer-events: none;
 }
 .world-viewport figcaption span {
@@ -312,7 +535,7 @@
 }
 @media (min-width: 768px) and (max-width: 1100px) {
   .world-section-inner {
-    width: 43vw;
+    width: 50vw;
   }
   .world-page::before {
     background: linear-gradient(
@@ -328,8 +551,15 @@
   }
 }
 @media (max-width: 767px) {
+  .world-stage:has(canvas[data-camera-mode='stationary-reading']) {
+    visibility: hidden;
+  }
   .world-header {
     padding: 1rem 1.5rem;
+  }
+  .world-header .world-brand {
+    font-size: 0.78rem;
+    max-width: calc(100% - 7.25rem);
   }
   .world-header nav {
     gap: 0.2rem 1.1rem;
@@ -348,9 +578,13 @@
     );
   }
   .world-section {
-    min-height: 100svh;
-    padding: 9rem 1.5rem 10rem;
-    align-items: center;
+    min-height: 0;
+    padding: 1.5rem 1.25rem;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .world-page .world-section:not(.world-intro) .world-section-inner {
+    padding: 1.25rem 1.1rem;
   }
   .world-page .world-section[id] {
     scroll-margin-top: 6rem;
@@ -364,13 +598,13 @@
     width: 100%;
   }
   .world-intro h1 {
-    font-size: clamp(3rem, 13.5vw, 5.5rem);
+    font-size: clamp(2.75rem, 12.5vw, 5.5rem);
   }
   .world-section h2 {
-    font-size: clamp(2.5rem, 10.5vw, 4rem);
+    font-size: clamp(1.9rem, 7.5vw, 2.7rem);
   }
   .world-eyebrow {
-    font-size: 0.6rem;
+    font-size: 1.15rem;
     margin-bottom: 1.5rem;
   }
   .world-lead {
@@ -393,7 +627,7 @@
     display: block;
     width: 100%;
     height: auto;
-    margin-top: 1.5rem;
+    margin-top: 0.5rem;
   }
   .world-viewport:has(canvas[data-intro-ready='true'])
     ~ .world-main
@@ -405,16 +639,21 @@
   }
   .world-viewport figcaption {
     align-items: flex-end;
-    gap: 0.75rem;
-    padding: 1.5rem 1rem 0.75rem;
+    gap: 0.4rem;
+    padding: 0;
+    top: 0.5rem;
+    right: 1.5rem;
+    bottom: auto;
+    max-width: 7.25rem;
     font-size: 0.55rem;
   }
   .world-viewport figcaption span {
-    max-width: 60%;
+    max-width: 22rem;
   }
   .world-viewport button {
-    font-size: 0.65rem;
-    padding-inline: 0.7rem;
+    font-size: 0.6rem;
+    padding-inline: 0.5rem;
+    background: #f7f8f3;
   }
   .world-notice {
     left: 1.5rem;
@@ -423,5 +662,17 @@
   }
   .world-footer {
     padding-inline: 1.5rem;
+  }
+}
+@media (max-width: 767px) {
+  .world-page .world-intro {
+    padding: 9rem 1.5rem 0;
+  }
+  .world-intro-art {
+    height: clamp(21rem, 70vw, 38rem);
+    margin-inline: -1.5rem;
+  }
+  .world-intro .world-intro-poster {
+    width: min(180%, 74rem);
   }
 }

@@ -6,28 +6,11 @@ import IrisInstallation, { MachinedBody } from './IrisInstallation';
 
 /**
  * Ground the hub and Iris in one beveled ceramic platform, not scattered primitives.
- * @returns Declaratively owned gallery floor, low hub and the selected installation.
+ * @returns The provisional low hub and installation, without a page-spanning floor.
  */
 export default function GalleryObjects() {
   return (
     <group>
-      <mesh
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, -0.18, 0]}
-        receiveShadow
-      >
-        <planeGeometry args={[200, 200]} />
-        <meshStandardMaterial color="#eeeee5" roughness={0.92} />
-      </mesh>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.173, 0]}>
-        <planeGeometry args={[13, 10]} />
-        <shaderMaterial
-          transparent
-          depthWrite={false}
-          vertexShader="varying vec2 vUv; void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}"
-          fragmentShader="varying vec2 vUv; void main(){vec2 p=(vUv-0.5)*2.0;float a=0.16*exp(-4.0*dot(p,p));gl_FragColor=vec4(0.14,0.20,0.16,a);}"
-        />
-      </mesh>
       <MachinedBody
         size={[7.2, 0.14, 4.5]}
         position={[0, -0.06, 0]}
