@@ -2,7 +2,29 @@
  * The original hero screen remains until a heading-led, interruptible app launch.
  * @packageDocumentation
  */
-import { expect, test } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
+
+/**
+ * Advance the frozen clock until a native scroll or React update reaches the canvas.
+ * @param page - Browser page with its animation clock paused.
+ * @param canvas - Monitor canvas exposing its rendered window state.
+ * @param state - Expected launch state, without skipping intermediate frames.
+ */
+async function expectWindowState(
+  page: Page,
+  canvas: Locator,
+  state: 'closed' | 'opening' | 'open' | 'closing',
+) {
+  await expect
+    .poll(
+      async () => {
+        await page.clock.runFor(16);
+        return canvas.getAttribute('data-monitor-window');
+      },
+      { timeout: 25_000 },
+    )
+    .toBe(state);
+}
 
 test.beforeEach(async ({ page }) => {
   // Control performance.now and animation timers before application code loads.
@@ -57,15 +79,7 @@ test('Workflow opens a window over the original screen, with pause and static re
         320,
     );
   });
-  await expect
-    .poll(
-      async () => {
-        await page.clock.runFor(16);
-        return canvas.getAttribute('data-monitor-window');
-      },
-      { timeout: 25_000 },
-    )
-    .toBe('opening');
+  await expectWindowState(page, canvas, 'opening');
   await page.clock.fastForward(600);
   await page.clock.runFor(50);
   await expect(
@@ -96,33 +110,30 @@ test('Workflow opens a window over the original screen, with pause and static re
     .click();
   await page.clock.runFor(50);
   await expect
-    .poll(async () => {
-      await page.clock.runFor(50);
-      return canvas.getAttribute('data-workflow-motion');
-    })
+    .poll(
+      async () => {
+        await page.clock.runFor(16);
+        return canvas.getAttribute('data-workflow-motion');
+      },
+      { timeout: 25_000 },
+    )
     .toBe('playing');
   await page.clock.fastForward(1000);
-  await page.clock.runFor(50);
-  await expect(canvas).toHaveAttribute('data-monitor-window', 'open', {
-    timeout: 25_000,
-  });
+  await expectWindowState(page, canvas, 'open');
   await expect(canvas).toHaveAttribute('data-monitor-window-amount', '1');
   await expect(canvas).toHaveAttribute('data-monitor-chapter', 'workflow');
   await page.getByRole('button', { name: 'Pause motion', exact: true }).click();
   await page.evaluate(() => window.scrollBy(0, -200));
-  await page.clock.runFor(50);
-  await expect(canvas).toHaveAttribute('data-monitor-window', 'closed');
+  await expectWindowState(page, canvas, 'closed');
   await expect(canvas).toHaveAttribute('data-workflow-active', 'false');
   await page.evaluate(() => window.scrollBy(0, 200));
-  await page.clock.runFor(50);
-  await expect(canvas).toHaveAttribute('data-monitor-window', 'open');
+  await expectWindowState(page, canvas, 'open');
   await expect(canvas).toHaveAttribute('data-monitor-window-amount', '1');
   await page
     .getByRole('navigation')
     .getByRole('link', { name: 'Introduction', exact: true })
     .click();
-  await page.clock.runFor(50);
-  await expect(canvas).toHaveAttribute('data-monitor-window', 'closed');
+  await expectWindowState(page, canvas, 'closed');
   await expect(canvas).toHaveAttribute('data-workflow-active', 'false');
 });
 
@@ -161,15 +172,7 @@ test('a running launch freezes while hidden and reverses from its partial window
         320,
     );
   });
-  await expect
-    .poll(
-      async () => {
-        await page.clock.runFor(16);
-        return canvas.getAttribute('data-monitor-window');
-      },
-      { timeout: 25_000 },
-    )
-    .toBe('opening');
+  await expectWindowState(page, canvas, 'opening');
   await page.clock.fastForward(600);
   await page.clock.runFor(50);
   await expect
@@ -195,13 +198,9 @@ test('a running launch freezes while hidden and reverses from its partial window
     });
     document.dispatchEvent(new Event('visibilitychange'));
   });
-  await page.clock.runFor(50);
-  await expect(canvas).toHaveAttribute('data-monitor-window', 'closing');
+  await expectWindowState(page, canvas, 'closing');
   await page.clock.fastForward(1000);
-  await page.clock.runFor(50);
-  await expect(canvas).toHaveAttribute('data-monitor-window', 'closed', {
-    timeout: 25_000,
-  });
+  await expectWindowState(page, canvas, 'closed');
   await expect(canvas).toHaveAttribute('data-monitor-window-amount', '0');
   await expect(canvas).toHaveAttribute('data-workflow-active', 'false');
 });
