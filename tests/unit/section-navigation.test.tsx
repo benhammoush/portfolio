@@ -73,7 +73,27 @@ test('momentum stays consumed after scrollend, but a fresh gesture and reversal 
   expect(wheel()).toBe(true);
   expect(scroll).toHaveBeenLastCalledWith({ top: 1800, behavior: 'smooth' });
   clock.mockReturnValue(1420);
-  expect(wheel({ deltaY: -120 })).toBe(true);
+  expect(wheel({ deltaY: -120 })).toBe(false);
+  expect(scroll).toHaveBeenCalledTimes(2);
+});
+
+test('a reached reverse target clears immediately instead of retaining a stale stop', () => {
+  const { clock, scroll, wheel } = navigationFixture();
+  expect(wheel()).toBe(true);
+  clock.mockReturnValue(1010);
+  expect(wheel({ deltaY: -120 })).toBe(false);
+  clock.mockReturnValue(1400);
+  expect(wheel()).toBe(true);
+  expect(scroll).toHaveBeenLastCalledWith({ top: 900, behavior: 'smooth' });
+});
+
+test('scroll-idle timeout releases the target when scrollend is unavailable', () => {
+  vi.useFakeTimers();
+  const { clock, scroll, wheel } = navigationFixture();
+  expect(wheel()).toBe(true);
+  vi.advanceTimersByTime(201);
+  clock.mockReturnValue(1400);
+  expect(wheel()).toBe(true);
   expect(scroll).toHaveBeenLastCalledWith({ top: 900, behavior: 'smooth' });
 });
 

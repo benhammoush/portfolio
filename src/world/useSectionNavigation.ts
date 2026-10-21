@@ -15,6 +15,18 @@ export function useSectionNavigation() {
     let direction = 0;
     let consumed = false;
     let destination: number | null = null;
+    let scrollIdle: ReturnType<typeof setTimeout> | undefined;
+    /** Clear the queued stop when scrolling finishes or stalls. */
+    function clearDestination() {
+      destination = null;
+      if (scrollIdle !== undefined) clearTimeout(scrollIdle);
+      scrollIdle = undefined;
+    }
+    /** Wait for a quiet scroll interval before releasing the queued stop. */
+    function scheduleScrollIdle() {
+      if (scrollIdle !== undefined) clearTimeout(scrollIdle);
+      scrollIdle = setTimeout(clearDestination, 200);
+    }
     /**
      * Consume one vertical gesture, or allow native reading within a tall section.
      * @param event - Cancelable wheel input; modifier gestures remain browser-owned.
@@ -101,26 +113,39 @@ export function useSectionNavigation() {
       if (destination !== null) index = destination;
       const next = Math.max(0, Math.min(sections.length - 1, index + step));
       if (next === index) return;
+      const target = positions[next]!;
+      if (Math.abs(target - scrollY) <= 2) {
+        clearDestination();
+        return;
+      }
       event.preventDefault();
       direction = step;
       consumed = true;
       destination = next;
       window.scrollTo({
-        top: positions[next],
+        top: target,
         behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
           ? 'instant'
           : 'smooth',
       });
+      scheduleScrollIdle();
     }
     /** Release the in-flight target once native scrolling reaches its resting stop. */
     function onScrollEnd() {
-      destination = null;
+      clearDestination();
+    }
+    /** Extend the fallback while native scroll events continue. */
+    function onScroll() {
+      if (destination !== null) scheduleScrollIdle();
     }
     window.addEventListener('wheel', onWheel, { passive: false });
+    window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('scrollend', onScrollEnd);
     return () => {
       window.removeEventListener('wheel', onWheel);
+      window.removeEventListener('scroll', onScroll);
       window.removeEventListener('scrollend', onScrollEnd);
+      clearDestination();
     };
   }, []);
 }
