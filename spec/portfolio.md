@@ -232,8 +232,8 @@ tests; future feature slices require appropriate broader accessibility checks.
 
 The current source foundation's CI runs checks only; delivery workflows belong to
 the separately authorized delivery implementation above. Dependabot proposes npm and GitHub
-Actions updates without auto-merge. README and contribution guidance explain
-setup, checks, generated artifacts and approval boundaries. Secrets, caches,
+Actions updates without auto-merge. Package scripts define automated checks;
+the delivery runbook documents release procedures and approval boundaries. Secrets, caches,
 generated builds, test reports and private operational files stay out of Git.
 
 The package, root lockfile entries and runtime version must agree at `0.1.0`.
