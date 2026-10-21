@@ -1,0 +1,217 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="1040"
+  height="640"
+  viewBox="0 0 1040 640"
+  aria-hidden="true"
+>
+  <rect width="1040" height="640" rx="12" fill="#14272d"></rect>
+  <path d="M0 50h1040" stroke="#40545d"></path>
+  <g font-family="system-ui, sans-serif">
+    <circle cx="30" cy="25" r="7" fill="#8cc8f4"></circle>
+    <text
+      x="49"
+      y="31"
+      fill="#8cc8f4"
+      font-size="15"
+      font-weight="700"
+      letter-spacing="2"
+    >
+      CRYPTO GATEWAY
+    </text>
+    <text
+      x="1008"
+      y="30"
+      text-anchor="end"
+      fill="#c0cbd2"
+      font-size="11"
+      letter-spacing="1"
+    >
+      ILLUSTRATIVE CONCEPT · NOT LIVE
+    </text>
+    <text x="36" y="101" fill="#eff5f7" font-size="29" font-weight="600">
+      A checkout with clear boundaries.
+    </text>
+    <text x="36" y="128" fill="#b9cbd7" font-size="14">
+      Portable API integration. Wallet-side signing. Independent verification.
+    </text>
+    <g data-concept="checkout-preview">
+      <rect
+        x="645"
+        y="155"
+        width="359"
+        height="440"
+        rx="14"
+        fill="#edf3f3"
+      ></rect>
+      <text
+        x="670"
+        y="191"
+        fill="#28434a"
+        font-size="11"
+        font-weight="700"
+        letter-spacing="1.5"
+      >
+        EXAMPLE CHECKOUT
+      </text>
+      <text x="670" y="233" fill="#172f38" font-size="24" font-weight="600">
+        Review payment
+      </text>
+      <text x="670" y="260" fill="#4c666e" font-size="13">
+        An illustrative order, not a real invoice.
+      </text>
+      <path d="M670 282h309" stroke="#bccdd0"></path>
+      <text x="670" y="318" fill="#48626d" font-size="13">Order</text>
+      <text x="979" y="318" text-anchor="end" fill="#203e48" font-size="14">
+        DEMO-001
+      </text>
+      <text x="670" y="354" fill="#48626d" font-size="13">Amount</text>
+      <text x="979" y="354" text-anchor="end" fill="#203e48" font-size="14">
+        Example only
+      </text>
+      <rect
+        x="670"
+        y="383"
+        width="309"
+        height="58"
+        rx="10"
+        fill="#dae7ec"
+      ></rect>
+      <circle cx="692" cy="411" r="6" fill="#567f97"></circle>
+      <text x="709" y="416" fill="#294b5b" font-size="14" font-weight="600">
+        Wallet not connected
+      </text>
+      <rect
+        x="670"
+        y="460"
+        width="309"
+        height="48"
+        rx="9"
+        fill="#244957"
+      ></rect>
+      <text x="824" y="489" text-anchor="middle" fill="#eff8fa" font-size="14">
+        Checkout preview · no transaction
+      </text>
+      <text x="670" y="544" fill="#49646d" font-size="12">
+        No credentials, addresses or funds are used.
+      </text>
+      <text x="670" y="568" fill="#49646d" font-size="12">
+        An unresolved payment is never marked paid.
+      </text>
+    </g>
+    <g data-concept="trust-boundaries">
+      <text x="36" y="180" fill="#8cc8f4" font-size="12" letter-spacing="1.3">
+        PAYMENT FLOW / CONCEPTUAL
+      </text>
+      <g>
+        <rect
+          x="36"
+          y="202"
+          width="577"
+          height="94"
+          rx="12"
+          fill="#203942"
+          stroke="#45616e"
+        ></rect>
+        <rect
+          x="54"
+          y="222"
+          width="45"
+          height="45"
+          rx="12"
+          fill="#315769"
+        ></rect>
+        <text x="76" y="251" text-anchor="middle" fill="#b6dfff" font-size="16">
+          01
+        </text>
+        <text x="118" y="236" fill="#e6f0f5" font-size="18" font-weight="600">
+          Merchant API
+        </text>
+        <text x="118" y="264" fill="#bdced7" font-size="13">
+          Create a request; keep credentials server-side.
+        </text>
+        <path
+          d="M76 301v15m-5-5 5 5 5-5"
+          stroke="#83b6d4"
+          fill="none"
+          stroke-width="2"
+        ></path>
+      </g>
+      <g>
+        <rect
+          x="36"
+          y="322"
+          width="577"
+          height="94"
+          rx="12"
+          fill="#203942"
+          stroke="#45616e"
+        ></rect>
+        <rect
+          x="54"
+          y="342"
+          width="45"
+          height="45"
+          rx="12"
+          fill="#315769"
+        ></rect>
+        <text x="76" y="371" text-anchor="middle" fill="#b6dfff" font-size="16">
+          02
+        </text>
+        <text x="118" y="356" fill="#e6f0f5" font-size="18" font-weight="600">
+          Customer wallet
+        </text>
+        <text x="118" y="384" fill="#bdced7" font-size="13">
+          Signing stays with the customer.
+        </text>
+        <path
+          d="M76 421v15m-5-5 5 5 5-5"
+          stroke="#83b6d4"
+          fill="none"
+          stroke-width="2"
+        ></path>
+      </g>
+      <g>
+        <rect
+          x="36"
+          y="442"
+          width="577"
+          height="94"
+          rx="12"
+          fill="#203942"
+          stroke="#45616e"
+        ></rect>
+        <rect
+          x="54"
+          y="462"
+          width="45"
+          height="45"
+          rx="12"
+          fill="#315769"
+        ></rect>
+        <text x="76" y="491" text-anchor="middle" fill="#b6dfff" font-size="16">
+          03
+        </text>
+        <text x="118" y="476" fill="#e6f0f5" font-size="18" font-weight="600">
+          Backend verification
+        </text>
+        <text x="118" y="504" fill="#bdced7" font-size="13">
+          Verify the transaction independently.
+        </text>
+      </g>
+      <text x="36" y="592" fill="#bed1d8" font-size="12">
+        Repeated requests · interrupted checkouts · uncertain outcomes
+      </text>
+    </g>
+    <text
+      x="1004"
+      y="623"
+      text-anchor="end"
+      fill="#aebfc6"
+      font-size="10"
+      letter-spacing="1"
+    >
+      ORIGINAL PORTFOLIO ILLUSTRATION
+    </text>
+  </g>
+</svg>

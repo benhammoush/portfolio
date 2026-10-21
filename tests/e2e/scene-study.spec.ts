@@ -105,7 +105,8 @@ test('section study links support direct entry, reload, history and real section
   await expect(page).toHaveURL(/\/#world-workflow$/);
   await expect(
     page.getByRole('heading', {
-      name: 'From the initial idea to a running application.',
+      name: 'Engineering workflow',
+      exact: true,
     }),
   ).toBeInViewport();
 });

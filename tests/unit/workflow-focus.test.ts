@@ -8,8 +8,7 @@ import {
   readMonitorFocus,
   WORKFLOW_POSE,
   selectMonitorChapter,
-  readSceneSide,
-  settleSceneColumn,
+  MONITOR_CHAPTERS,
 } from '../../src/world/workflow-focus';
 import {
   conceptCrop,
@@ -23,46 +22,38 @@ import {
 import { shouldPaintWorkflow } from '../../src/world/workflow-texture';
 
 test('heading selection has a reverse deadband rather than outer-section switching', () => {
-  expect(selectMonitorChapter(400, 378, 'workflow')).toBe('workflow');
-  expect(selectMonitorChapter(354, 378, 'workflow')).toBe('apollo');
-  expect(selectMonitorChapter(380, 378, 'apollo')).toBe('apollo');
-  expect(selectMonitorChapter(403, 378, 'apollo')).toBe('workflow');
-  expect(selectMonitorChapter(NaN, 378, 'apollo')).toBe('workflow');
+  expect(selectMonitorChapter({ apollo: 400 }, 378, 'workflow')).toBe(
+    'workflow',
+  );
+  expect(selectMonitorChapter({ apollo: 354 }, 378, 'workflow')).toBe('apollo');
+  expect(selectMonitorChapter({ apollo: 380 }, 378, 'apollo')).toBe('apollo');
+  expect(selectMonitorChapter({ apollo: 403 }, 378, 'apollo')).toBe('workflow');
+  expect(selectMonitorChapter({ apollo: NaN }, 378, 'apollo')).toBe('workflow');
+  expect(
+    selectMonitorChapter(
+      { apollo: -400, iris: 354, gateway: 900 },
+      378,
+      'apollo',
+    ),
+  ).toBe('iris');
+  expect(
+    selectMonitorChapter(
+      { apollo: -1400, iris: -400, gateway: 380 },
+      378,
+      'gateway',
+    ),
+  ).toBe('gateway');
+  expect(
+    selectMonitorChapter(
+      { apollo: -1400, iris: -400, gateway: 403 },
+      378,
+      'gateway',
+    ),
+  ).toBe('iris');
+  expect(selectMonitorChapter({ dripperz: 354 }, 378, 'workflow')).toBe(
+    'dripperz',
+  );
   expect(WORKFLOW_POSE.position[0]).toBeGreaterThan(WORKFLOW_POSE.target[0]);
-});
-
-test('alternating sections place the shared scene opposite the active card', () => {
-  const section = document.createElement('section');
-  section.className = 'world-copy-section world-copy-right';
-  const heading = document.createElement('h2');
-  section.append(heading);
-  document.body.append(section);
-  const bounds = vi.spyOn(heading, 'getBoundingClientRect');
-  try {
-    bounds.mockReturnValue(new DOMRect(0, 1000, 100, 40));
-    expect(readSceneSide()).toBe('right');
-    bounds.mockReturnValue(new DOMRect(0, 120, 100, 40));
-    expect(readSceneSide()).toBe('left');
-    section.classList.remove('world-copy-right');
-    expect(readSceneSide()).toBe('right');
-  } finally {
-    bounds.mockRestore();
-    section.remove();
-  }
-});
-
-test('column travel moves continuously, reverses from its current position and settles', () => {
-  const first = settleSceneColumn(-0.25, 0.25, 1 / 60, true);
-  expect(first).toBeGreaterThan(-0.25);
-  expect(first).toBeLessThan(0.25);
-  const reverse = settleSceneColumn(first, -0.25, 1 / 60, true);
-  expect(reverse).toBeLessThan(first);
-  expect(reverse).toBeGreaterThan(-0.25);
-  let value = first;
-  for (let frame = 0; frame < 120; frame += 1)
-    value = settleSceneColumn(value, 0.25, 1 / 60, true);
-  expect(value).toBe(0.25);
-  expect(settleSceneColumn(-0.25, 0.25, 0.01, false)).toBe(0.25);
 });
 
 test('one tab action keeps the old view until the click and supports an immediate static result', () => {
@@ -155,23 +146,17 @@ test('Apollo SVG also matches its accepted public-safe review artwork', () => {
 });
 
 test('heading reading position selects the workspace, not the camera', () => {
-  const workflow = document.createElement('section');
-  workflow.id = 'world-workflow-title';
-  const apollo = document.createElement('section');
-  apollo.id = 'world-apollo-title';
-  const iris = document.createElement('section');
-  iris.id = 'world-iris-title';
-  document.body.append(workflow, apollo, iris);
+  const sections = [...MONITOR_CHAPTERS, 'contact'].map((chapter, index) => {
+    const section = document.createElement('section');
+    section.id =
+      chapter === 'contact' ? 'world-contact' : `world-${chapter}-title`;
+    document.body.append(section);
+    vi.spyOn(section, 'getBoundingClientRect').mockImplementation(
+      () => new DOMRect(0, 2000 + index * 1000 - window.scrollY, 100, 1000),
+    );
+    return section;
+  });
   vi.stubGlobal('innerHeight', 900);
-  vi.spyOn(workflow, 'getBoundingClientRect').mockImplementation(
-    () => new DOMRect(0, 2000 - window.scrollY, 100, 1000),
-  );
-  vi.spyOn(apollo, 'getBoundingClientRect').mockImplementation(
-    () => new DOMRect(0, 3000 - window.scrollY, 100, 1000),
-  );
-  vi.spyOn(iris, 'getBoundingClientRect').mockImplementation(
-    () => new DOMRect(0, 4000 - window.scrollY, 100, 1000),
-  );
   try {
     vi.stubGlobal('scrollY', 1880);
     expect(readMonitorFocus()).toEqual({
@@ -186,7 +171,8 @@ test('heading reading position selects the workspace, not the camera', () => {
       workspace: true,
     });
     vi.stubGlobal('scrollY', 3880);
-    expect(readMonitorFocus().progress).toBe(0);
+    expect(readMonitorFocus().progress).toBe(1);
+    expect(readMonitorFocus().chapter).toBe('iris');
     vi.stubGlobal('scrollY', 2880);
     expect(readMonitorFocus()).toEqual({
       progress: 1,
@@ -194,7 +180,11 @@ test('heading reading position selects the workspace, not the camera', () => {
       workspace: true,
     });
     vi.stubGlobal('scrollY', 5000);
+    expect(readMonitorFocus().progress).toBe(1);
+    expect(readMonitorFocus().chapter).toBe('gateway');
+    vi.stubGlobal('scrollY', 6880);
     expect(readMonitorFocus().progress).toBe(0);
+    expect(readMonitorFocus().chapter).toBe('dripperz');
     expect(readMonitorFocus().workspace).toBe(true);
     vi.stubGlobal('scrollY', 0);
     expect(readMonitorFocus().workspace).toBe(false);
@@ -202,9 +192,7 @@ test('heading reading position selects the workspace, not the camera', () => {
     expect(readMonitorFocus().workspace).toBe(false);
     expect(readMonitorFocus('workflow', true).workspace).toBe(true);
   } finally {
-    workflow.remove();
-    apollo.remove();
-    iris.remove();
+    sections.forEach((section) => section.remove());
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
   }

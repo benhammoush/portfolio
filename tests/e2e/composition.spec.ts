@@ -55,7 +55,8 @@ for (const viewport of [
     await expect(page).toHaveURL(/#world-apollo$/);
     await expect(
       page.getByRole('heading', {
-        name: 'From strategy automation to a full-stack trading platform.',
+        name: 'Apollo',
+        exact: true,
       }),
     ).toBeInViewport();
     await page.goBack();
@@ -91,12 +92,12 @@ test('homepage keeps the world edge-to-edge while native HTML chapters scroll', 
     .click();
   await expect(page).toHaveURL(/\/#world-iris$/);
   await expect(
-    page.getByRole('heading', { name: 'From Stacks to Solana.' }),
+    page.getByRole('heading', { name: 'Iris', exact: true }),
   ).toBeInViewport();
   expect(await page.locator('.world-stage').boundingBox()).toEqual(opening);
   await page.reload();
   await expect(
-    page.getByRole('heading', { name: 'From Stacks to Solana.' }),
+    page.getByRole('heading', { name: 'Iris', exact: true }),
   ).toBeInViewport();
   await page
     .getByRole('navigation')
@@ -203,26 +204,30 @@ test('approved text sections have native project links and direct-entry anchors'
     .click();
   await expect(
     page.getByRole('heading', {
-      name: 'From the initial idea to a running application.',
+      name: 'Engineering workflow',
+      exact: true,
     }),
   ).toBeInViewport();
   await page.getByRole('link', { name: 'Dripperz', exact: true }).click();
   await expect(page).toHaveURL(/#world-dripperz$/);
   await expect(
     page.getByRole('heading', {
-      name: 'Smart contracts, minting and an interactive web experience.',
+      name: 'Dripperz',
+      exact: true,
     }),
   ).toBeInViewport();
   await page.reload();
   await expect(
     page.getByRole('heading', {
-      name: 'Smart contracts, minting and an interactive web experience.',
+      name: 'Dripperz',
+      exact: true,
     }),
   ).toBeInViewport();
   await page.goto('/#world-apollo');
   await expect(
     page.getByRole('heading', {
-      name: 'From strategy automation to a full-stack trading platform.',
+      name: 'Apollo',
+      exact: true,
     }),
   ).toBeInViewport();
   expect(
