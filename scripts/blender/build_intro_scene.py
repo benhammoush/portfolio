@@ -23,6 +23,10 @@ def arguments():
     parser.add_argument("--width", type=int, default=1600)
     parser.add_argument("--samples", type=int, default=40)
     parser.add_argument("--threads", type=int, default=8)
+    parser.add_argument("--view", choices=("overview", "desk-level", "below-desk"), default="overview")
+    parser.add_argument("--polish", action="store_true", help="Apply the next local visual-polish study without changing the accepted baseline recipe.")
+    parser.add_argument("--cartoon", action="store_true", help="Use rounder adult-avatar proportions and cleaner miniature materials for the next still review.")
+    parser.add_argument("--vivid", action="store_true", help="Push the cartoon study toward the reference's bright pigments and reduced detail.")
     args = parser.parse_args(sys.argv[sys.argv.index("--") + 1 :])
     args.output = args.output.resolve()
     if not 640 <= args.width <= 2400 or not 8 <= args.samples <= 128:
@@ -514,6 +518,225 @@ def area_light(name, location, power, size, color, target):
     obj.rotation_euler = (Vector(target) - obj.location).to_track_quat("-Z", "Y").to_euler()
 
 
+def configure_review_camera(camera, view):
+    """Keep the accepted overview reproducible and offer nearly horizontal rear views."""
+    camera.data.lens = 55
+    camera.data.type = "ORTHO"
+    camera.data.ortho_scale = 4.4
+    camera.location = (3.0, -6.2, 4.2)
+    target = Vector((0.25, -0.03, 0.7))
+    if view != "overview":
+        camera.data.type = "PERSP"
+        camera.data.lens = 60
+        camera.location = (0.10, -5.0, 0.84 if view == "desk-level" else 0.66)
+        target = Vector((0.10, 0, 0.80))
+    camera.rotation_euler = (target - camera.location).to_track_quat("-Z", "Y").to_euler()
+
+
+def polish_character_and_chair(mats):
+    """Refine the same avatar/props for a still, without authoring a new art direction.
+
+    Fuse finger/palm transitions, correct the mouse hand's thumb side, soften the
+    nape hairline, flatten the hood's drape and replace ball casters with twin wheels.
+    The accepted overview and mesh recipe remain available without --polish.
+    """
+    for name in ("Hand / keyboard", "Hand / mouse"):
+        root = bpy.data.objects[name]
+        if name == "Hand / mouse":
+            thumb = bpy.data.objects[name + " / thumb"]
+            for point in thumb.data.splines[0].bezier_points:
+                point.co.x *= -1
+        parts = [obj for obj in root.children if "/ nail" not in obj.name]
+        blend_surfaces(name + " / continuous sculpt", parts, mats["skin"], root, voxel_size=0.0018)
+
+    scalp = bpy.data.objects["Hair / continuous scalp"]
+    mat = mats["hair"].copy()
+    mat.name = "Hair / soft short-back taper"
+    nodes, links = mat.node_tree.nodes, mat.node_tree.links
+    shader = nodes.get("Principled BSDF")
+    shader.inputs["Roughness"].default_value = 0.88
+    coordinates = nodes.new("ShaderNodeTexCoord")
+    separate = nodes.new("ShaderNodeSeparateXYZ")
+    ramp = nodes.new("ShaderNodeValToRGB")
+    ramp.color_ramp.elements[0].position = 0.0
+    ramp.color_ramp.elements[0].color = linear_color("BB977A")
+    ramp.color_ramp.elements[1].position = 0.36
+    ramp.color_ramp.elements[1].color = linear_color("262722")
+    middle = ramp.color_ramp.elements.new(0.13)
+    middle.color = linear_color("5A5142")
+    links.new(coordinates.outputs["Generated"], separate.inputs[0])
+    links.new(separate.outputs["Z"], ramp.inputs["Fac"])
+    links.new(ramp.outputs["Color"], shader.inputs["Base Color"])
+    scalp.data.materials[0] = mat
+    # The cap already follows the head. Subdivision shrinks its closed crown into
+    # the scalp and exposes a bald spot, especially from this lower camera.
+
+    hood = bpy.data.objects["Hoodie / draped hood"]
+    for vertex in hood.data.vertices:
+        vertex.co.y = 0.05 + (vertex.co.y - 0.05) * 0.85
+    avatar = bpy.data.objects["Avatar / original posed study"]
+    curve("Hoodie / hood center seam", [(0, -0.015, 1.035), (0, -0.022, 1.085), (0, 0.025, 1.145)], 0.0018, mats["shirt_rib"], avatar)
+
+    chair = bpy.data.objects["Chair"]
+    casters = [obj for obj in list(chair.children) if obj.name.startswith("Chair / caster")]
+    for index, caster in enumerate(casters):
+        center = caster.location.copy()
+        attachment = center.copy()
+        center.z = 0.04
+        angle = index * math.tau / 5
+        axis = Vector((-math.sin(angle), math.cos(angle), 0))
+        bpy.data.objects.remove(caster, do_unlink=True)
+        cylinder_between("Chair / caster stem", center, attachment, 0.012, mats["rubber"], chair)
+        cylinder_between("Chair / caster axle", center - axis * 0.04, center + axis * 0.04, 0.009, mats["metal"], chair)
+        for side in (-1, 1):
+            wheel = center + side * axis * 0.024
+            cylinder_between("Chair / twin caster wheel", wheel - axis * 0.01, wheel + axis * 0.01, 0.035, mats["rubber"], chair)
+
+
+def stylize_cartoon_scene(mats):
+    """Push the same desk scene toward a rounded cartoon miniature, not realism.
+
+    Keep the adult working pose and exact prop inventory. Proportion changes are
+    local to this optional study; no accepted runtime model is overwritten.
+    """
+    head = bpy.data.objects["Avatar / head pose"]
+    head.scale = (1.18, 1.16, 1.15)
+    head.location.z -= 0.025
+    for name in ("Hand / keyboard", "Hand / mouse"):
+        bpy.data.objects[name].scale = (0.94, 0.94, 0.94)
+
+    scalp = bpy.data.objects["Hair / continuous scalp"]
+    scalp.data.materials[0] = mats["hair"]
+    # Broad, quiet hair masses read better than fine combed strands at this scale.
+    for obj in list(head.children):
+        if obj.name.startswith("Hair / short crop texture") or obj.name.startswith("Stubble /"):
+            bpy.data.objects.remove(obj, do_unlink=True)
+    tuft = ellipsoid("Hair / soft cropped forelock", (0.025, 0.075, 0.14), (0.065, 0.04, 0.026), mats["hair"], head)
+    tuft.rotation_euler.y = 0.15
+
+    for name in ("Hoodie / draped hood", "Shirt / blended shoulders and sleeves"):
+        obj = bpy.data.objects[name]
+        for vertex in obj.data.vertices:
+            vertex.co.x *= 1.035
+    # Remove tiny stitched lines in favor of the larger hood/sleeve silhouettes.
+    for obj in list(bpy.data.objects):
+        if obj.name.startswith(("Shirt / subtle rear shoulder seam", "Hoodie / hood center seam", "Joggers / outer seam", "Chair / tailored back edge")):
+            bpy.data.objects.remove(obj, do_unlink=True)
+
+    for mat in mats.values():
+        shader = mat.node_tree.nodes.get("Principled BSDF")
+        if shader is None:
+            continue
+        for socket in ("Normal", "Base Color"):
+            for link in list(shader.inputs[socket].links):
+                mat.node_tree.links.remove(link)
+        shader.inputs["Roughness"].default_value = max(0.62, shader.inputs["Roughness"].default_value)
+        shader.inputs["Sheen Weight"].default_value = 0.035
+    mats["skin"].node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = linear_color("D8AD87")
+    mats["wood"].node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = linear_color("C59A66")
+    mats["flask"].node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = linear_color("4C805B")
+
+    for obj in bpy.data.objects:
+        if obj.name.startswith("Desk / frame leg"):
+            obj.scale.x *= 1.13
+            obj.scale.y *= 1.13
+        if obj.name.startswith("Chair / twin caster wheel"):
+            obj.scale.x *= 1.10
+            obj.scale.y *= 1.10
+        if obj.name == "Flask / green water flask":
+            obj.scale = (1.08, 1.08, 1)
+
+
+def create_reference_crop(mats):
+    """Author a compact dark curly crop using the reference's rounded hair clumps.
+
+    Interlocking masses follow the scalp and leave the forehead/nape readable;
+    this is original geometry, not a copied character or strand-based hairstyle.
+    """
+    head = bpy.data.objects["Avatar / head pose"]
+    for obj in list(head.children):
+        if obj.name.startswith("Hair / soft cropped forelock"):
+            bpy.data.objects.remove(obj, do_unlink=True)
+    rng = random.Random(32)
+    for row, (phi, count) in enumerate(((0.12, 1), (0.43, 6), (0.78, 10), (1.12, 13), (1.47, 13), (1.81, 12), (2.12, 11))):
+        for index in range(count):
+            theta = math.tau * (index + (row % 2) * 0.5) / count
+            boundary = 1.37 + 0.96 * (1 - math.sin(theta)) / 2
+            if phi > boundary - 0.04:
+                continue
+            z = 0.04 + 0.161 * math.cos(phi)
+            taper = math.sqrt(max(0.01, 1 - (max(0, z - 0.04) / 0.165) ** 2))
+            center = Vector((0.134 * taper * math.cos(theta), -0.007 + 0.114 * taper * math.sin(theta), z))
+            if row == 0:
+                center = Vector((0, -0.007, 0.201))
+            normal = Vector((math.sin(phi) * math.cos(theta), math.sin(phi) * math.sin(theta), math.cos(phi)))
+            center -= normal * 0.009
+            radius = rng.uniform(0.032, 0.038)
+            curl = ellipsoid("Hair / rounded crop clump", center, (radius, radius * rng.uniform(0.95, 1.05), radius * 0.90), mats["hair"], head)
+            curl.rotation_euler = (rng.uniform(-0.3, 0.3), rng.uniform(-0.3, 0.3), theta)
+
+
+def simplify_vivid_miniature(mats):
+    """Use the reference's lively miniature treatment without copying its room/art.
+
+    Keep the approved black outfit, green flask and all prop assemblies. Reduce
+    small surface marks and give larger shapes stronger, coordinated pigments.
+    """
+    palette = {
+        "skin": "E9AE72", "skin_shadow": "BC7950", "hair": "272226",
+        "shirt": "17212C", "shirt_rib": "202D3A", "trousers": "192430",
+        "chair": "202B37", "metal": "263E49", "rubber": "192D36",
+        "wood": "E6AC49", "monitor": "203745", "keyboard": "E6F1F1",
+        "key": "F6F5E8", "key_accent": "34B9C3", "mouse_pad": "318E9D",
+        "screen": "153B57", "screen_panel": "215373", "screen_sage": "58DBB0",
+        "screen_blue": "6CCDF2", "screen_amber": "FFCC59", "pot": "F6E9D2",
+        "leaf": "56B943", "leaf_dark": "248549", "flask": "22A16B",
+        "ground": "F3DCA6", "shoe": "E8F1ED", "shoe_sole": "B4CFD1",
+    }
+    for name, color in palette.items():
+        shader = mats[name].node_tree.nodes.get("Principled BSDF")
+        shader.inputs["Base Color"].default_value = linear_color(color)
+        shader.inputs["Metallic"].default_value = min(0.12, shader.inputs["Metallic"].default_value)
+        shader.inputs["Sheen Weight"].default_value = 0
+        if shader.inputs["Emission Strength"].default_value:
+            shader.inputs["Emission Color"].default_value = linear_color(color)
+
+    small_details = (
+        "Keyboard / subtle key legend", "Computer / recessed port",
+        "Monitor / schematic editor mark", "Monitor / line number mark",
+        "Monitor / editor tab", "Monitor / status light", "Shoe / lace",
+        "Ear / fold", "Eye / catchlight", "Chair / lumbar frame",
+        "Chair / adjustment dial", "Hand / keyboard / nail", "Hand / mouse / nail",
+        "Hoodie / lower back fabric fold", "Hoodie / drawstring",
+    )
+    for obj in list(bpy.data.objects):
+        if obj.name.startswith(small_details):
+            bpy.data.objects.remove(obj, do_unlink=True)
+    screen = bpy.data.objects["Monitor / tilted display"]
+    for row, width in enumerate((0.28, 0.42, 0.22, 0.34, 0.16)):
+        box("Monitor / simplified color line", (-0.15 + width / 2, -0.032, 0.13 - row * 0.06), (width, 0.002, 0.017), mats[("screen_sage", "screen_blue", "screen_amber")[row % 3]], 0.003, parent=screen)
+
+    plant = bpy.data.objects["Plant / desk pot"]
+    for prefix in ("Plant / curved leaf", "Plant / stem"):
+        parts = [obj for obj in list(plant.children) if obj.name.startswith(prefix)]
+        for obj in parts:
+            bpy.data.objects.remove(obj, do_unlink=True)
+    for index, (x, z) in enumerate(((-0.15, 0.33), (-0.10, 0.41), (-0.05, 0.48), (0, 0.51), (0.05, 0.48), (0.10, 0.41), (0.15, 0.33))):
+        base = Vector((x * 0.65, (index % 2) * 0.025, z - 0.09))
+        curve("Plant / simple stem", [(0, 0, 0.17), (x * 0.25, 0, 0.24), base], 0.004, mats["leaf_dark"], plant)
+        blade = loft("Plant / broad cartoon leaf", [(0, 0.003, 0.003, 0, 0), (0.035, 0.035, 0.012, 0, 0), (0.10, 0.047, 0.014, 0, 0), (0.17, 0.026, 0.009, 0, 0), (0.20, 0.002, 0.002, 0, 0)], mats["leaf"] if index % 3 else mats["leaf_dark"], plant, segments=16, subdivision=1)
+        blade.location = base
+        blade.rotation_euler.y = x * 4.5
+    scalp = bpy.data.objects["Hair / continuous scalp"]
+    for vertex in scalp.data.vertices:
+        theta = math.atan2(vertex.co.y + 0.007, vertex.co.x)
+        weight = max(0, min(1, (vertex.co.z - 0.08) / 0.10))
+        radius = 1 + 0.025 * math.sin(theta * 7) * weight
+        vertex.co.x *= radius
+        vertex.co.y = -0.007 + (vertex.co.y + 0.007) * radius
+    create_reference_crop(mats)
+
+
 def validate_scene():
     """Fail before rendering if approved props or modeled assemblies are missing."""
     required = ["Avatar / original posed study", "Desk / computer setup", "Chair", "Plant / desk pot", "Flask / green water flask", "Parallettes / bar 1", "Parallettes / bar 2"]
@@ -560,6 +783,12 @@ def main():
     create_chair(mats)
     create_avatar(mats)
     create_personal_props(mats)
+    if args.polish:
+        polish_character_and_chair(mats)
+    if args.cartoon or args.vivid:
+        stylize_cartoon_scene(mats)
+    if args.vivid:
+        simplify_vivid_miniature(mats)
     bpy.ops.mesh.primitive_plane_add(size=200, location=(0, 0, -0.004))
     finish(bpy.context.object, "Studio / invisible ground for contact shadows", mats["ground"])
     area_light("Studio / soft daylight", (-3, -4, 6), 760, 3.5, (1, 0.93, 0.82), (0, 0, 0.8))
@@ -569,14 +798,26 @@ def main():
     scene.world.use_nodes = True
     scene.world.node_tree.nodes["Background"].inputs["Color"].default_value = linear_color("E6EBE2")
     scene.world.node_tree.nodes["Background"].inputs["Strength"].default_value = 0.25
+    if args.view != "overview":
+        # Keep the horizon a soft neutral studio color without adding a wall/room.
+        # Camera rays see a brighter background; illumination stays at the baseline.
+        nodes, links = scene.world.node_tree.nodes, scene.world.node_tree.links
+        camera_background = nodes.new("ShaderNodeBackground")
+        camera_background.inputs["Color"].default_value = linear_color("6FADE9" if args.vivid else "F1F0E8")
+        camera_background.inputs["Strength"].default_value = 1.0 if args.vivid else 0.60
+        light_path = nodes.new("ShaderNodeLightPath")
+        mix = nodes.new("ShaderNodeMixShader")
+        links.new(light_path.outputs["Is Camera Ray"], mix.inputs[0])
+        links.new(nodes["Background"].outputs[0], mix.inputs[1])
+        links.new(camera_background.outputs[0], mix.inputs[2])
+        links.new(mix.outputs[0], nodes["World Output"].inputs["Surface"])
+        ground_shader = mats["ground"].node_tree.nodes.get("Principled BSDF")
+        ground_shader.inputs["Emission Color"].default_value = linear_color("F3DCA6" if args.vivid else "F1F0E8")
+        ground_shader.inputs["Emission Strength"].default_value = 0.35
     camera_data = bpy.data.cameras.new("Review camera")
     camera = bpy.data.objects.new("Review camera", camera_data)
     bpy.context.collection.objects.link(camera)
-    camera.location = (3.0, -6.2, 4.2)
-    camera.rotation_euler = (Vector((0.25, -0.03, 0.7)) - camera.location).to_track_quat("-Z", "Y").to_euler()
-    camera_data.type = "ORTHO"
-    camera_data.ortho_scale = 4.4
-    camera_data.lens = 55
+    configure_review_camera(camera, args.view)
     scene.camera = camera
     scene.render.engine = "CYCLES"
     scene.cycles.device = "CPU"
@@ -599,6 +840,10 @@ def main():
         "status": "Original posed still study; not rigged, animated or optimized for the web",
         "blender": bpy.app.version_string,
         "external_assets": [],
+        "view": args.view,
+        "polish_study": args.polish,
+        "cartoon_study": args.cartoon or args.vivid,
+        "vivid_study": args.vivid,
         "objects": len(bpy.data.objects),
         "mesh_objects": sum(obj.type == "MESH" for obj in bpy.data.objects),
         "materials": len(bpy.data.materials),

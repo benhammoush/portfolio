@@ -14,7 +14,9 @@ test('serves the readable foundation and runtime identity', async ({
   expect(response?.status()).toBe(200);
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(
-    page.getByRole('heading', { name: 'Hi, I’m Guillaume.' }),
+    page.getByRole('heading', {
+      name: 'Hi, I’m Guillaume, a full-stack developer',
+    }),
   ).toBeVisible();
   await expect(page.getByTestId('app-version')).toHaveText(APP_VERSION);
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
@@ -37,7 +39,9 @@ test('shows a useful notice, not application content, without JavaScript', async
     page.getByText(/This portfolio requires JavaScript/),
   ).toBeVisible();
   await expect(
-    page.getByRole('heading', { name: 'Hi, I’m Guillaume.' }),
+    page.getByRole('heading', {
+      name: 'Hi, I’m Guillaume, a full-stack developer',
+    }),
   ).toHaveCount(0);
   await expect(page.getByTestId('app-version')).toHaveCount(0);
   await context.close();
@@ -49,7 +53,9 @@ test('browser-rendered shell remains readable on a narrow viewport', async ({
   await page.setViewportSize({ width: 375, height: 667 });
   await page.goto('/');
   await expect(
-    page.getByRole('heading', { name: 'Hi, I’m Guillaume.' }),
+    page.getByRole('heading', {
+      name: 'Hi, I’m Guillaume, a full-stack developer',
+    }),
   ).toBeVisible();
   const overflows = await page.evaluate(
     () => document.documentElement.scrollWidth > window.innerWidth,
@@ -83,7 +89,9 @@ test('direct unknown route recovers through client routing and keyboard navigati
   ).toBeVisible();
   await page.goForward();
   await expect(
-    page.getByRole('heading', { name: 'Hi, I’m Guillaume.' }),
+    page.getByRole('heading', {
+      name: 'Hi, I’m Guillaume, a full-stack developer',
+    }),
   ).toBeVisible();
 });
 

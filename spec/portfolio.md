@@ -328,7 +328,226 @@ the existing native-scroll policy and stationary-3D opt-in, with no idle animati
 The Blender procedural materials require a browser visual checkpoint rather than
 a claim of pixel-identical export. Remain within the ongoing 0.3.0 local prototype.
 
+## Local hero-direction comparison
+
+The owner authorized two static hero mockups before choosing a replacement
+composition: typography-led editorial at `/hero-study` and a closer workspace
+crop at `/hero-study/immersive`. Use the existing transparent poster and approved
+introduction wording, with the professional role as the dominant statement.
+Clearly label the comparison as local static artwork, not live 3D. Keep the
+homepage, scene assets, camera and animation unchanged. Stop for owner visual
+selection after affected checks and read-only review; no publication/deployment.
+
+The owner preferred the immersive direction, with centered copy/actions above
+the large workspace crop and readable text separate from the artwork. Its single
+headline is “Hi, I’m Guillaume, a full-stack developer”, replacing the separate
+greeting and role in this mockup only. Homepage integration remains a subsequent
+checkpoint. The owner subsequently accepted this composition and authorized local
+homepage integration: use the same single heading in the approved section copy,
+center the introduction, and align live rendering to its inline poster rectangle.
+Preserve model appearance, animation controls, stationary/reduced-motion policies,
+native scrolling and failure alternatives. Stop after affected checks, read-only
+review and owner visual feedback, without publication or deployment.
+
+## Subsequent section visual hierarchy
+
+Content is primary; 3D is supporting visual context, not the main attraction.
+Reuse the accepted coding-at-the-desk scene across subsequent sections instead
+of designing a separate installation for each. Preserve its simplicity with
+small, selective chapter cues; do not accumulate decorations or introduce large
+transformations, floating interfaces, particle effects or dramatic camera moves.
+Monitor changes and occasional small desk details are proposals for visual review,
+not approved new assets or simulated live product activity. Keep HTML copy/actions
+dominant and independently usable, including mobile/static alternatives. Avoid
+unnecessary asset weight, dependencies and rendering work; no numeric performance
+budget is implied. This revises the separate-scene art direction, not the approved
+section content or the requirement to review visuals before implementation.
+
+The authorized next checkpoint is a local static cue study at `/scene-study`,
+`/scene-study/workflow` and `/scene-study/iris`: reuse the existing poster with
+small schematic screen changes only, with no additional desk objects, alongside approved HTML
+copy. Label the cues as concepts, not actual product UI or live activity. Keep
+the accepted homepage, model, animation and dependencies unchanged. Stop after
+affected checks and visual review before implementing any new 3D details.
+
+Screen concepts use a compact engineering-stage workspace for Workflow and an
+illustrative markets/wallets/watchlist workspace for Iris, not identical generic
+lists. A collapsed, keyboard-operable close-up may expose the same artwork for
+review without enlarging the scene; it is not a product control or new 3D asset.
+
+The subsequent Workflow screen concept at `/screen-study/workflow` is designed
+for a proposed monitor close-up, not wide-view legibility. Use colorful Interface,
+Services and Data shapes, simple workflow steps and quality concepts. Do not use
+code or code-like lines, feature briefs, endpoints, schema details or project-specific
+stack explanations. The visual is supporting artwork, not a technical case study,
+execution evidence, measured quality result or certification.
+Keep it separate from the current screen placeholder until visually accepted;
+no camera integration, homepage change, new dependencies or 3D assets in this pass.
+The owner additionally authorized subtle decorative animation of this screen
+concept, subsequently requesting more visible motion: flowing connectors,
+animated interface/service/data graphics and sequential workflow highlights.
+Provide pause/resume, honor reduced motion, pause while hidden/offscreen and clean
+up visibility listeners/observers. Do not imply actual execution or completed checks.
+
+The owner accepted the more visible concept animation and authorized the local
+Workflow monitor integration, trying a native-scroll over-right-shoulder approach
+to avoid the character blocking the display. Preserve the accepted hero and HTML
+copy. Only Workflow gains a new close-up/screen state; later sections retain the
+base desk, not the superseded separate Iris installation. Use an unlit local
+surface with owned/disposed texture resources, bounded visible playback, shared
+pause controls and no travel/animation in stationary policies. Export the static
+SVG from the review component (`npm run generate:workflow-art`); use it as the
+independent HTML alternative and check its provenance. This is local visual
+acceptance work, not device-budget acceptance, publication or deployment.
+
+## Apollo screen concept checkpoint
+
+The owner authorized a local static monitor concept at `/screen-study/apollo`
+before integration. Use original, colorful market-context, strategy, engine and
+monitoring shapes based only on the approved section narrative. No private source,
+actual UI screenshots, real market data, signals, returns or live-performance
+claims. Label both the review page and artwork as illustrative, not live or actual
+architecture documentation. Preserve the homepage, camera, models and dependencies;
+stop after affected checks and owner visual feedback before integration/animation.
+This is not public disclosure or publication approval.
+
+The owner accepted this Apollo concept and authorized continuing into decorative
+animation and local monitor integration. Use the same camera approach, one shared
+surface/texture and upload cap as Workflow, switching artwork as Apollo enters.
+Only the fixed illustrative shapes move; no live data, trading simulation or
+performance claims. Preserve the hero, later section art, shared pause controls,
+static/reduced-motion alternatives and failure handling. Review locally after
+affected checks before any publication or deployment.
+
 ## Unresolved later decisions
+
+### Approved content-first visual revision
+
+The owner rejected the automatic close-up presentation and authorized all eight
+listed improvements. This supersedes the automatic Workflow/Apollo camera trial:
+HTML controls layout, section rhythm and contrast; the existing desk is peripheral
+support. Preserve approved narrative and the centered hero. Use one fixed lens
+per responsive layout, a single departure into a stable reading composition and
+an optional monitor inspection, not repeated chapter zooms. Frame geometry away
+from copy without foreground washes. Replace the full-width viewer caption with
+compact accessible controls that never fade the text.
+
+Recompose existing original artwork to the physical display ratio, without
+stretching it or adding scene assets/dependencies. A persistent illustrative
+workspace uses deliberate, brief tab/pointer actions coordinated with the existing
+authored mouse gesture. Heading reading position selects views with reverse-scroll
+hysteresis; interrupted transitions follow the latest request, never block scroll.
+Only view content changes, not the whole monitor. Entry emphasis settles during
+reading. Pause/static/reduced-motion changes are immediate and unanimated; retain
+independent small screen alternatives and failure/resource/upload policies.
+No private source, real market data or claims are added. Stop at local affected
+checks, read-only coupled review and a visual walkthrough; no publication/deployment.
+
+Following owner feedback, replace the abrupt hero-screen replacement with a
+deliberate application launch at Workflow's heading reading line. Keep the actual
+original model screen underneath a transparent shared overlay; a cursor selects
+the workspace launcher and the application window opens above it. Do not change
+the hero pose, text hierarchy, camera, assets or later tab transition. Reverse
+scroll closes the window coherently; direct anchors and paused/static policies
+resolve immediately without forcing visitors to watch the launch.
+
+The owner further requested that the default monitor itself resemble an OS window.
+Use an original, quiet desktop with an open portfolio window and a persistent
+Workspace launcher, so the cursor selects an existing control. Keep the same shared
+canvas/texture, launch action, camera and text composition; no operating-system
+branding, new scene/model assets or runtime dependencies. Match the static/loading
+hero alternative to the desktop. The model's original screen remains untouched
+under the owned canvas surface; stationary opt-ins show the same still desktop.
+
+The owner subsequently approved replacing the post-hero two-column reading layout
+with a centered editorial column and a much smaller, low-contrast continuous desk
+backdrop. Preserve the hero and approved wording. Project labels anchor the text;
+independent static artwork stays small and secondary. Only an explicit monitor
+inspection restores the split reading/screen study; returning restores the centered
+article. This is a local visual checkpoint, not publication or performance acceptance.
+
+The owner then requested a centered background scene like the hero rather than a
+peripheral desk. Keep the editorial article centered; use a rear-facing centered
+desk at low contrast behind it. Only explicit inspection restores the right-side
+screen framing. The hero itself, copy, motion policies and resource limits remain.
+
+The owner further requested keeping the camera close to the monitor instead of
+pulling back during reading. Reuse the monitor close-up pose for the centered,
+low-contrast background. Explicit inspection changes projection/presentation, not
+distance; preserve the opening hero and the centered HTML reading layout.
+
+The owner then requested stronger overall readability and text inside boxes rather
+than floating. Use solid light reading cards with subtle borders, comfortable inner
+padding, stronger body contrast and tighter section/paragraph spacing. Keep the
+close-up background visible around, not through, those cards. Preserve approved
+wording, native navigation, the hero and optional inspection/motion alternatives.
+
+The owner next authorized trying a desktop split composition instead of a background:
+clear 3D in its own column opposite the reading card, alternating sides by section.
+Workflow starts with text left/scene right; Apollo reverses, and following sections
+alternate. Keep one shared scene, existing monitor artwork, approved copy and hero.
+Narrower layouts stay stacked with independent still artwork; no scene behind text.
+
+The owner also requested removing the bottom controls ribbon. Keep motion/still
+controls accessible in the header area instead, with no fixed bottom strip.
+
+The owner next requested less upfront text and smooth movement between scene
+columns. Keep the first two approved paragraphs visible, with remaining approved
+wording in native keyboard-usable Read more disclosures (also for the longer
+profile). Do not silently delete or rewrite claims. Damped projection movement and
+its clipping aperture follow the latest requested side; reverse scrolling interrupts
+smoothly. Paused/static/reduced-motion changes remain immediate, with no scroll waits.
+
+### Approved personal-details-01 integration
+
+The owner accepted the refined introduction and authorized local web integration:
+desk-level rear perspective, black crewneck without a hood, simple black office
+chair, correctly connected desk, branching plant, small Vietnam flag and green
+flask. Remove parallettes. Use transparent live/poster assets without a floor or
+cast ground shadows, while retaining gentle material shading, readable HTML,
+responsive/static alternatives and graphics failure handling. No character
+animation, PR update, merge or deployment is included in this checkpoint.
+
+### Approved local loading optimization
+
+The owner authorized a lighter model/loading pass while preserving the accepted
+personal-details-01 appearance, before animation. Compress the same geometry with
+locally served, lazy decoder assets; keep the source pose, triangles/materials,
+transparent poster, camera and motion/static policies unchanged. Include decoder
+costs and failure paths in checks and measurements. No animation, publication,
+PR update or deployment is included; this does not establish a device budget.
+
+### Approved local introduction animation trial
+
+After accepting the straight monitor and compact pointed-leaf plant, the owner
+authorized subtle typing, occasional mouse movement and small posture shifts in
+the introduction only. Preserve the model appearance and current local desk-height
+rear camera with 30% smaller framing. No idle camera movement, new section art,
+publication, PR update or deployment. Include a pause control, stop playback when
+hidden/outside the intro, and keep reduced-motion and narrow stationary-3D opt-ins
+unanimated. Reuse the approved transparent poster on loading/failure/static views.
+This supersedes the no-animation boundary of the completed earlier checkpoints,
+not the remaining requirements or unresolved physical-device performance budget.
+
+The owner subsequently rejected the mouse/typing motion as unnatural and authorized
+reworking the entire character animation, not merely increasing its amplitude.
+Use articulated finger/wrist/elbow movement, grounded input contact, deliberate
+keyboard/mouse handovers, varied timing and pauses, and restrained posture changes.
+Keep the current character/device/prop appearance and framing; animation naturalness
+is a new local visual checkpoint, not already accepted. Existing pause, visibility,
+stationary/reduced-motion and error/static policies remain mandatory.
+
+The latest local camera/prop trial restores the view directly behind the character
+and the flag's original desktop position. The owner additionally authorized a light
+breeze in the flag cloth, with the pole fixed and the star attached. Keep character
+animation unchanged; the same pause/static/reduced-motion policies govern the flag.
+
+The owner subsequently requested more recognizable travelling flag folds, rather
+than the first slight bend, and occasional leg/foot animation. Keep the pinned flag
+edge and attached upright star, stable seated hips, connected knee/ankle movement
+and believable foot support. Do not add constant leg bouncing or change the camera,
+props, upper-body work cycle or existing motion/fallback policies. This remains a
+local visual trial pending acceptance; no new scene, publication or deployment.
 
 ### Approved text-first section rollout
 

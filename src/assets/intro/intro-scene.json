@@ -1,11 +1,21 @@
 {
-  "source_review": "review-06",
-  "animations": 0,
+  "source_review": "cloth-feet-01",
+  "animations": 1,
   "external_assets": [],
-  "source_sha256": "5daae7b78b9d68fb6fd7915f6fd5d47e9625a4cced5c4e41f221257950c3228f",
-  "triangles": 114056,
-  "material_batches": 31,
-  "glb_bytes": 2116972,
-  "poster_bytes": 742418,
-  "limitations": "Static material-batched mesh; no rig. Procedural grain/bump not baked. Browser visual review required."
+  "inventory": {
+    "hood": false,
+    "parallettes": false,
+    "vietnam_flag": true
+  },
+  "source_sha256": "847d29619e8a5420d31c7b18c76a8f9d9af2f782fd62a241c5aeaceea0fec252",
+  "triangles": 141252,
+  "material_batches": 37,
+  "compression": {
+    "codec": "draco",
+    "position_bits": 16,
+    "normal_bits": 14
+  },
+  "glb_bytes": 1392000,
+  "poster_bytes": 635049,
+  "limitations": "Material-batched mesh; optional small working-pose rig. Procedural grain/bump not baked. Browser visual review required."
 }

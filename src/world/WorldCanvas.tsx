@@ -5,11 +5,19 @@
 import { useEffect, useRef } from 'react';
 import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { PerspectiveCamera } from 'three';
 import sceneUrl from '../assets/intro/intro-scene.glb?url';
-import { CHAPTERS, cameraProgress, interpolateAxis } from './chapters';
-import GalleryObjects from './GalleryObjects';
+import { CHAPTERS, chapterProgress, interpolateAxis } from './chapters';
+import {
+  readMonitorFocus,
+  readSceneSide,
+  settleSceneColumn,
+  READING_POSE,
+  WORKFLOW_POSE,
+} from './workflow-focus';
 import GalleryLighting from './GalleryLighting';
 import IntroScene from './IntroScene';
+import { configureIntroLoader } from './intro-loader';
 
 /** Props shared by the scene lifecycle and its canvas boundary. */
 interface WorldCanvasProps {
@@ -17,6 +25,10 @@ interface WorldCanvasProps {
   onContextLost: () => void;
   /** Only the wide, no-reduced-motion layout permits native-scroll camera travel. */
   cameraTravel: boolean;
+  /** Explicit motion pause is separate from native-scroll camera travel. */
+  animateIntro: boolean;
+  /** Close-up is an explicit request, not the default scroll composition. */
+  inspect: boolean;
 }
 
 /**
@@ -29,6 +41,13 @@ function ScrollCamera(props: WorldCanvasProps) {
   const { onContextLost, cameraTravel } = props;
   const { gl, invalidate, setFrameloop } = useThree();
   const active = useRef(true);
+  const inspection = useRef(0);
+  const clipping = useRef('');
+  const column = useRef<number | null>(null);
+  const columnTarget = useRef<number | null>(null);
+  useEffect(() => {
+    invalidate();
+  }, [props.inspect, props.animateIntro, invalidate]);
 
   useEffect(() => {
     let inView = true;
@@ -43,9 +62,9 @@ function ScrollCamera(props: WorldCanvasProps) {
     function requestFrame() {
       if (active.current) invalidate();
     }
-    /** Stationary 3D needs resize frames, but native scrolling must not move it. */
+    /** Track the HTML artwork on scroll even when the world pose stays stationary. */
     function requestScrollFrame() {
-      if (cameraTravel) requestFrame();
+      requestFrame();
     }
     /**
      * Fail to the illustrated alternative rather than attempting repeated recovery.
@@ -73,39 +92,118 @@ function ScrollCamera(props: WorldCanvasProps) {
       document.removeEventListener('visibilitychange', updateActivity);
       canvas.removeEventListener('webglcontextlost', contextLost);
       canvas.removeAttribute('data-world-ready');
+      canvas
+        .closest<HTMLElement>('.world-stage')
+        ?.style.removeProperty('clip-path');
+      clipping.current = '';
       active.current = false;
     };
   }, [gl, invalidate, onContextLost, cameraTravel, setFrameloop]);
 
-  useFrame(({ camera, size }) => {
+  useFrame(({ camera, size }, delta) => {
     if (!active.current) return;
     const first = CHAPTERS[0]!;
-    const last = CHAPTERS[1]!;
     const hub = document.getElementById(first.id);
-    const iris = document.getElementById(last.id);
-    if (!hub || !iris) return;
-    const offset = window.scrollY;
-    const progress = cameraTravel
-      ? cameraProgress(
-          offset,
-          hub.getBoundingClientRect().top + offset,
-          iris.getBoundingClientRect().top + offset,
-          window.innerHeight,
-        )
-      : 0;
-    const viewHeight =
-      first.viewHeight + (last.viewHeight - first.viewHeight) * progress;
-    const zoom = Math.min(
-      size.width / (viewHeight * 1.4),
-      size.height / viewHeight,
+    if (!hub) return;
+    // One departure from the accepted hero, then a settled desk across all copy.
+    // Dock before profile copy enters, not after it is already behind the chair.
+    // The opening pose stays exact at scroll zero; no section zooms follow it.
+    const heroBottom = hub.getBoundingClientRect().bottom;
+    const introFraction =
+      1 -
+      chapterProgress(
+        window.scrollY,
+        0,
+        Math.max(1, heroBottom + window.scrollY - window.innerHeight * 0.9),
+      );
+    const introWeight = introFraction * introFraction * (3 - 2 * introFraction);
+    // Match CSS/media policy, not the scrollbar-reduced canvas width at 768px.
+    const wide = window.matchMedia('(min-width: 768px)').matches;
+    // The hero's own bottom is also the visual boundary: incoming HTML must never
+    // inherit foreground geometry while the desk is still departing into its rail.
+    const boundary = Math.max(
+      0,
+      Math.min(size.height, hub.getBoundingClientRect().bottom),
     );
-    if (camera.zoom !== zoom) {
-      camera.zoom = zoom;
-      camera.updateProjectionMatrix();
+    const stage = gl.domElement.closest<HTMLElement>('.world-stage');
+    const sceneSide = readSceneSide();
+    const inspecting = props.inspect && readMonitorFocus().progress > 0;
+    const targetColumn = inspecting || sceneSide === 'right' ? -0.25 : 0.25;
+    // A newly requested transition must not consume time spent idle before it.
+    const columnDelta = columnTarget.current === targetColumn ? delta : 0;
+    column.current = settleSceneColumn(
+      column.current ?? targetColumn,
+      targetColumn,
+      columnDelta,
+      cameraTravel && props.animateIntro,
+    );
+    columnTarget.current = targetColumn;
+    if (column.current !== targetColumn) invalidate();
+    const apertureLeft = (0.25 - column.current) * 100;
+    const aperture =
+      column.current === -0.25
+        ? 'inset(0 0 0 50%)'
+        : column.current === 0.25
+          ? 'inset(0 50% 0 0)'
+          : `inset(0 ${50 - apertureLeft}% 0 ${apertureLeft}%)`;
+    const rail = wide
+      ? boundary > 0 || (props.inspect && readMonitorFocus().progress > 0)
+        ? '62%'
+        : '0%'
+      : '100%';
+    const clip =
+      boundary >= size.height
+        ? 'none'
+        : boundary <= 0
+          ? !wide
+            ? 'inset(0 0 0 100%)'
+            : aperture
+          : `polygon(0 0, 100% 0, 100% 100%, ${rail} 100%, ${rail} ${boundary}px, 0 ${boundary}px)`;
+    if (stage && clipping.current !== clip) {
+      stage.style.clipPath = clip;
+      clipping.current = clip;
     }
-    // Reserve the left side of the full-page projection for readable HTML.
-    const horizontalOffset = size.width >= 768 ? -size.width * 0.22 : 0;
-    const verticalOffset = size.width < 768 ? -size.height * 0.18 : 0;
+    const galleryZoom = Math.min(
+      size.width / (first.viewHeight * (wide ? 1.6 : 1.4)),
+      size.height / first.viewHeight,
+    );
+    const poster = document
+      .querySelector('.world-intro-poster')
+      ?.getBoundingClientRect();
+    // The accepted poster's full width spans approximately 0.82 opening view heights.
+    // Track its HTML rectangle so loading/static/live views share the same composition.
+    // Lens depends only on layout, never on scroll, chapter or inspection distance.
+    const zoom = poster
+      ? poster.width / (first.viewHeight * 0.82)
+      : galleryZoom;
+    const progress = cameraTravel ? 1 - introWeight : 0;
+    const requestedInspection =
+      props.inspect && readMonitorFocus().progress > 0 && cameraTravel ? 1 : 0;
+    inspection.current = props.animateIntro
+      ? inspection.current +
+        (requestedInspection - inspection.current) *
+          (1 - Math.exp(-Math.min(delta, 0.1) * 7))
+      : requestedInspection;
+    if (Math.abs(inspection.current - requestedInspection) < 0.001)
+      inspection.current = requestedInspection;
+    else invalidate();
+    const last = {
+      position: READING_POSE.position.map(
+        (value, axis) =>
+          value + (WORKFLOW_POSE.position[axis]! - value) * inspection.current,
+      ) as [number, number, number],
+      target: READING_POSE.target.map(
+        (value, axis) =>
+          value + (WORKFLOW_POSE.target[axis]! - value) * inspection.current,
+      ) as [number, number, number],
+    };
+    const horizontalOffset =
+      (poster ? size.width / 2 - poster.x - poster.width / 2 : 0) *
+        introWeight +
+      (wide ? size.width * column.current : 0) * (1 - introWeight);
+    const verticalOffset =
+      (poster ? size.height / 2 - poster.y - poster.height / 2 : 0) *
+      introWeight;
     if (
       camera.view?.fullWidth !== size.width ||
       camera.view?.fullHeight !== size.height ||
@@ -131,12 +229,47 @@ function ScrollCamera(props: WorldCanvasProps) {
       interpolateAxis(first.target, last.target, progress, 1),
       interpolateAxis(first.target, last.target, progress, 2),
     );
+    if (camera instanceof PerspectiveCamera) {
+      const distance = Math.hypot(
+        ...first.position.map((value, axis) => value - first.target[axis]!),
+      );
+      camera.fov =
+        (2 * Math.atan(size.height / zoom / (2 * distance)) * 180) / Math.PI;
+      camera.updateProjectionMatrix();
+    }
     // Small public diagnostics support pose/resize verification without React state.
     gl.domElement.setAttribute(
       'data-camera-pose',
       camera.position.toArray().join(','),
     );
-    gl.domElement.setAttribute('data-camera-zoom', String(camera.zoom));
+    gl.domElement.setAttribute('data-camera-zoom', String(zoom));
+    gl.domElement.setAttribute(
+      'data-scene-side',
+      inspecting ? 'right' : sceneSide,
+    );
+    gl.domElement.setAttribute(
+      'data-camera-offset-x',
+      String(camera.view?.offsetX ?? 0),
+    );
+    gl.domElement.setAttribute('data-workflow-focus', String(progress));
+    gl.domElement.setAttribute(
+      'data-camera-mode',
+      requestedInspection
+        ? 'inspect'
+        : introWeight === 0 && !cameraTravel
+          ? 'stationary-reading'
+          : progress === 1
+            ? 'reading'
+            : 'intro',
+    );
+    gl.domElement.setAttribute(
+      'data-camera-fov',
+      String(camera instanceof PerspectiveCamera ? camera.fov : 0),
+    );
+    gl.domElement.setAttribute(
+      'data-camera-offset-y',
+      String(camera.view?.offsetY ?? 0),
+    );
   });
   return null;
 }
@@ -144,39 +277,34 @@ function ScrollCamera(props: WorldCanvasProps) {
 /**
  * Render only when the camera or layout changes; no idle animation loop is needed.
  * @param props - Context-loss callback for the HTML fallback boundary.
- * @returns An orthographic, noninteractive canvas; HTML owns all navigation.
+ * @returns A transparent perspective canvas; HTML owns all navigation.
  */
 export default function WorldCanvas(props: WorldCanvasProps) {
   // Resolve before creating the renderer: a suspended, hidden canvas cannot
   // satisfy the viewport observer's demand-rendering visibility policy.
-  const model = useLoader(GLTFLoader, sceneUrl);
+  const model = useLoader(GLTFLoader, sceneUrl, configureIntroLoader);
   return (
     <Canvas
-      orthographic
-      camera={{ position: [3, 4.2, 6.2], zoom: 55, near: 0.1, far: 300 }}
-      dpr={[1, 1.5]}
+      camera={{ position: CHAPTERS[0]!.position, fov: 28, near: 0.1, far: 300 }}
+      // Supersample even on 1x displays: native-resolution MSAA alone leaves
+      // visible steps on the thin desk/chair diagonals. Bound the ratio at 2x.
+      dpr={2}
       frameloop="demand"
-      shadows="percentage"
-      gl={{ antialias: true, alpha: false }}
+      gl={{ antialias: true, alpha: true }}
       fallback={<p>WebGL unavailable. Use the still view below.</p>}
     >
-      <color attach="background" args={['#eeeee5']} />
       <GalleryLighting />
-      <IntroScene scene={model.scene} />
-      <mesh
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, -0.004, 0]}
-        receiveShadow
-      >
-        <planeGeometry args={[200, 200]} />
-        <meshStandardMaterial color="#eeeee5" roughness={0.92} />
-      </mesh>
-      <group position={[10, 0, 0]}>
-        <GalleryObjects />
-      </group>
+      <IntroScene
+        scene={model.scene}
+        animations={model.animations}
+        animate={props.animateIntro}
+        cameraTravel={props.cameraTravel}
+      />
       <ScrollCamera
         onContextLost={props.onContextLost}
         cameraTravel={props.cameraTravel}
+        inspect={props.inspect}
+        animateIntro={props.animateIntro}
       />
     </Canvas>
   );

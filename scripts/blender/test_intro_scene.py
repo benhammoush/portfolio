@@ -40,12 +40,43 @@ class IntroSceneTests(unittest.TestCase):
         self.assertEqual(INTRO.linear_color("FFFFFF"), (1, 1, 1, 1))
         self.assertAlmostEqual(INTRO.linear_color("808080")[0], 0.21586, places=4)
 
+    def test_reference_crop_uses_compact_rounded_masses(self):
+        """Keep the requested short curls attached to the head and finite in extent."""
+        head = INTRO.empty("Avatar / head pose")
+        mat = INTRO.material("Test / hair", "272226")
+        INTRO.create_reference_crop({"hair": mat})
+        curls = [obj for obj in head.children if obj.name.startswith("Hair / rounded crop clump")]
+        self.assertGreater(len(curls), 30)
+        self.assertLess(len(curls), 80)
+        for curl in curls:
+            self.assertEqual(curl.parent, head)
+            self.assertTrue(all(math.isfinite(value) for value in curl.location))
+            self.assertLess(curl.location.z + max(curl.scale), 0.24)
+
     def test_output_path_is_absolute(self):
         """Prevent Blender from interpreting an output relative to a different base."""
         with patch.object(sys, "argv", ["blender", "--", "--output", "test-results/intro-scene/path-fixture"]):
             args = INTRO.arguments()
         self.assertTrue(args.output.is_absolute())
         self.assertEqual(args.output, Path("test-results/intro-scene/path-fixture").resolve())
+
+    def test_lower_review_camera_keeps_nearly_horizontal_rear_view(self):
+        """New polish views change framing without silently replacing the baseline."""
+        data = bpy.data.cameras.new("Test / camera")
+        camera = bpy.data.objects.new("Test / camera", data)
+        bpy.context.collection.objects.link(camera)
+        INTRO.configure_review_camera(camera, "overview")
+        self.assertEqual(data.type, "ORTHO")
+        self.assertAlmostEqual(camera.location.z, 4.2, places=5)
+        INTRO.configure_review_camera(camera, "desk-level")
+        self.assertEqual(data.type, "PERSP")
+        self.assertAlmostEqual(camera.location.z, 0.84, places=5)
+        direction = camera.rotation_euler.to_matrix() @ INTRO.Vector((0, 0, -1))
+        self.assertLess(abs(direction.z), 0.02)
+        self.assertLess(abs(direction.x), 0.001)
+        INTRO.configure_review_camera(camera, "below-desk")
+        self.assertLess(camera.location.z, 0.8)
+        self.assertEqual(data.type, "PERSP")
 
     def test_polished_materials_are_procedural(self):
         """Wood color grain and fabric sheen stay self-contained without textures."""
