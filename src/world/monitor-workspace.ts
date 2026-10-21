@@ -3,6 +3,7 @@
  * @packageDocumentation
  */
 import type { MonitorChapter } from './workflow-focus';
+import { MONITOR_CHAPTERS, MONITOR_LABELS } from './workflow-focus';
 
 /** Brief tab action; the shell persists while only the selected view is replaced. */
 export const TAB_ACTION_SECONDS = 0.85;
@@ -234,18 +235,18 @@ export function drawWorkspaceShell(
   context.fillText('Guillaume / Concept workspace', 82, 19);
   context.fillStyle = '#21313e';
   context.fillRect(0, 29, 1040, 42);
-  for (const [index, label] of ['Workflow', 'Apollo'].entries()) {
+  for (const [index, chapter] of MONITOR_CHAPTERS.entries()) {
+    const label = MONITOR_LABELS[chapter];
     const left = 20 + index * 164;
-    if (selected === label.toLowerCase())
+    if (selected === chapter)
       workspaceBox(context, left, 34, 154, 32, '#3b5060');
-    context.fillStyle =
-      selected === label.toLowerCase() ? '#f1f5f3' : '#aebec9';
+    context.fillStyle = selected === chapter ? '#f1f5f3' : '#aebec9';
     context.font = '16px system-ui, sans-serif';
     context.fillText(label, left + 17, 56);
   }
   context.fillStyle = '#aebec9';
   context.font = '11px system-ui, sans-serif';
-  context.fillText('ILLUSTRATIVE · NOT LIVE DATA', 815, 54);
+  context.fillText('ILLUSTRATIVE · NOT LIVE DATA', 815, 19);
 }
 
 /**
@@ -270,7 +271,7 @@ export function drawWorkspacePointer(
         ? [64, 420]
         : requested === 'close'
           ? [frame.left + 18 * frame.scale, frame.top + 15 * frame.scale]
-          : [requested === 'apollo' ? 242 : 78, 51];
+          : [78 + MONITOR_CHAPTERS.indexOf(requested) * 164, 51];
     const x = 810 + (target[0]! - 810) * smooth;
     const y = 340 + (target[1]! - 340) * smooth;
     context.save();

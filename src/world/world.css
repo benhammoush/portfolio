@@ -13,9 +13,31 @@
   padding: 0.75rem;
   border-radius: 0.5rem;
 }
-/* The optional close-up is confined to the visual rail, never placed behind copy. */
-.world-stage:has(canvas[data-camera-mode='inspect']) {
-  clip-path: inset(0 0 0 62%);
+/* Native snapping retains keyboard, touch and oversized-section reading behavior. */
+html.world-snap {
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+html.world-snap .world-section {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+html.world-snap .world-footer {
+  /* Keep the final profile link reachable beyond the last section's snap stop. */
+  scroll-snap-align: end;
+}
+html.world-snap .world-section:not(.world-intro) {
+  min-height: calc(100svh - 7.5rem);
+}
+@media (max-width: 767px) {
+  html.world-snap .world-section:not(.world-intro) {
+    min-height: calc(100svh - 6rem);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.world-snap {
+    scroll-behavior: auto;
+  }
 }
 .world-workflow-poster {
   position: absolute;
@@ -39,31 +61,81 @@
     )
     ~ .world-main
     #world-apollo
+    img.world-workflow-poster,
+  .world-viewport:has(
+      canvas[data-monitor-desktop='ready'][data-iris-ready='true']
+    )
+    ~ .world-main
+    #world-iris
+    img.world-workflow-poster,
+  .world-viewport:has(
+      canvas[data-monitor-desktop='ready'][data-gateway-ready='true']
+    )
+    ~ .world-main
+    #world-gateway
+    img.world-workflow-poster,
+  .world-viewport:has(
+      canvas[data-monitor-desktop='ready'][data-dripperz-ready='true']
+    )
+    ~ .world-main
+    #world-dripperz
     img.world-workflow-poster {
     /* Retain the small artwork footprint so late decoding cannot move anchors. */
     visibility: hidden;
   }
 }
 
-/* Editorial reading, not a second column beside a 3D showcase. */
+/* Frost only the reading surface, never the lettering or the full-screen scene. */
 .world-page .world-section:not(.world-intro) .world-section-inner {
-  width: min(100%, 46rem);
+  width: min(100%, 44rem);
   margin-inline: auto;
-  padding: 1.75rem 2rem;
-  background: #f8faf6;
-  border: 1px solid #d6ded6;
+  padding: 2rem;
+  background: rgb(240 243 239 / 97%);
+  border: 1px solid rgb(255 255 255 / 45%);
   border-radius: 1rem;
-  box-shadow: 0 8px 32px #20372d06;
+  color: #202626;
+}
+@supports (backdrop-filter: blur(16px)) or (-webkit-backdrop-filter: blur(16px)) {
+  .world-page .world-section:not(.world-intro) .world-section-inner {
+    background: rgb(240 243 239 / 84%);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+  }
 }
 .world-page .world-copy-section .world-eyebrow {
-  font-size: 2rem;
-  letter-spacing: -0.04em;
+  font-size: 0.875rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: #20372d;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1rem;
 }
-.world-page .world-copy-section h2 {
-  font-size: clamp(1.75rem, 2.7vw, 2.4rem);
-  margin-bottom: 1.1rem;
+.world-page .world-section:not(.world-intro) .world-eyebrow span {
+  color: #3c5046;
+}
+.world-page .world-section:not(.world-intro) h2:not(.world-copy-subtitle) {
+  max-width: 25ch;
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.15;
+  margin-bottom: 1.5rem;
+}
+.world-page .world-section:not(.world-intro) .world-section-inner > p,
+.world-page .world-copy-details {
+  max-width: 60ch;
+}
+.world-page .world-copy-section .world-section-lead {
+  max-width: 30ch;
+  color: #20372d;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(1.65rem, 2.5vw, 2rem);
+  line-height: 1.3;
+  letter-spacing: -0.025em;
+  margin-bottom: 1.75rem;
+}
+.world-page .world-contact h2 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 400;
 }
 .world-page .world-workflow-poster {
   position: static;
@@ -80,48 +152,48 @@
   opacity: 1;
 }
 @media (min-width: 1200px) {
+  .world-page[data-reading] .world-main::before {
+    content: '';
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 50vw;
+    z-index: -1;
+    pointer-events: none;
+    background: rgb(240 243 239 / 97%);
+  }
+  @supports (backdrop-filter: blur(16px)) or
+    (-webkit-backdrop-filter: blur(16px)) {
+    .world-page[data-reading] .world-main::before {
+      background: rgb(240 243 239 / 84%);
+      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(16px);
+    }
+  }
   .world-page .world-section:not(.world-intro) {
-    padding-inline: 5vw;
+    padding-inline: max(5vw, calc((100vw - 90rem) / 2));
   }
   .world-page .world-section:not(.world-intro) .world-section-inner {
-    width: min(48%, 46rem);
+    width: min(50%, 44rem);
     margin-inline: 0 auto;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
-  .world-page .world-section.world-copy-right .world-section-inner {
-    margin-inline: auto 0;
-  }
-  .world-page:has(canvas[data-camera-mode='inspect'])
-    .world-main
-    .world-section:not(.world-intro)
-    .world-section-inner {
-    width: min(48%, 46rem);
-    margin-inline: 0 auto;
+  .world-page .world-copy-section p:not(.world-eyebrow, .world-section-lead),
+  .world-page .world-profile p {
+    font-size: 1.25rem;
+    line-height: 1.7;
   }
   .world-page .world-workflow-poster {
     position: absolute;
     top: 3rem;
-    right: 5vw;
-    width: min(36vw, 34rem);
+    right: max(5vw, calc((100vw - 90rem) / 2));
+    width: min(20vw, 16rem);
     margin: 0;
     opacity: 1;
   }
-  .world-page .world-copy-right .world-workflow-poster {
-    right: auto;
-    left: 5vw;
-  }
-}
-@media (min-width: 768px) and (max-width: 1199px) {
-  .world-stage:has(canvas[data-camera-mode='reading']),
-  .world-stage:has(canvas[data-camera-mode='stationary-reading']) {
-    visibility: hidden;
-  }
-}
-/* Only an explicit inspection request restores the split reading/screen study. */
-.world-page:has(canvas[data-camera-mode='inspect'])
-  .world-section:not(.world-intro)
-  .world-section-inner {
-  width: min(100%, 46rem);
-  margin-inline: 0;
 }
 @media (max-width: 767px) {
   .world-page .world-workflow-section {
@@ -221,7 +293,8 @@
   flex-wrap: wrap;
   gap: 0.5rem 2rem;
   padding: 1.6rem 5vw;
-  background: #f0f3ef;
+  /* A translucent header avoids opaque-layer occlusion of the WebGL backdrop. */
+  background: rgb(240 243 239 / 94%);
 }
 .world-header a {
   color: #20372d;
@@ -585,6 +658,9 @@
   }
   .world-page .world-section:not(.world-intro) .world-section-inner {
     padding: 1.25rem 1.1rem;
+  }
+  .world-page .world-copy-section:not(.world-intro) .world-section-inner {
+    padding-inline: 0;
   }
   .world-page .world-section[id] {
     scroll-margin-top: 6rem;

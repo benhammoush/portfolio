@@ -14,7 +14,8 @@ test('Apollo and Workflow switch on one monitor without enabling animation when 
   await expect(canvas).toHaveAttribute('data-monitor-chapter', 'apollo', {
     timeout: 20_000,
   });
-  await expect(canvas).toHaveAttribute('data-camera-pose', '2.55,1.95,5.7');
+  await expect(canvas).toHaveAttribute('data-reading-section', 'world-apollo');
+  await expect(canvas).toHaveAttribute('data-route-span', '0.55');
   await expect
     .poll(async () => Number(await canvas.getAttribute('data-workflow-time')), {
       timeout: 20_000,
@@ -64,7 +65,8 @@ for (const width of [390, 1440]) {
     await page.goto('/#world-apollo');
     await expect(
       page.getByRole('heading', {
-        name: 'From strategy automation to a full-stack trading platform.',
+        name: 'Apollo',
+        exact: true,
       }),
     ).toBeInViewport();
     await expect(

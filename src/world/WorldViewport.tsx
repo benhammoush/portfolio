@@ -68,8 +68,8 @@ function subscribeReading(listener: () => void) {
 }
 
 /**
- * Keep the inspection control out of the introduction and unfinished chapters.
- * @returns Whether either accepted screen chapter is at the reading line.
+ * Keep the inspection control inside the project-reading sequence.
+ * @returns Whether a project screen chapter is at the reading line.
  */
 function readScreenContext() {
   return readMonitorFocus().progress > 0;
@@ -222,7 +222,7 @@ export default function WorldViewport() {
               ? 'Graphics context lost. Still view retained; reload to retry.'
               : live
                 ? cameraTravel
-                  ? '3D supports the reading. View screen offers an optional closer look during Workflow and Apollo.'
+                  ? '3D supports the reading. View screen offers an optional closer look during the project sections.'
                   : 'Stationary 3D view — camera travel is off for this viewport or motion preference.'
                 : policy === 'reduced-motion'
                   ? 'Still view: reduced motion is enabled. Optional 3D keeps the camera stationary.'

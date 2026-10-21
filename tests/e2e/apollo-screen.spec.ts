@@ -70,7 +70,8 @@ for (const width of [320, 1440]) {
     await expect(page).toHaveURL(/\/#world-apollo$/);
     await expect(
       page.getByRole('heading', {
-        name: 'From strategy automation to a full-stack trading platform.',
+        name: 'Apollo',
+        exact: true,
       }),
     ).toBeInViewport();
   });

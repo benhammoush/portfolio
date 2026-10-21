@@ -11,10 +11,15 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { format } from 'prettier';
 
 const apollo = process.argv.includes('--apollo');
+const project = ['iris', 'gateway', 'dripperz'].find((name) =>
+  process.argv.includes(`--${name}`),
+);
 const sourceUrl = new URL(
-  apollo
-    ? '../src/design/ApolloScreenPage.tsx'
-    : '../src/design/WorkflowScreenPage.tsx',
+  project
+    ? '../src/design/ProjectScreenArtwork.tsx'
+    : apollo
+      ? '../src/design/ApolloScreenPage.tsx'
+      : '../src/design/WorkflowScreenPage.tsx',
   import.meta.url,
 );
 const require = createRequire(sourceUrl);
@@ -39,7 +44,9 @@ const compiled = ts
 const component = await import(
   `data:text/javascript;base64,${Buffer.from(compiled).toString('base64')}`
 );
-const markup = renderToStaticMarkup(createElement(component.default));
+const markup = renderToStaticMarkup(
+  createElement(component.default, project ? { project } : undefined),
+);
 const start = markup.indexOf('<svg');
 const end = markup.indexOf('</svg>', start);
 if (start < 0 || end < 0) throw new Error('Screen artwork SVG is missing.');
@@ -51,9 +58,11 @@ const svg = markup
     '<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="640" ',
   );
 const output = new URL(
-  apollo
-    ? '../src/assets/apollo/apollo-screen.svg'
-    : '../src/assets/workflow/workflow-screen.svg',
+  project
+    ? `../src/assets/${project}/${project}-screen.svg`
+    : apollo
+      ? '../src/assets/apollo/apollo-screen.svg'
+      : '../src/assets/workflow/workflow-screen.svg',
   import.meta.url,
 );
 const formatted = await format(svg, { parser: 'html' });

@@ -1,10 +1,10 @@
 /**
- * Reading hierarchy, fixed lens and a reversible computer action in one visual rail.
+ * A stable reading column owns the layout; the unchanged desk is secondary.
  * @packageDocumentation
  */
 import { expect, test } from '@playwright/test';
 
-test('desktop inspection keeps the card and scene in separate columns with controls above content', async ({
+test('explicit inspection does not move or narrow the dominant reading surface', async ({
   page,
 }) => {
   test.setTimeout(90_000);
@@ -16,6 +16,9 @@ test('desktop inspection keeps the card and scene in separate columns with contr
     { timeout: 45_000 },
   );
   await page.getByRole('button', { name: 'Pause motion', exact: true }).click();
+  const readingCard = await page
+    .locator('#world-apollo .world-section-inner')
+    .boundingBox();
   await page.getByRole('button', { name: 'View screen', exact: true }).click();
   await expect(page.locator('canvas')).toHaveAttribute(
     'data-camera-mode',
@@ -27,11 +30,12 @@ test('desktop inspection keeps the card and scene in separate columns with contr
   const controls = await page
     .locator('.world-viewport figcaption')
     .boundingBox();
-  expect(card!.x + card!.width).toBeLessThanOrEqual(720);
+  expect(card).toEqual(readingCard);
+  expect(card!.width).toBeGreaterThan(540);
   expect(controls!.y + controls!.height).toBeLessThanOrEqual(card!.y);
 });
 
-test('departing hero geometry is clipped above incoming profile text', async ({
+test('the frosted profile leaves the full-screen scene unclipped', async ({
   page,
 }) => {
   test.setTimeout(60_000);
@@ -44,12 +48,7 @@ test('departing hero geometry is clipped above incoming profile text', async ({
   );
   await page.getByRole('button', { name: 'Pause motion', exact: true }).click();
   await page.evaluate(() =>
-    window.scrollTo(
-      0,
-      document.getElementById('world-hub')!.getBoundingClientRect().bottom +
-        scrollY -
-        360,
-    ),
+    document.getElementById('world-profile')!.scrollIntoView(),
   );
   await expect
     .poll(() =>
@@ -57,19 +56,18 @@ test('departing hero geometry is clipped above incoming profile text', async ({
         .locator('.world-stage')
         .evaluate((element) => getComputedStyle(element).clipPath),
     )
-    .toMatch(/^polygon/);
-  const regions = await page.evaluate(() => ({
-    hero: document.getElementById('world-hub')!.getBoundingClientRect().bottom,
-    profile: document.querySelector('.world-profile p')!.getBoundingClientRect()
-      .top,
-    clip: (document.querySelector('.world-stage') as HTMLElement).style
-      .clipPath,
-  }));
-  expect(regions.profile).toBeGreaterThan(regions.hero);
-  expect(Number(regions.clip.match(/62% ([\d.]+)px/)?.[1])).toBeCloseTo(
-    regions.hero,
-    2,
+    .toBe('none');
+  await expect(page.locator('canvas')).toHaveAttribute(
+    'data-camera-mode',
+    'reading',
   );
+  await expect
+    .poll(() =>
+      page
+        .locator('.world-main')
+        .evaluate((e) => getComputedStyle(e, '::before').backdropFilter),
+    )
+    .toBe('blur(16px)');
 });
 
 test('copy owns the reading area while a native-width workspace changes tabs and settles', async ({
@@ -84,7 +82,7 @@ test('copy owns the reading area while a native-width workspace changes tabs and
     timeout: 25_000,
   });
   await expect(canvas).toHaveAttribute('data-camera-mode', 'reading');
-  await expect(canvas).toHaveAttribute('data-scene-side', 'right');
+  await expect(canvas).toHaveAttribute('data-scene-side', 'full');
   const pose = await canvas.getAttribute('data-camera-pose');
   const lens = await canvas.getAttribute('data-camera-fov');
   const composition = await page
@@ -98,39 +96,31 @@ test('copy owns the reading area while a native-width workspace changes tabs and
         center: (reading.left + reading.right) / 2,
         backdrop: getComputedStyle(document.querySelector('.world-canvas')!)
           .opacity,
-        font: getComputedStyle(element.querySelector('p:not(.world-eyebrow)')!)
-          .fontSize,
+        font: getComputedStyle(
+          element.querySelector('p:not(.world-eyebrow, .world-section-lead)')!,
+        ).fontSize,
         clip: getComputedStyle(stage).clipPath,
         rail: innerWidth * 0.62,
       };
     });
-  expect(composition.width).toBeGreaterThan(550);
+  expect(composition.width).toBeGreaterThan(540);
   expect(composition.center).toBeLessThan(720);
   expect(Number(composition.backdrop)).toBe(1);
-  expect(composition.font).toBe('19px');
-  expect(composition.clip).toBe('inset(0px 0px 0px 50%)');
-  // No early artwork swap when only the outer section enters the viewport.
+  expect(composition.font).toBe('20px');
+  expect(composition.clip).toBe('none');
+  // The section anchor, rather than an arbitrary resting scroll offset, selects Apollo.
   await page.evaluate(() =>
-    window.scrollTo(
-      0,
-      document.getElementById('world-apollo-title')!.getBoundingClientRect()
-        .top +
-        scrollY -
-        450,
-    ),
+    document.getElementById('world-apollo')!.scrollIntoView(),
   );
-  await expect(canvas).toHaveAttribute('data-monitor-chapter', 'workflow');
-  await page.evaluate(() => window.scrollBy(0, 130));
-  await expect(canvas).toHaveAttribute('data-monitor-action', 'selecting-tab');
   await expect(canvas).toHaveAttribute('data-monitor-chapter', 'apollo', {
     timeout: 25_000,
   });
-  await expect(canvas).toHaveAttribute('data-scene-side', 'left');
+  await expect(canvas).toHaveAttribute('data-scene-side', 'full');
   expect(
     await page
       .locator('#world-apollo .world-section-inner')
       .evaluate((element) => element.getBoundingClientRect().left),
-  ).toBeGreaterThan(720);
+  ).toBeCloseTo(composition.center - composition.width / 2, 0);
   await expect(canvas).toHaveAttribute('data-camera-pose', pose!);
   await expect(canvas).toHaveAttribute('data-camera-fov', lens!);
   await expect
@@ -148,7 +138,9 @@ test('copy owns the reading area while a native-width workspace changes tabs and
   });
   await expect(canvas).toHaveAttribute('data-workflow-frames', idleFrames!);
   // Reverse selection follows the heading again, without a camera return trip.
-  await page.evaluate(() => window.scrollBy(0, -150));
+  await page.evaluate(() =>
+    document.getElementById('world-workflow')!.scrollIntoView(),
+  );
   await expect(canvas).toHaveAttribute('data-monitor-chapter', 'workflow', {
     timeout: 25_000,
   });
@@ -156,7 +148,9 @@ test('copy owns the reading area while a native-width workspace changes tabs and
   await page.getByRole('button', { name: 'Pause motion', exact: true }).click();
   await page.getByRole('button', { name: 'View screen', exact: true }).click();
   await expect(canvas).toHaveAttribute('data-camera-mode', 'inspect');
-  await expect(canvas).toHaveAttribute('data-camera-fov', lens!);
+  await expect
+    .poll(async () => Number(await canvas.getAttribute('data-camera-fov')))
+    .toBeLessThan(Number(lens));
   await page.screenshot({
     path: testInfo.outputPath('content-first-inspection.png'),
     timeout: 60_000,
@@ -189,13 +183,9 @@ test('an active tab gesture freezes on pause and hidden time, then accepts rever
       attributes: true,
       attributeFilter: ['data-monitor-action'],
     });
-    window.scrollTo(
-      0,
-      document.getElementById('world-apollo-title')!.getBoundingClientRect()
-        .top +
-        scrollY -
-        320,
-    );
+    document
+      .getElementById('world-apollo')!
+      .scrollIntoView({ behavior: 'instant' });
   });
   await expect(
     page.getByRole('button', { name: 'Resume motion', exact: true }),
@@ -219,7 +209,9 @@ test('an active tab gesture freezes on pause and hidden time, then accepts rever
       value: false,
     });
     document.dispatchEvent(new Event('visibilitychange'));
-    window.scrollBy(0, -150);
+    document
+      .getElementById('world-workflow')!
+      .scrollIntoView({ behavior: 'instant' });
   });
   await expect(canvas).toHaveAttribute('data-monitor-chapter', 'workflow');
   await expect(canvas).toHaveAttribute('data-monitor-action', 'settled');
@@ -239,13 +231,14 @@ for (const width of [390, 900]) {
         width: element.getBoundingClientRect().width,
         background: getComputedStyle(element).backgroundColor,
         border: getComputedStyle(element).borderTopStyle,
-        font: getComputedStyle(element.querySelector('p:not(.world-eyebrow)')!)
-          .fontSize,
+        font: getComputedStyle(
+          element.querySelector('p:not(.world-eyebrow, .world-section-lead)')!,
+        ).fontSize,
         overflow: document.documentElement.scrollWidth > innerWidth,
       }));
     expect(metrics.width).toBeGreaterThan(320);
     expect(metrics.font).toBe('19px');
-    expect(metrics.background).toBe('rgb(248, 250, 246)');
+    expect(metrics.background).toBe('rgba(240, 243, 239, 0.84)');
     expect(metrics.border).toBe('solid');
     expect(metrics.overflow).toBe(false);
     if (width < 768) {

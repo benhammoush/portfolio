@@ -1,0 +1,189 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="1040"
+  height="640"
+  viewBox="0 0 1040 640"
+  aria-hidden="true"
+>
+  <rect width="1040" height="640" rx="12" fill="#191525"></rect>
+  <path d="M0 50h1040" stroke="#40545d"></path>
+  <g font-family="system-ui, sans-serif">
+    <circle cx="30" cy="25" r="7" fill="#c1f26b"></circle>
+    <text
+      x="49"
+      y="31"
+      fill="#c1f26b"
+      font-size="15"
+      font-weight="700"
+      letter-spacing="2"
+    >
+      DRIPPERZ
+    </text>
+    <text
+      x="1008"
+      y="30"
+      text-anchor="end"
+      fill="#c0cbd2"
+      font-size="11"
+      letter-spacing="1"
+    >
+      ILLUSTRATIVE CONCEPT · NOT LIVE
+    </text>
+    <text
+      x="36"
+      y="101"
+      fill="#f1ecff"
+      font-size="30"
+      font-weight="700"
+      letter-spacing="1"
+    >
+      A world built around the mint.
+    </text>
+    <text x="36" y="128" fill="#c5b9db" font-size="14">
+      Ethereum contracts, an interactive frontend and a cyberpunk visual
+      identity.
+    </text>
+    <g data-concept="original-collectible-art">
+      <rect
+        x="36"
+        y="155"
+        width="584"
+        height="354"
+        rx="12"
+        fill="#251f39"
+        stroke="#6e558e"
+      ></rect>
+      <path d="M60 177v307M58 192h540" stroke="#3c3054"></path>
+      <path d="M165 177v307M58 247h540" stroke="#3c3054"></path>
+      <path d="M270 177v307M58 302h540" stroke="#3c3054"></path>
+      <path d="M375 177v307M58 357h540" stroke="#3c3054"></path>
+      <path d="M480 177v307M58 412h540" stroke="#3c3054"></path>
+      <path d="M585 177v307M58 467h540" stroke="#3c3054"></path>
+      <path
+        d="m171 335 157-119 157 119-157 119Z"
+        fill="#372b50"
+        stroke="#9b7ace"
+        stroke-width="2"
+      ></path>
+      <path d="m171 335 157 119v33l-157-119Z" fill="#251c3b"></path>
+      <path d="m328 454 157-119v33L328 487Z" fill="#53416a"></path>
+      <path
+        d="M265 278q0-49 63-49t63 49v86q0 20-17 20t-17-20v37q0 20-17 20t-17-20v-19q0-16-16-16t-16 16v-30q0 20-13 20t-13-20Z"
+        fill="#b5f06b"
+      ></path>
+      <rect x="287" y="280" width="27" height="18" rx="4" fill="#30243f"></rect>
+      <rect x="342" y="280" width="27" height="18" rx="4" fill="#30243f"></rect>
+      <path
+        d="M310 321h36"
+        stroke="#3b3c3e"
+        stroke-width="5"
+        stroke-linecap="round"
+      ></path>
+      <path
+        d="m109 243 25-16m-25 168 25 16m389-168 25 16m-25 136 25-16"
+        stroke="#d48fc9"
+        stroke-width="3"
+      ></path>
+      <text x="58" y="485" fill="#c8b8df" font-size="11" letter-spacing="1">
+        ORIGINAL PORTFOLIO ART · NOT A COLLECTION ASSET
+      </text>
+    </g>
+    <g data-concept="mint-controls">
+      <rect
+        x="644"
+        y="155"
+        width="360"
+        height="354"
+        rx="12"
+        fill="#2c2440"
+        stroke="#75618d"
+      ></rect>
+      <text x="669" y="190" fill="#c1f26b" font-size="12" letter-spacing="1.5">
+        MINT WORKSPACE / CONCEPT
+      </text>
+      <text x="669" y="234" fill="#f1ecff" font-size="27" font-weight="600">
+        Choose your phase.
+      </text>
+      <rect
+        x="669"
+        y="254"
+        width="141"
+        height="35"
+        rx="7"
+        fill="#534069"
+      ></rect>
+      <text x="739" y="277" text-anchor="middle" fill="#f1e8ff" font-size="13">
+        Whitelist
+      </text>
+      <rect
+        x="821"
+        y="254"
+        width="157"
+        height="35"
+        rx="7"
+        fill="#3a304d"
+      ></rect>
+      <text x="899" y="277" text-anchor="middle" fill="#cfc0e2" font-size="13">
+        Public sale
+      </text>
+      <text x="669" y="326" fill="#d8cde6" font-size="14">
+        Supply limits and reservations
+      </text>
+      <path d="M669 348h309" stroke="#554666"></path>
+      <path d="M669 348h186" stroke="#a987d3" stroke-width="5"></path>
+      <text x="669" y="379" fill="#c5b9db" font-size="12">
+        Abstract supply indicator · not a real allocation
+      </text>
+      <rect
+        x="669"
+        y="401"
+        width="309"
+        height="47"
+        rx="8"
+        fill="#c1f26b"
+      ></rect>
+      <text
+        x="823"
+        y="430"
+        text-anchor="middle"
+        fill="#263422"
+        font-size="14"
+        font-weight="600"
+      >
+        Preview only · minting disabled
+      </text>
+      <text x="669" y="484" fill="#c5b9db" font-size="12">
+        No wallet connection or transaction is initiated.
+      </text>
+    </g>
+    <rect x="36" y="529" width="968" height="66" rx="10" fill="#251e35"></rect>
+    <g>
+      <circle cx="58" cy="562" r="4" fill="#b5f06b"></circle>
+      <text x="73" y="568" fill="#d5cae4" font-size="14">
+        Solidity / sale controls
+      </text>
+    </g>
+    <g>
+      <circle cx="379" cy="562" r="4" fill="#b5f06b"></circle>
+      <text x="394" y="568" fill="#d5cae4" font-size="14">
+        React / wallet flows
+      </text>
+    </g>
+    <g>
+      <circle cx="700" cy="562" r="4" fill="#b5f06b"></circle>
+      <text x="715" y="568" fill="#d5cae4" font-size="14">
+        Metadata / deployment
+      </text>
+    </g>
+    <text
+      x="1004"
+      y="623"
+      text-anchor="end"
+      fill="#aebfc6"
+      font-size="10"
+      letter-spacing="1"
+    >
+      ORIGINAL PORTFOLIO ILLUSTRATION
+    </text>
+  </g>
+</svg>

@@ -28,8 +28,11 @@ traceable and recoverable delivery.
   promise readable case studies or working application navigation without it.
 - White/soft-gray surfaces, dark typography, restrained accents, soft shadows
   and minimal futuristic installations. Real UI imagery retains its colors.
-- Native scroll drives transitions; no scroll interception, snapping, forced
-  animation waits, free flight or autoplay audio.
+- Native section snapping drives transitions, with anchors at the top, profile,
+  workflow, each project and contact. Vertical wheel gestures select adjacent anchors
+  rather than skipping sections; touch and keyboard scrolling remain browser-owned.
+  No forced animation waits, free flight or autoplay audio. Oversized sections and
+  expanded details remain natively scrollable; reduced motion removes smooth scrolling.
 - Routes: `/`, `/projects`, `/projects/:slug`, `/stack`, `/workflow`, `/about`.
   Normal links, direct anchors, reload, resize and back/forward remain usable
   with JavaScript. Static hosting needs an SPA fallback for direct route requests;
@@ -497,6 +500,105 @@ wording in native keyboard-usable Read more disclosures (also for the longer
 profile). Do not silently delete or rewrite claims. Damped projection movement and
 its clipping aperture follow the latest requested side; reverse scrolling interrupts
 smoothly. Paused/static/reduced-motion changes remain immediate, with no scroll waits.
+
+The next local revision replaces free resting scroll positions with section anchors
+(hero/top, profile, workflow, each project and contact). Vertical wheel gestures
+advance one adjacent stop, including momentum handling and interruptible reverse
+intent; browser zoom, horizontal gestures, touch and keyboard remain available.
+Oversized/expanded content must remain readable before moving to another section.
+Remove the canvas clipping aperture, not the opaque reading-card backgrounds: the
+shared scene may extend behind the layout without a hard vertical cutoff. Keep
+the existing alternating projection and allow the shared flag/character clip to
+continue beyond the hero while visibly rendered. Retain pause, reduced-motion,
+stationary, hidden-tab and offscreen safeguards; bound working-loop and rendering
+resolution costs. Verify locally and obtain owner visual acceptance before designing
+Iris, Crypto gateway or Dripperz monitor artwork. No publication or deployment is
+included; hosting foundation acceptance remains separate from design/public launch.
+
+The subsequent composition revision prioritizes Portfolio's readable content over
+the decorative 3D background. Preserve the hero, approved copy, existing monitor
+artwork/desktop/tab behavior, anchor navigation and motion/static alternatives.
+Post-hero sections share one stable reading column rather than alternating sides;
+use a dominant heading, quieter chapter labels, bounded paragraph line lengths and
+an opaque reading surface. Keep the desk smaller and peripheral, with an independent
+size cap so large screens do not turn it into the main element. Explicit inspection
+may enlarge the scene without moving or narrowing the reading surface. No monitor
+artwork redesign, other-product changes, publication or deployment is included.
+
+The owner selected the project-led text presentation: use the project name as the
+section heading, retain the approved story sentence as a lead, and group the first
+two unchanged paragraphs under context-appropriate labels (for example Starting
+point / My contribution for Apollo, Approach / Delivery for Workflow). Use a light
+accented contribution block rather than one enclosing card around the whole story.
+Subordinate headings remain below each project heading in the semantic hierarchy.
+Preserve Read more, stable fragment/monitor identities, the hero, all approved copy
+and every monitor artwork. This remains a local composition/visual checkpoint.
+
+The owner subsequently selected reading-first direction D and authorized local
+implementation together with subtle section camera poses. Use a calm, bounded,
+unboxed reading column, quiet project identity and an expressive system-serif
+story lead. Preserve approved paragraphs verbatim; draft shortened summaries from
+the design study are not implicitly approved. Do not change monitor artwork.
+
+Keep the hero's accepted rear framing. About docks into the small lower-right base
+pose; Workflow turns slightly toward the monitor; Apollo is marginally closer;
+Iris is wider with a reversed small turn; Crypto gateway is neutral; Dripperz has
+a distinct opposite turn; Contact returns to the base. The owner found the initial
+three-degree/five-percent variations too similar and requested a clearer moving
+effect. Use distinct adjacent orbit targets (up to sixteen degrees either side of
+base), scale between 0.92 and 1.12 and vertical shifts up to seven percent of the
+viewport, while keeping the text stationary and the desk peripheral. Camera position/target,
+scale and small vertical shifts blend from native section-anchor scroll progress,
+with eased endpoints, immediate reverse intent and no queued travel or forced waits.
+Idle camera framing settles; existing character/flag motion remains independent.
+Pause selects the reached pose immediately without interpolated travel. Reduced
+motion and narrow stationary opt-ins keep stationary framing. Re-measure anchors
+after resize or expanded-copy changes. Obtain local checks, browser verification,
+read-only review and owner visual acceptance; no publication/deployment is included.
+
+The owner then rejected the repetitive alternating movement and authorized a
+complete physical-landmark camera route, superseding the orbit/scale/lift targets
+above: accepted wide rear hero → About over the character's left shoulder toward
+the monitor → Workflow monitor top-right → Apollo outer right monitor edge → Iris
+green flask → Crypto gateway mouse on the mat → Dripperz keyboard/typing hands →
+Contact wider rear-three-quarter conclusion, not a reset to the opening pose.
+Use world-space camera eyes and focal points, gliding between section waypoints;
+backward scroll retraces the route. The owner selected a contained right-side
+scene area for close-ups, preserving the full-width hero and unboxed reading text.
+The subsequent visual revision removes the hard vertical division: blend the scene
+edge into the shared background instead of adding an opaque reading surface; keep
+the text crisp and the same physical camera waypoints.
+The owner subsequently selected full-screen scenery behind a frosted reading
+surface, superseding the side rail and feather. Keep the hero and physical camera
+route; remove reading-mode masks and rail framing. Keep focal details visible
+beside the text through off-axis composition, not a clipped scene area. Apply backdrop
+blur only behind post-hero text, with a translucent tint strong enough to preserve
+at least WCAG AA text contrast against the darkest scene geometry. Keep lettering
+fully opaque and unblurred, and use a more opaque fallback when blur is unsupported.
+The owner then selected one full-height frosted-white left half (50% of the desktop
+viewport) instead of individual rounded panels. Keep all desktop reading content
+within that half and remove its card borders/corners. Hide the sheet in the hero;
+its visibility must not depend on the 3D engine. Narrower layouts retain a readable
+full-width text surface, not a cramped half-screen column.
+The owner then replaced the individual project waypoints with one fixed monitor
+top-right camera from Workflow through Dripperz: share Workflow's eye, focal point
+and framing span across all five sections, so forward/reverse project scrolling
+and expanded-copy reading do not move the camera. Keep Hero, About and Contact
+views, the full-screen scene, left-half frosted reading surface and explicit screen
+inspection behavior unchanged.
+The owner subsequently authorized the missing Iris, Crypto gateway and Dripperz
+monitor designs and their section integration. Create original public-safe vector
+concepts from the approved narratives: public-chain analytics, portable checkout
+with explicit trust boundaries, and a cyberpunk mint workspace. Mark sample values
+and activity as illustrative; no real addresses, credentials, payments, minting,
+collection assets or private product source. Add the three views to the same
+heading-led workspace and preserve direct entry, reverse intent, pause, reduced
+motion, independent artwork failures, HTML alternatives and bounded texture uploads.
+Do not change the existing Workflow/Apollo artwork, approved copy, camera pose or
+left-half reading surface. Local verification and owner design review only; no
+publication/deployment is authorized.
+Do not alter model or artwork. Preserve the pause, stationary, reduced-motion,
+keyboard, fallback and expanded-copy policies and the local-only endpoint above.
 
 ### Approved personal-details-01 integration
 

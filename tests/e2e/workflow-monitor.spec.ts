@@ -4,7 +4,7 @@
  */
 import { expect, test } from '@playwright/test';
 
-test('Workflow keeps a quiet reading pose with optional fixed-lens inspection', async ({
+test('Workflow keeps a quiet reading pose with optional larger-screen inspection', async ({
   page,
 }, testInfo) => {
   // Multiple cold software-rendered mounts plus captures are not a device budget.
@@ -12,9 +12,14 @@ test('Workflow keeps a quiet reading pose with optional fixed-lens inspection', 
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/#world-workflow');
   const canvas = page.locator('canvas[data-world-ready="true"]');
-  await expect(canvas).toHaveAttribute('data-camera-pose', '2.55,1.95,5.7', {
-    timeout: 20_000,
-  });
+  await expect(canvas).toHaveAttribute(
+    'data-reading-section',
+    'world-workflow',
+    {
+      timeout: 20_000,
+    },
+  );
+  await expect(canvas).toHaveAttribute('data-route-span', '0.55');
   await expect(canvas).toHaveAttribute('data-workflow-active', 'true');
   await expect(
     page.locator('#world-workflow .world-workflow-poster'),
@@ -41,7 +46,9 @@ test('Workflow keeps a quiet reading pose with optional fixed-lens inspection', 
   await expect(canvas).toHaveAttribute('data-camera-pose', pose!);
   await page.getByRole('button', { name: 'View screen', exact: true }).click();
   await expect(canvas).toHaveAttribute('data-camera-mode', 'inspect');
-  await expect(canvas).toHaveAttribute('data-camera-fov', fov!);
+  await expect
+    .poll(async () => Number(await canvas.getAttribute('data-camera-fov')))
+    .toBeLessThan(Number(fov));
   await page
     .getByRole('navigation')
     .getByRole('link', { name: 'Introduction', exact: true })
@@ -62,6 +69,7 @@ test('Workflow keeps a quiet reading pose with optional fixed-lens inspection', 
     .getByRole('button', { name: 'Return to reading', exact: true })
     .click();
   await expect(canvas).toHaveAttribute('data-camera-pose', pose!);
+  await expect(canvas).toHaveAttribute('data-camera-fov', fov!);
   await page.screenshot({
     path: testInfo.outputPath('workflow-closeup.png'),
     timeout: 60_000,
@@ -119,7 +127,8 @@ test('reduced motion keeps Workflow still, with no engine and readable HTML', as
   await page.goto('/#world-workflow');
   await expect(
     page.getByRole('heading', {
-      name: 'From the initial idea to a running application.',
+      name: 'Engineering workflow',
+      exact: true,
     }),
   ).toBeInViewport();
   await expect(
@@ -156,7 +165,8 @@ test('a failed Workflow SVG preserves the original monitor and readable HTML', a
   );
   await expect(
     page.getByRole('heading', {
-      name: 'From the initial idea to a running application.',
+      name: 'Engineering workflow',
+      exact: true,
     }),
   ).toBeInViewport();
 });

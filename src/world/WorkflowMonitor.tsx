@@ -15,9 +15,13 @@ import {
 import type { Object3D } from 'three';
 import artworkUrl from '../assets/workflow/workflow-screen.svg?url';
 import apolloUrl from '../assets/apollo/apollo-screen.svg?url';
+import irisUrl from '../assets/iris/iris-screen.svg?url';
+import gatewayUrl from '../assets/gateway/gateway-screen.svg?url';
+import dripperzUrl from '../assets/dripperz/dripperz-screen.svg?url';
+import { drawProjectTexture } from './project-texture';
 import { drawApolloTexture } from './apollo-texture';
 import { drawWorkflowTexture, shouldPaintWorkflow } from './workflow-texture';
-import { readMonitorFocus } from './workflow-focus';
+import { readMonitorFocus, MONITOR_CHAPTERS } from './workflow-focus';
 import type { MonitorChapter } from './workflow-focus';
 import {
   drawWorkspaceShell,
@@ -29,6 +33,15 @@ import {
   TAB_ACTION_SECONDS,
   advanceWorkspaceClock,
 } from './monitor-workspace';
+
+/** Local original assets; every chapter still shares one texture and one plane. */
+const ARTWORK_URLS: Record<MonitorChapter, string> = {
+  workflow: artworkUrl,
+  apollo: apolloUrl,
+  iris: irisUrl,
+  gateway: gatewayUrl,
+  dripperz: dripperzUrl,
+};
 
 /** Policy and owned clone supplied by the introduction boundary. */
 interface WorkflowMonitorProps {
@@ -62,7 +75,13 @@ interface MonitorSurface {
 export default function WorkflowMonitor(props: WorkflowMonitorProps) {
   const { gl, invalidate } = useThree();
   const surface = useRef<MonitorSurface | null>(null);
-  const time = useRef({ workflow: 0, apollo: 0 });
+  const time = useRef({
+    workflow: 0,
+    apollo: 0,
+    iris: 0,
+    gateway: 0,
+    dripperz: 0,
+  });
   const previousPaint = useRef(-Infinity);
   const paintedFrames = useRef(0);
   const wasPlaying = useRef<MonitorChapter | null>(null);
@@ -125,6 +144,9 @@ export default function WorkflowMonitor(props: WorkflowMonitorProps) {
       images: {
         workflow: { image: new Image(), ready: false },
         apollo: { image: new Image(), ready: false },
+        iris: { image: new Image(), ready: false },
+        gateway: { image: new Image(), ready: false },
+        dripperz: { image: new Image(), ready: false },
       },
       texture,
       plane,
@@ -142,7 +164,7 @@ export default function WorkflowMonitor(props: WorkflowMonitorProps) {
     wasBusy.current = false;
     windowAction.current = null;
     previousWindowFrame.current = null;
-    for (const chapter of ['workflow', 'apollo'] as const) {
+    for (const chapter of MONITOR_CHAPTERS) {
       const item = owned.images[chapter];
       item.image.onload = () => {
         if (surface.current !== owned) return;
@@ -156,7 +178,7 @@ export default function WorkflowMonitor(props: WorkflowMonitorProps) {
           invalidate();
         }
       };
-      item.image.src = chapter === 'workflow' ? artworkUrl : apolloUrl;
+      item.image.src = ARTWORK_URLS[chapter];
     }
     return () => {
       window.clearTimeout(timer.current);
@@ -169,6 +191,11 @@ export default function WorkflowMonitor(props: WorkflowMonitorProps) {
       geometry.dispose();
       material.dispose();
       texture.dispose();
+      for (const chapter of MONITOR_CHAPTERS) {
+        gl.domElement.removeAttribute(`data-${chapter}-ready`);
+        gl.domElement.removeAttribute(`data-${chapter}-error`);
+        gl.domElement.removeAttribute(`data-monitor-${chapter}-time`);
+      }
       [
         'data-workflow-ready',
         'data-workflow-error',
@@ -205,9 +232,15 @@ export default function WorkflowMonitor(props: WorkflowMonitorProps) {
     );
     const chapter = focus.chapter;
     const item = owned.images[chapter];
+    // The profile anchor leaves the departing hero under the fixed header.
+    const profile = document.getElementById('world-profile');
+    const clearance = profile
+      ? parseFloat(getComputedStyle(profile).scrollMarginTop)
+      : 0;
     const pastHero =
       (document.getElementById('world-hub')?.getBoundingClientRect().bottom ??
-        Infinity) <= 0;
+        Infinity) <=
+      clearance + 1;
     const section = document
       .getElementById(`world-${chapter}`)
       ?.getBoundingClientRect();
@@ -360,8 +393,6 @@ export default function WorkflowMonitor(props: WorkflowMonitorProps) {
     if (shouldPaintWorkflow(now, previousPaint.current)) {
       const paintArtwork =
         visible && windowAmount > 0 && owned.images[selected].ready;
-      const draw =
-        selected === 'workflow' ? drawWorkflowTexture : drawApolloTexture;
       drawDesktopScreen(owned.context);
       if (paintArtwork) {
         const frame = workspaceFrame(windowAmount);
@@ -369,11 +400,25 @@ export default function WorkflowMonitor(props: WorkflowMonitorProps) {
         owned.context.translate(frame.left, frame.top);
         owned.context.scale(frame.scale, frame.scale);
         drawWorkspaceShell(owned.context, selected);
-        draw(
-          owned.context,
-          owned.images[selected].image,
-          time.current[selected],
-        );
+        if (selected === 'workflow')
+          drawWorkflowTexture(
+            owned.context,
+            owned.images[selected].image,
+            time.current[selected],
+          );
+        else if (selected === 'apollo')
+          drawApolloTexture(
+            owned.context,
+            owned.images[selected].image,
+            time.current[selected],
+          );
+        else
+          drawProjectTexture(
+            owned.context,
+            owned.images[selected].image,
+            selected,
+            time.current[selected],
+          );
         owned.context.restore();
       }
       if (visible)
@@ -403,7 +448,7 @@ export default function WorkflowMonitor(props: WorkflowMonitorProps) {
         'data-workflow-time',
         String(time.current[chapter]),
       );
-      for (const name of ['workflow', 'apollo'] as const)
+      for (const name of MONITOR_CHAPTERS)
         gl.domElement.setAttribute(
           `data-monitor-${name}-time`,
           String(time.current[name]),

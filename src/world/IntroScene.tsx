@@ -48,16 +48,15 @@ export default function IntroScene(props: IntroSceneProps) {
     return () => window.clearTimeout(timer.current);
   }, [props.animate, invalidate]);
   useFrame((_, delta) => {
-    const intro = document.getElementById('world-hub')?.getBoundingClientRect();
     const bounds = gl.domElement.getBoundingClientRect();
     const playing =
       props.animate &&
       !document.hidden &&
       bounds.width > 0 &&
       bounds.height > 0 &&
-      !!intro &&
-      intro.bottom > 0 &&
-      intro.top < window.innerHeight;
+      bounds.bottom > 0 &&
+      bounds.top < window.innerHeight &&
+      getComputedStyle(gl.domElement).visibility === 'visible';
     gl.domElement.setAttribute(
       'data-intro-motion',
       playing ? 'playing' : 'paused',
@@ -67,8 +66,8 @@ export default function IntroScene(props: IntroSceneProps) {
     // Resume smoothly rather than advancing through time spent hidden/paused.
     mixer.update(Math.min(delta, 0.1));
     gl.domElement.setAttribute('data-intro-time', String(mixer.time));
-    // A bounded ~30fps working loop, not an always-on 60fps renderer. Leaving
-    // the intro, hiding the page or pausing prevents the next scheduled frame.
+    // Keep the shared desk alive beyond the hero, but stop hidden/paused work.
+    // The bounded ~30fps loop does not require an always-on 60fps renderer.
     timer.current = window.setTimeout(invalidate, 32);
   });
   useEffect(() => {

@@ -144,7 +144,8 @@ test('directions support direct entry, reload, history and actual project naviga
   await expect(page).toHaveURL(/\/#world-apollo$/);
   await expect(
     page.getByRole('heading', {
-      name: 'From strategy automation to a full-stack trading platform.',
+      name: 'Apollo',
+      exact: true,
     }),
   ).toBeInViewport();
 });

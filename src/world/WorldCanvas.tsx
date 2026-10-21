@@ -8,16 +8,12 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { PerspectiveCamera } from 'three';
 import sceneUrl from '../assets/intro/intro-scene.glb?url';
 import { CHAPTERS, chapterProgress, interpolateAxis } from './chapters';
-import {
-  readMonitorFocus,
-  readSceneSide,
-  settleSceneColumn,
-  READING_POSE,
-  WORKFLOW_POSE,
-} from './workflow-focus';
+import { readMonitorFocus, WORKFLOW_POSE } from './workflow-focus';
 import GalleryLighting from './GalleryLighting';
 import IntroScene from './IntroScene';
 import { configureIntroLoader } from './intro-loader';
+import { SECTION_POSES, sampleReadingPose } from './section-poses';
+import type { PoseAnchor } from './section-poses';
 
 /** Props shared by the scene lifecycle and its canvas boundary. */
 interface WorldCanvasProps {
@@ -42,9 +38,7 @@ function ScrollCamera(props: WorldCanvasProps) {
   const { gl, invalidate, setFrameloop } = useThree();
   const active = useRef(true);
   const inspection = useRef(0);
-  const clipping = useRef('');
-  const column = useRef<number | null>(null);
-  const columnTarget = useRef<number | null>(null);
+  const anchors = useRef<PoseAnchor[]>([]);
   useEffect(() => {
     invalidate();
   }, [props.inspect, props.animateIntro, invalidate]);
@@ -52,6 +46,25 @@ function ScrollCamera(props: WorldCanvasProps) {
   useEffect(() => {
     let inView = true;
     const canvas = gl.domElement;
+    /** Measure layout only on native changes, not on every idle character frame. */
+    function measureAnchors() {
+      anchors.current = SECTION_POSES.flatMap((pose) => {
+        const section = document.getElementById(pose.id);
+        if (!section) return [];
+        const margin =
+          parseFloat(getComputedStyle(section).scrollMarginTop) || 0;
+        return [
+          {
+            id: pose.id,
+            top: Math.max(
+              0,
+              section.getBoundingClientRect().top + window.scrollY - margin,
+            ),
+            pose,
+          },
+        ];
+      });
+    }
     /** Refresh the demand loop after visibility or viewport intersection changes. */
     function updateActivity() {
       active.current = inView && !document.hidden;
@@ -60,6 +73,7 @@ function ScrollCamera(props: WorldCanvasProps) {
     }
     /** Request one frame for native scroll/resize, never set per-frame React state. */
     function requestFrame() {
+      measureAnchors();
       if (active.current) invalidate();
     }
     /** Track the HTML artwork on scroll even when the world pose stays stationary. */
@@ -79,6 +93,10 @@ function ScrollCamera(props: WorldCanvasProps) {
       updateActivity();
     });
     observer.observe(canvas);
+    const layoutObserver = new ResizeObserver(requestFrame);
+    const main = document.getElementById('world-main');
+    if (main) layoutObserver.observe(main);
+    measureAnchors();
     window.addEventListener('scroll', requestScrollFrame, { passive: true });
     window.addEventListener('resize', requestFrame);
     document.addEventListener('visibilitychange', updateActivity);
@@ -87,15 +105,13 @@ function ScrollCamera(props: WorldCanvasProps) {
     updateActivity();
     return () => {
       observer.disconnect();
+      layoutObserver.disconnect();
       window.removeEventListener('scroll', requestScrollFrame);
       window.removeEventListener('resize', requestFrame);
       document.removeEventListener('visibilitychange', updateActivity);
       canvas.removeEventListener('webglcontextlost', contextLost);
       canvas.removeAttribute('data-world-ready');
-      canvas
-        .closest<HTMLElement>('.world-stage')
-        ?.style.removeProperty('clip-path');
-      clipping.current = '';
+      gl.setScissorTest(false);
       active.current = false;
     };
   }, [gl, invalidate, onContextLost, cameraTravel, setFrameloop]);
@@ -105,9 +121,9 @@ function ScrollCamera(props: WorldCanvasProps) {
     const first = CHAPTERS[0]!;
     const hub = document.getElementById(first.id);
     if (!hub) return;
-    // One departure from the accepted hero, then a settled desk across all copy.
+    // Preserve the accepted hero before entering the physical landmark route.
     // Dock before profile copy enters, not after it is already behind the chair.
-    // The opening pose stays exact at scroll zero; no section zooms follow it.
+    // The opening pose stays exact at scroll zero.
     const heroBottom = hub.getBoundingClientRect().bottom;
     const introFraction =
       1 -
@@ -119,50 +135,6 @@ function ScrollCamera(props: WorldCanvasProps) {
     const introWeight = introFraction * introFraction * (3 - 2 * introFraction);
     // Match CSS/media policy, not the scrollbar-reduced canvas width at 768px.
     const wide = window.matchMedia('(min-width: 768px)').matches;
-    // The hero's own bottom is also the visual boundary: incoming HTML must never
-    // inherit foreground geometry while the desk is still departing into its rail.
-    const boundary = Math.max(
-      0,
-      Math.min(size.height, hub.getBoundingClientRect().bottom),
-    );
-    const stage = gl.domElement.closest<HTMLElement>('.world-stage');
-    const sceneSide = readSceneSide();
-    const inspecting = props.inspect && readMonitorFocus().progress > 0;
-    const targetColumn = inspecting || sceneSide === 'right' ? -0.25 : 0.25;
-    // A newly requested transition must not consume time spent idle before it.
-    const columnDelta = columnTarget.current === targetColumn ? delta : 0;
-    column.current = settleSceneColumn(
-      column.current ?? targetColumn,
-      targetColumn,
-      columnDelta,
-      cameraTravel && props.animateIntro,
-    );
-    columnTarget.current = targetColumn;
-    if (column.current !== targetColumn) invalidate();
-    const apertureLeft = (0.25 - column.current) * 100;
-    const aperture =
-      column.current === -0.25
-        ? 'inset(0 0 0 50%)'
-        : column.current === 0.25
-          ? 'inset(0 50% 0 0)'
-          : `inset(0 ${50 - apertureLeft}% 0 ${apertureLeft}%)`;
-    const rail = wide
-      ? boundary > 0 || (props.inspect && readMonitorFocus().progress > 0)
-        ? '62%'
-        : '0%'
-      : '100%';
-    const clip =
-      boundary >= size.height
-        ? 'none'
-        : boundary <= 0
-          ? !wide
-            ? 'inset(0 0 0 100%)'
-            : aperture
-          : `polygon(0 0, 100% 0, 100% 100%, ${rail} 100%, ${rail} ${boundary}px, 0 ${boundary}px)`;
-    if (stage && clipping.current !== clip) {
-      stage.style.clipPath = clip;
-      clipping.current = clip;
-    }
     const galleryZoom = Math.min(
       size.width / (first.viewHeight * (wide ? 1.6 : 1.4)),
       size.height / first.viewHeight,
@@ -172,8 +144,7 @@ function ScrollCamera(props: WorldCanvasProps) {
       ?.getBoundingClientRect();
     // The accepted poster's full width spans approximately 0.82 opening view heights.
     // Track its HTML rectangle so loading/static/live views share the same composition.
-    // Lens depends only on layout, never on scroll, chapter or inspection distance.
-    const zoom = poster
+    const heroZoom = poster
       ? poster.width / (first.viewHeight * 0.82)
       : galleryZoom;
     const progress = cameraTravel ? 1 - introWeight : 0;
@@ -187,26 +158,39 @@ function ScrollCamera(props: WorldCanvasProps) {
     if (Math.abs(inspection.current - requestedInspection) < 0.001)
       inspection.current = requestedInspection;
     else invalidate();
+    // The route changes only the scene; the reading column never moves.
+    const reading = sampleReadingPose(
+      anchors.current,
+      window.scrollY,
+      props.animateIntro,
+    );
+    // Full-screen framing: the HTML reading surface supplies contrast, not a rail.
+    const routeSpan =
+      reading.viewHeight + (1.4 - reading.viewHeight) * inspection.current;
+    const worldSpan =
+      size.height / heroZoom + (routeSpan - size.height / heroZoom) * progress;
+    const zoom = size.height / worldSpan;
     const last = {
-      position: READING_POSE.position.map(
+      position: reading.position.map(
         (value, axis) =>
           value + (WORKFLOW_POSE.position[axis]! - value) * inspection.current,
       ) as [number, number, number],
-      target: READING_POSE.target.map(
+      target: reading.target.map(
         (value, axis) =>
           value + (WORKFLOW_POSE.target[axis]! - value) * inspection.current,
       ) as [number, number, number],
     };
     const horizontalOffset =
       (poster ? size.width / 2 - poster.x - poster.width / 2 : 0) *
-        introWeight +
-      (wide ? size.width * column.current : 0) * (1 - introWeight);
+        introWeight -
+      size.width * 0.22 * progress;
     const verticalOffset =
       (poster ? size.height / 2 - poster.y - poster.height / 2 : 0) *
       introWeight;
     if (
       camera.view?.fullWidth !== size.width ||
       camera.view?.fullHeight !== size.height ||
+      camera.view?.width !== size.width ||
       camera.view?.offsetX !== horizontalOffset ||
       camera.view?.offsetY !== verticalOffset
     ) {
@@ -230,11 +214,26 @@ function ScrollCamera(props: WorldCanvasProps) {
       interpolateAxis(first.target, last.target, progress, 2),
     );
     if (camera instanceof PerspectiveCamera) {
-      const distance = Math.hypot(
-        ...first.position.map((value, axis) => value - first.target[axis]!),
+      camera.aspect = size.width / size.height;
+      const targetDistance = Math.hypot(
+        ...first.position.map(
+          (_, axis) =>
+            interpolateAxis(
+              first.position,
+              last.position,
+              progress,
+              axis as 0 | 1 | 2,
+            ) -
+            interpolateAxis(
+              first.target,
+              last.target,
+              progress,
+              axis as 0 | 1 | 2,
+            ),
+        ),
       );
       camera.fov =
-        (2 * Math.atan(size.height / zoom / (2 * distance)) * 180) / Math.PI;
+        (2 * Math.atan(worldSpan / (2 * targetDistance)) * 180) / Math.PI;
       camera.updateProjectionMatrix();
     }
     // Small public diagnostics support pose/resize verification without React state.
@@ -244,9 +243,31 @@ function ScrollCamera(props: WorldCanvasProps) {
     );
     gl.domElement.setAttribute('data-camera-zoom', String(zoom));
     gl.domElement.setAttribute(
-      'data-scene-side',
-      inspecting ? 'right' : sceneSide,
+      'data-reading-section',
+      cameraTravel ? reading.from : 'stationary',
     );
+    gl.domElement.setAttribute(
+      'data-reading-blend',
+      String(cameraTravel ? reading.blend : 0),
+    );
+    gl.domElement.setAttribute(
+      'data-camera-target',
+      first.target
+        .map((_, axis) =>
+          interpolateAxis(
+            first.target,
+            last.target,
+            progress,
+            axis as 0 | 1 | 2,
+          ),
+        )
+        .join(','),
+    );
+    gl.domElement.setAttribute(
+      'data-route-span',
+      String(cameraTravel ? reading.viewHeight : 0),
+    );
+    gl.domElement.setAttribute('data-scene-side', 'full');
     gl.domElement.setAttribute(
       'data-camera-offset-x',
       String(camera.view?.offsetX ?? 0),
@@ -275,7 +296,7 @@ function ScrollCamera(props: WorldCanvasProps) {
 }
 
 /**
- * Render only when the camera or layout changes; no idle animation loop is needed.
+ * Render on demand, with bounded invalidation for visible working-pose animation.
  * @param props - Context-loss callback for the HTML fallback boundary.
  * @returns A transparent perspective canvas; HTML owns all navigation.
  */
@@ -286,9 +307,8 @@ export default function WorldCanvas(props: WorldCanvasProps) {
   return (
     <Canvas
       camera={{ position: CHAPTERS[0]!.position, fov: 28, near: 0.1, far: 300 }}
-      // Supersample even on 1x displays: native-resolution MSAA alone leaves
-      // visible steps on the thin desk/chair diagonals. Bound the ratio at 2x.
-      dpr={2}
+      // Do not force four physical pixels per CSS pixel for continuous desk motion.
+      dpr={[1, 1.5]}
       frameloop="demand"
       gl={{ antialias: true, alpha: true }}
       fallback={<p>WebGL unavailable. Use the still view below.</p>}

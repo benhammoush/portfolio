@@ -79,16 +79,16 @@ test('desktop loads a real scene, supports native anchors and deliberate still m
   await expect(canvas).toBeVisible({ timeout: 15_000 });
   await expect(canvas).toHaveAttribute('data-camera-pose', '0.1,0.84,7.14');
   await expect(canvas).toHaveAttribute('data-intro-ready', 'true');
-  // Use a 2x backing buffer even on 1x displays; raising only the DPR cap
-  // would leave those displays' diagonal outlines unchanged.
+  // Follow device density up to 1.5x instead of forcing 2x continuous rendering.
   await expect
     .poll(() =>
       canvas.evaluate((element) => {
         const bounds = element.getBoundingClientRect();
         const buffer = element as HTMLCanvasElement;
+        const ratio = Math.min(1.5, Math.max(1, devicePixelRatio));
         return (
-          Math.abs(buffer.width - bounds.width * 2) <= 1 &&
-          Math.abs(buffer.height - bounds.height * 2) <= 1
+          Math.abs(buffer.width - bounds.width * ratio) <= 1 &&
+          Math.abs(buffer.height - bounds.height * ratio) <= 1
         );
       }),
     )
@@ -106,27 +106,28 @@ test('desktop loads a real scene, supports native anchors and deliberate still m
     .getByRole('link', { name: 'Iris', exact: true })
     .click();
   await expect(page).toHaveURL(/#world-iris$/);
-  await expect(canvas).toHaveAttribute('data-camera-pose', '2.55,1.95,5.7');
+  await expect(canvas).toHaveAttribute('data-reading-section', 'world-iris');
+  await expect(canvas).toHaveAttribute('data-route-span', '0.55');
   await expect(
-    page.getByRole('heading', { name: 'From Stacks to Solana.' }),
+    page.getByRole('heading', { name: 'Iris', exact: true }),
   ).toBeInViewport();
   await page.reload();
   await expect(
-    page.getByRole('heading', { name: 'From Stacks to Solana.' }),
+    page.getByRole('heading', { name: 'Iris', exact: true }),
   ).toBeInViewport();
   await expect(canvas).toBeVisible({ timeout: 15_000 });
-  await expect(canvas).toHaveAttribute('data-camera-pose', '2.55,1.95,5.7');
-  const wideZoom = Number(await canvas.getAttribute('data-camera-zoom'));
+  await expect(canvas).toHaveAttribute('data-reading-section', 'world-iris');
+  await expect(canvas).toHaveAttribute('data-route-span', '0.55');
   await page.setViewportSize({ width: 900, height: 900 });
   await expect
     .poll(async () => Number(await canvas.getAttribute('data-camera-zoom')))
-    .toBeLessThan(wideZoom);
+    .toBeCloseTo(900 / 0.55, 5);
   await page.getByRole('button', { name: 'Use still view' }).click();
   await expect(page.locator('canvas')).toHaveCount(0);
   await page.getByRole('button', { name: 'Enable 3D' }).click();
-  // Stacked tablet reading keeps the enabled renderer for hero/inspection only.
+  // Frosted copy protects reading while the full-screen scene remains available.
   await expect(canvas).toHaveCount(1, { timeout: 15_000 });
-  await expect(canvas).toBeHidden();
+  await expect(canvas).toBeVisible();
   expect(errors).toEqual([]);
 });
 
@@ -154,7 +155,8 @@ test('mobile and reduced motion do not request the engine chunk', async ({
   await expect(page.locator('canvas')).toHaveCount(0);
   await expect(
     page.getByRole('heading', {
-      name: 'From the initial idea to a running application.',
+      name: 'Engineering workflow',
+      exact: true,
     }),
   ).toBeVisible();
   expect(engineRequests).toEqual([]);
@@ -224,7 +226,7 @@ test('lost context unmounts WebGL and preserves chapter content', async ({
   await expect(page.getByText(/Graphics context lost/)).toBeVisible();
   await expect(page.locator('canvas')).toHaveCount(0);
   await expect(
-    page.getByRole('heading', { name: 'From Stacks to Solana.' }),
+    page.getByRole('heading', { name: 'Iris', exact: true }),
   ).toBeVisible();
 });
 
@@ -266,7 +268,7 @@ test('delayed engine loading shows the poster without blocking navigation', asyn
     .getByRole('link', { name: 'Iris', exact: true })
     .click();
   await expect(
-    page.getByRole('heading', { name: 'From Stacks to Solana.' }),
+    page.getByRole('heading', { name: 'Iris', exact: true }),
   ).toBeInViewport();
   release();
   // Decoder requests finish quickly; skinning shader initialization can exceed
@@ -294,7 +296,7 @@ test('engine download failure leaves a useful illustration and navigation', asyn
     .getByRole('link', { name: 'Iris', exact: true })
     .click();
   await expect(
-    page.getByRole('heading', { name: 'From Stacks to Solana.' }),
+    page.getByRole('heading', { name: 'Iris', exact: true }),
   ).toBeInViewport();
 });
 
@@ -465,7 +467,7 @@ test('narrow stationary-3D loading keeps its inline poster until the model is re
   await expect(page.locator('.world-intro-poster')).toBeHidden();
 });
 
-test('demand rendering pauses while hidden, outside intro or unlaid-out and resumes on return', async ({
+test('desk motion continues beyond the hero and pauses while hidden or unlaid-out', async ({
   page,
 }) => {
   test.setTimeout(60_000);
@@ -506,10 +508,15 @@ test('demand rendering pauses while hidden, outside intro or unlaid-out and resu
   const idle = await page.evaluate(() =>
     Number(Reflect.get(window, '__worldDraws')),
   );
-  await page.waitForTimeout(300);
-  expect(
-    await page.evaluate(() => Number(Reflect.get(window, '__worldDraws'))),
-  ).toBe(idle);
+  await expect(page.locator('canvas')).toHaveAttribute(
+    'data-intro-motion',
+    'playing',
+  );
+  await expect
+    .poll(() =>
+      page.evaluate(() => Number(Reflect.get(window, '__worldDraws'))),
+    )
+    .toBeGreaterThan(idle);
   // Simulate the visibility signal deterministically; this is not physical-tab testing.
   await page.evaluate(() => {
     Object.defineProperty(document, 'hidden', {
@@ -520,9 +527,13 @@ test('demand rendering pauses while hidden, outside intro or unlaid-out and resu
     document.getElementById('world-hub')!.scrollIntoView();
   });
   await page.waitForTimeout(300);
+  const hidden = await page.evaluate(() =>
+    Number(Reflect.get(window, '__worldDraws')),
+  );
+  await page.waitForTimeout(300);
   expect(
     await page.evaluate(() => Number(Reflect.get(window, '__worldDraws'))),
-  ).toBe(idle);
+  ).toBe(hidden);
   await page.evaluate(() => {
     Object.defineProperty(document, 'hidden', {
       configurable: true,
@@ -534,7 +545,7 @@ test('demand rendering pauses while hidden, outside intro or unlaid-out and resu
     .poll(() =>
       page.evaluate(() => Number(Reflect.get(window, '__worldDraws'))),
     )
-    .toBeGreaterThan(idle);
+    .toBeGreaterThan(hidden);
   await page.evaluate(() => {
     (document.querySelector('.world-stage') as HTMLElement).style.display =
       'none';

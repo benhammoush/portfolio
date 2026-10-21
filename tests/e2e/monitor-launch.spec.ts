@@ -71,13 +71,9 @@ test('Workflow opens a window over the original screen, with pause and static re
       attributes: true,
       attributeFilter: ['data-monitor-painted-window'],
     });
-    window.scrollTo(
-      0,
-      document.getElementById('world-workflow-title')!.getBoundingClientRect()
-        .top +
-        scrollY -
-        320,
-    );
+    document
+      .getElementById('world-workflow')!
+      .scrollIntoView({ behavior: 'instant' });
   });
   await expectWindowState(page, canvas, 'opening');
   await page.clock.fastForward(600);
@@ -87,7 +83,14 @@ test('Workflow opens a window over the original screen, with pause and static re
   ).toBeVisible({ timeout: 25_000 });
   await expect(canvas).toHaveAttribute('data-monitor-window', 'opening');
   const amount = await canvas.getAttribute('data-monitor-window-amount');
-  await expect(canvas).toHaveAttribute('data-monitor-painted-window', amount!);
+  // Pause freezes the window clock, not an already-requested rate-limited paint.
+  // Advance the test clock so that final upload can run before asserting rest.
+  await expect
+    .poll(async () => {
+      await page.clock.runFor(16);
+      return canvas.getAttribute('data-monitor-painted-window');
+    })
+    .toBe(amount!);
   const clock = await canvas.getAttribute('data-monitor-window-time');
   const frames = await canvas.getAttribute('data-workflow-frames');
   await page.evaluate(() => {
@@ -123,10 +126,18 @@ test('Workflow opens a window over the original screen, with pause and static re
   await expect(canvas).toHaveAttribute('data-monitor-window-amount', '1');
   await expect(canvas).toHaveAttribute('data-monitor-chapter', 'workflow');
   await page.getByRole('button', { name: 'Pause motion', exact: true }).click();
-  await page.evaluate(() => window.scrollBy(0, -200));
+  await page.evaluate(() =>
+    document
+      .getElementById('world-profile')!
+      .scrollIntoView({ behavior: 'instant' }),
+  );
   await expectWindowState(page, canvas, 'closed');
   await expect(canvas).toHaveAttribute('data-workflow-active', 'false');
-  await page.evaluate(() => window.scrollBy(0, 200));
+  await page.evaluate(() =>
+    document
+      .getElementById('world-workflow')!
+      .scrollIntoView({ behavior: 'instant' }),
+  );
   await expectWindowState(page, canvas, 'open');
   await expect(canvas).toHaveAttribute('data-monitor-window-amount', '1');
   await page
@@ -164,13 +175,9 @@ test('a running launch freezes while hidden and reverses from its partial window
       attributes: true,
       attributeFilter: ['data-monitor-painted-window'],
     });
-    window.scrollTo(
-      0,
-      document.getElementById('world-workflow-title')!.getBoundingClientRect()
-        .top +
-        scrollY -
-        320,
-    );
+    document
+      .getElementById('world-workflow')!
+      .scrollIntoView({ behavior: 'instant' });
   });
   await expectWindowState(page, canvas, 'opening');
   await page.clock.fastForward(600);
@@ -185,7 +192,9 @@ test('a running launch freezes while hidden and reverses from its partial window
     page.getByRole('button', { name: 'Pause motion', exact: true }),
   ).toBeVisible();
   await page.evaluate(() => {
-    window.scrollBy(0, -200);
+    document
+      .getElementById('world-profile')!
+      .scrollIntoView({ behavior: 'instant' });
   });
   await page.clock.fastForward(60_000);
   await expect(canvas).toHaveAttribute('data-monitor-window-amount', amount!);

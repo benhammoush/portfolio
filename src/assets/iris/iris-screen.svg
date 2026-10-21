@@ -1,0 +1,195 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="1040"
+  height="640"
+  viewBox="0 0 1040 640"
+  aria-hidden="true"
+>
+  <rect width="1040" height="640" rx="12" fill="#14272d"></rect>
+  <path d="M0 50h1040" stroke="#40545d"></path>
+  <g font-family="system-ui, sans-serif">
+    <circle cx="30" cy="25" r="7" fill="#7edac9"></circle>
+    <text
+      x="49"
+      y="31"
+      fill="#7edac9"
+      font-size="15"
+      font-weight="700"
+      letter-spacing="2"
+    >
+      IRIS
+    </text>
+    <text
+      x="1008"
+      y="30"
+      text-anchor="end"
+      fill="#c0cbd2"
+      font-size="11"
+      letter-spacing="1"
+    >
+      ILLUSTRATIVE CONCEPT · NOT LIVE
+    </text>
+    <text x="36" y="101" fill="#ecf5f3" font-size="29" font-weight="600">
+      A clearer view of the chain.
+    </text>
+    <text x="36" y="128" fill="#b1c9cc" font-size="14">
+      Markets, public wallets and activity. No wallet connection required.
+    </text>
+    <g data-concept="public-wallet-explorer">
+      <rect
+        x="36"
+        y="153"
+        width="968"
+        height="51"
+        rx="10"
+        fill="#203c43"
+        stroke="#527d83"
+      ></rect>
+      <circle
+        cx="61"
+        cy="177"
+        r="8"
+        fill="none"
+        stroke="#7edac9"
+        stroke-width="2"
+      ></circle>
+      <path d="m67 183 6 6" stroke="#7edac9" stroke-width="2"></path>
+      <text x="88" y="183" fill="#c5dadb" font-size="15">
+        Explore a public wallet or an asset
+      </text>
+      <rect
+        x="854"
+        y="164"
+        width="132"
+        height="29"
+        rx="14"
+        fill="#32545a"
+      ></rect>
+      <text x="920" y="183" text-anchor="middle" fill="#9ae8d4" font-size="12">
+        SOLANA / REBUILD
+      </text>
+    </g>
+    <g data-concept="market-overview">
+      <rect
+        x="36"
+        y="225"
+        width="576"
+        height="260"
+        rx="12"
+        fill="#1c343d"
+        stroke="#3c5a64"
+      ></rect>
+      <text x="58" y="257" fill="#e2efed" font-size="17" font-weight="600">
+        Market perspective
+      </text>
+      <text x="590" y="256" text-anchor="end" fill="#a9c7ca" font-size="11">
+        ABSTRACT SHAPES
+      </text>
+      <path d="M58 300h532" stroke="#35505b"></path>
+      <path d="M58 344h532" stroke="#35505b"></path>
+      <path d="M58 388h532" stroke="#35505b"></path>
+      <path d="M58 432h532" stroke="#35505b"></path>
+      <path
+        d="M58 428 101 402 146 415 188 361 234 375 276 337 322 355 368 311 412 330 455 290 499 312 543 281 590 294V456H58Z"
+        fill="#234d51"
+      ></path>
+      <path
+        d="m58 428 43-26 45 13 42-54 46 14 42-38 46 18 46-44 44 19 43-40 44 22 44-31 47 13"
+        fill="none"
+        stroke="#7edac9"
+        stroke-width="3"
+      ></path>
+      <circle cx="590" cy="294" r="5" fill="#b9f5df"></circle>
+    </g>
+    <g data-concept="wallet-holdings">
+      <rect
+        x="632"
+        y="225"
+        width="372"
+        height="260"
+        rx="12"
+        fill="#20383e"
+        stroke="#45666a"
+      ></rect>
+      <text x="655" y="257" fill="#e2efed" font-size="17" font-weight="600">
+        Public-wallet view
+      </text>
+      <text x="655" y="282" fill="#a9c7ca" font-size="12">
+        Holdings and transaction context
+      </text>
+      <circle
+        cx="704"
+        cy="352"
+        r="40"
+        fill="none"
+        stroke="#385760"
+        stroke-width="15"
+      ></circle>
+      <path
+        d="M704 312a40 40 0 0 1 34 61"
+        fill="none"
+        stroke="#7edac9"
+        stroke-width="15"
+      ></path>
+      <path
+        d="M738 373a40 40 0 0 1-59 10"
+        fill="none"
+        stroke="#b1a4df"
+        stroke-width="15"
+      ></path>
+      <g>
+        <circle cx="775" cy="324" r="4" fill="#7edac9"></circle>
+        <text x="790" y="329" fill="#cadedd" font-size="13">Asset A</text>
+        <path
+          d="M895 325h76"
+          stroke="#5d8588"
+          stroke-width="5"
+          stroke-linecap="round"
+        ></path>
+      </g>
+      <g>
+        <circle cx="775" cy="355" r="4" fill="#b1a4df"></circle>
+        <text x="790" y="360" fill="#cadedd" font-size="13">Asset B</text>
+        <path
+          d="M895 356h58"
+          stroke="#5d8588"
+          stroke-width="5"
+          stroke-linecap="round"
+        ></path>
+      </g>
+      <g>
+        <circle cx="775" cy="386" r="4" fill="#70999c"></circle>
+        <text x="790" y="391" fill="#cadedd" font-size="13">Other assets</text>
+        <path
+          d="M895 387h40"
+          stroke="#5d8588"
+          stroke-width="5"
+          stroke-linecap="round"
+        ></path>
+      </g>
+      <text x="655" y="454" fill="#a9c7ca" font-size="11">
+        Sample composition · no real addresses or balances
+      </text>
+    </g>
+    <rect x="36" y="505" width="968" height="90" rx="12" fill="#1b3338"></rect>
+    <text x="58" y="536" fill="#9ae8d4" font-size="12" letter-spacing="1">
+      FROM STACKS TO SOLANA
+    </text>
+    <text x="58" y="565" fill="#d4e5e3" font-size="15">
+      Public data → aggregation API → a readable interface
+    </text>
+    <text x="983" y="565" text-anchor="end" fill="#b1c9cc" font-size="12">
+      Illustrative activity only
+    </text>
+    <text
+      x="1004"
+      y="623"
+      text-anchor="end"
+      fill="#aebfc6"
+      font-size="10"
+      letter-spacing="1"
+    >
+      ORIGINAL PORTFOLIO ILLUSTRATION
+    </text>
+  </g>
+</svg>
