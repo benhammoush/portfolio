@@ -86,8 +86,8 @@ owner visual acceptance or product screenshots.
 Five heading-selected tabs share the existing plane, texture, bounded gesture and
 pause/visibility lifecycle. Direct entry, reverse intent and each failed artwork
 remain independent. Static/reduced-motion pages have small HTML artwork alternatives.
-Workflow and Apollo artwork stay unchanged; project copy and the fixed monitor-corner
-camera from Workflow through Dripperz stay unchanged. The UI is decorative, not an
+Workflow and Apollo artwork stay unchanged; project copy and the About camera view
+stay fixed through Workflow and all project chapters. The UI is decorative, not an
 interactive checkout or minting application.
 
 ### Current content-first composition
@@ -99,11 +99,11 @@ Hero, existing Workflow/Apollo artwork and the original tab/window behavior are 
 
 `src/world/section-poses.ts` owns a physical eye/target/framing route rather than
 alternating orbit variations. The accepted wide hero enters an over-left-shoulder
-About view, then reaches the monitor's top-right corner at Workflow. One shared
-eye, target and framing span holds that exact view through Apollo, Iris, Crypto
-gateway and Dripperz, including scrolling between them and expanded project copy.
-Leaving Dripperz transitions to the wider rear-three-quarter Contact conclusion,
-without resetting to the hero. Explicit View screen inspection remains optional.
+About view and keeps that same view through Workflow, Apollo, Iris, Crypto gateway
+and Dripperz, including scrolling between them and expanded project copy. Monitor
+artwork remains visible without drawing the camera to a close-up. Leaving Dripperz
+transitions to the wider rear-three-quarter Contact conclusion, without resetting
+to the hero. Explicit View screen inspection remains optional.
 The material-batched model uses explicit glTF-space landmarks, not batch names.
 
 Native section stops, including fixed-header clearance, drive an eased scroll blend
@@ -121,10 +121,12 @@ backdrop blur and 84% light tint; lettering itself
 stays fully opaque and sharp. The tint protects contrast even over black geometry;
 browsers without backdrop-filter use a 97% tint instead. The hero stays unchanged.
 Text and monitor artwork do not move or change with the scene. Resize and expanded
-copy re-measure stops. Pause selects the reached stop; reduced-motion and narrow
-stationary policies never follow the route. Character/flag animation keeps its
-separate pause and hidden-tab safeguards. This is not owner visual acceptance or
-a measured physical-device performance guarantee.
+copy re-measure stops. The slim left rail links the native section anchors and marks
+the current stop; selected individual project keywords use restrained bold emphasis.
+Pause selects the reached stop; reduced-motion and narrow stationary policies never
+follow the route. Character/flag animation keeps its separate pause and hidden-tab
+safeguards. This is not owner visual acceptance or a measured physical-device
+performance guarantee.
 
 The following text describes earlier composition iterations:
 

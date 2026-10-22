@@ -45,6 +45,34 @@ test('directional wheel gestures stop at adjacent desktop section anchors', asyn
 });
 
 for (const width of [390, 1440]) {
+  test(`section anchor rail tracks and opens chapters at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/#world-profile');
+    const rail = page.getByRole('navigation', { name: 'Section anchors' });
+    await expect(rail.getByRole('link')).toHaveCount(8);
+    await expect(
+      rail.getByRole('link', { name: 'Go to About me' }),
+    ).toHaveAttribute('aria-current', 'location');
+    await rail.getByRole('link', { name: 'Go to Apollo' }).click();
+    await expect(page).toHaveURL(/#world-apollo$/);
+    await expect(
+      rail.getByRole('link', { name: 'Go to Apollo' }),
+    ).toHaveAttribute('aria-current', 'location');
+    const railBounds = await rail.boundingBox();
+    expect(railBounds!.x + railBounds!.width).toBeLessThanOrEqual(width);
+    expect(railBounds!.y).toBeGreaterThanOrEqual(0);
+    expect(railBounds!.y + railBounds!.height).toBeLessThanOrEqual(844);
+    const tickBounds = await rail
+      .getByRole('link', { name: 'Go to Apollo' })
+      .boundingBox();
+    expect(tickBounds!.height).toBeGreaterThanOrEqual(24);
+  });
+}
+
+for (const width of [390, 1440]) {
   test(`expanded text remains reachable inside a tall snap section at ${width}px`, async ({
     page,
   }) => {

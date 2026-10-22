@@ -34,7 +34,7 @@ test('each native stop selects its physical camera waypoint', () => {
     1.8, 1.45, 2.6,
   ]);
 });
-test('the approved route holds the monitor top-right pose from Workflow through Dripperz', () => {
+test('the About view stays fixed from About through Dripperz', () => {
   expect(SECTION_POSES.map((p) => p.id)).toEqual([
     'world-profile',
     'world-workflow',
@@ -46,7 +46,8 @@ test('the approved route holds the monitor top-right pose from Workflow through 
   ]);
   expect(SECTION_POSES[0]!.position[0]).toBeLessThan(0);
   expect(SECTION_POSES[0]!.position[1]).toBeGreaterThan(1.4);
-  expect(SECTION_POSES[1]!.target).toEqual([0.76, 1.45, -0.46]);
+  expect(SECTION_POSES[1]!.position).toEqual(SECTION_POSES[0]!.position);
+  expect(SECTION_POSES[1]!.target).toEqual([0.1, 1.22, -0.444]);
   const workflow = SECTION_POSES[1]!;
   for (let y = 2000; y <= 6000; y += 125) {
     expect(sampleReadingPose(anchors, y, true)).toMatchObject({
@@ -57,17 +58,17 @@ test('the approved route holds the monitor top-right pose from Workflow through 
   }
 });
 test('scroll blending retraces the same route without queuing missed movements', () => {
-  const middle = sampleReadingPose(anchors, 1500, true);
+  const middle = sampleReadingPose(anchors, 6500, true);
   expect(middle.blend).toBe(0.5);
-  expect(middle.target[0]).toBeCloseTo(0.43, 12);
-  expect(middle.viewHeight).toBeCloseTo(0.95, 12);
-  expect(sampleReadingPose(anchors, 1800, true).target[0]).toBeGreaterThan(
+  expect(middle.target[0]).toBeCloseTo(0.14, 12);
+  expect(middle.viewHeight).toBeCloseTo(1.8, 12);
+  expect(sampleReadingPose(anchors, 6800, true).target[0]).toBeGreaterThan(
     middle.target[0],
   );
-  expect(sampleReadingPose(anchors, 1200, true).target[0]).toBeLessThan(
+  expect(sampleReadingPose(anchors, 6200, true).target[0]).toBeLessThan(
     middle.target[0],
   );
-  expect(sampleReadingPose(anchors, 1500, true)).toEqual(middle);
+  expect(sampleReadingPose(anchors, 6500, true)).toEqual(middle);
 });
 test('pause and invalid offsets choose finite reached waypoints immediately', () => {
   expect(sampleReadingPose(anchors, 2500, false)).toMatchObject({

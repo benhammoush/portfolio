@@ -185,6 +185,11 @@ html.world-snap .world-section:not(.world-intro) {
   .world-page .world-profile p {
     font-size: 1.25rem;
     line-height: 1.7;
+    text-wrap: pretty;
+  }
+  .world-page .world-copy-section strong {
+    color: #20372d;
+    font-weight: 650;
   }
   .world-page .world-workflow-poster {
     position: absolute;
@@ -317,6 +322,63 @@ html.world-snap .world-section:not(.world-intro) {
 }
 .world-header nav a:hover {
   text-decoration: underline;
+}
+@supports (backdrop-filter: blur(14px)) or (-webkit-backdrop-filter: blur(14px)) {
+  @media (min-width: 1200px) {
+    .world-header {
+      background: rgb(240 243 239 / 88%);
+      border-bottom: 1px solid rgb(32 38 38 / 8%);
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+    }
+  }
+}
+.world-anchor-rail {
+  position: fixed;
+  inset-inline-start: max(0px, env(safe-area-inset-left));
+  top: 50%;
+  z-index: 12;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: 0;
+  transform: translateY(-50%);
+}
+.world-page .world-anchor-rail a {
+  display: grid;
+  width: 1.5rem;
+  height: 1.5rem;
+  min-height: 1.5rem;
+  place-items: center;
+  scroll-margin: 0;
+  text-decoration: none;
+}
+.world-anchor-rail a > span {
+  width: 0.3rem;
+  height: 1px;
+  background: rgb(32 38 38 / 42%);
+  transition:
+    width 140ms ease,
+    height 140ms ease,
+    background-color 140ms ease;
+}
+.world-anchor-rail a[aria-current='location'] > span,
+.world-anchor-rail a:hover > span,
+.world-anchor-rail a:focus-visible > span {
+  width: 0.5rem;
+  height: 2px;
+  background: #202626;
+}
+.world-anchor-rail a:focus-visible {
+  outline: 2px solid #202626;
+  outline-offset: -2px;
+  border-radius: 50%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .world-anchor-rail a > span {
+    transition: none;
+  }
 }
 .world-main.container {
   position: relative;

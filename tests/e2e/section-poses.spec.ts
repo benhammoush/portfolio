@@ -19,11 +19,11 @@ test('the full-screen tour reaches physical landmarks behind the reading surface
   await page.getByRole('button', { name: 'Pause motion', exact: true }).click();
   const stops = [
     ['world-profile', '-0.38,1.45,1.25', '0.1,1.22,-0.444'],
-    ['world-workflow', '0.78,1.65,0.6', '0.76,1.45,-0.46'],
-    ['world-apollo', '0.78,1.65,0.6', '0.76,1.45,-0.46'],
-    ['world-iris', '0.78,1.65,0.6', '0.76,1.45,-0.46'],
-    ['world-gateway', '0.78,1.65,0.6', '0.76,1.45,-0.46'],
-    ['world-dripperz', '0.78,1.65,0.6', '0.76,1.45,-0.46'],
+    ['world-workflow', '-0.38,1.45,1.25', '0.1,1.22,-0.444'],
+    ['world-apollo', '-0.38,1.45,1.25', '0.1,1.22,-0.444'],
+    ['world-iris', '-0.38,1.45,1.25', '0.1,1.22,-0.444'],
+    ['world-gateway', '-0.38,1.45,1.25', '0.1,1.22,-0.444'],
+    ['world-dripperz', '-0.38,1.45,1.25', '0.1,1.22,-0.444'],
     ['world-contact', '1.8,1.45,2.6', '0.18,0.97,0.06'],
   ];
   for (const [id, eye, target] of stops) {
@@ -86,14 +86,14 @@ test('the full-screen tour reaches physical landmarks behind the reading surface
   }
 });
 
-test('the project camera holds during forward/reverse scrolling, expanded copy and paused jumps', async ({
+test('the About camera holds through project scrolling, expanded copy and paused jumps', async ({
   page,
 }) => {
   test.setTimeout(90_000);
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/#world-workflow');
   const canvas = page.locator('canvas[data-world-ready="true"]');
-  await expect(canvas).toHaveAttribute('data-route-span', '0.55', {
+  await expect(canvas).toHaveAttribute('data-route-span', '1.35', {
     timeout: 25_000,
   });
   const readingBox = await page
@@ -130,28 +130,28 @@ test('the project camera holds during forward/reverse scrolling, expanded copy a
   await scrollBetween(0.5);
   await expect
     .poll(async () => Number(await canvas.getAttribute('data-route-span')))
-    .toBeCloseTo(0.55, 5);
+    .toBeCloseTo(1.35, 5);
   const middle = await canvas.getAttribute('data-camera-pose');
   const lens = await canvas.getAttribute('data-camera-fov');
   await scrollBetween(0.8);
   await expect
     .poll(async () => Number(await canvas.getAttribute('data-route-span')))
-    .toBeCloseTo(0.55, 5);
+    .toBeCloseTo(1.35, 5);
   await expect(canvas).toHaveAttribute('data-camera-pose', middle!);
   await expect(canvas).toHaveAttribute('data-camera-fov', lens!);
   await scrollBetween(0.2);
   await expect
     .poll(async () => Number(await canvas.getAttribute('data-route-span')))
-    .toBeCloseTo(0.55, 5);
+    .toBeCloseTo(1.35, 5);
   await expect(canvas).toHaveAttribute('data-camera-pose', middle!);
   await expect(canvas).toHaveAttribute('data-camera-fov', lens!);
   await scrollBetween(0.5);
   await expect(canvas).toHaveAttribute('data-camera-pose', middle!);
   await page.getByRole('button', { name: 'Pause motion', exact: true }).click();
-  await expect(canvas).toHaveAttribute('data-route-span', '0.55');
+  await expect(canvas).toHaveAttribute('data-route-span', '1.35');
   await scrollBetween(1);
   await expect(canvas).toHaveAttribute('data-reading-section', 'world-apollo');
-  await expect(canvas).toHaveAttribute('data-route-span', '0.55');
+  await expect(canvas).toHaveAttribute('data-route-span', '1.35');
   await expect(canvas).toHaveAttribute('data-reading-blend', '0');
   const apolloBox = await page
     .locator('#world-apollo .world-section-inner')

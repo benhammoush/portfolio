@@ -23,6 +23,8 @@ import { useSectionNavigation } from './useSectionNavigation';
 interface CopyBlocksProps {
   /** Ordered paragraphs and subsection headings. */
   blocks: CopyBlock[];
+  /** Individual terms to emphasize without changing approved copy. */
+  emphasis?: readonly string[];
 }
 
 /**
@@ -31,9 +33,26 @@ interface CopyBlocksProps {
  * @returns Safe native HTML with readable paragraphs and semantic headings.
  */
 function CopyBlocks(props: CopyBlocksProps) {
+  const pattern = props.emphasis?.length
+    ? new RegExp(`\\b(${props.emphasis.join('|')})\\b`, 'gi')
+    : undefined;
   return props.blocks.map((block) =>
     block.kind === 'paragraph' ? (
-      <p key={block.text}>{block.text}</p>
+      <p key={block.text}>
+        {pattern
+          ? block.text
+              .split(pattern)
+              .map((part, index) =>
+                props.emphasis!.some(
+                  (word) => word.toLowerCase() === part.toLowerCase(),
+                ) ? (
+                  <strong key={index}>{part}</strong>
+                ) : (
+                  part
+                ),
+              )
+          : block.text}
+      </p>
     ) : (
       <h3 className="world-copy-subtitle" key={block.text}>
         {block.text}
@@ -56,6 +75,69 @@ const SCREEN_POSTERS: Record<MonitorChapter, string> = {
   gateway: gatewayPoster,
   dripperz: dripperzPoster,
 };
+
+/** A few single-word anchors give each project copy a quick visual scan point. */
+const SECTION_EMPHASIS: Record<string, readonly string[]> = {
+  'world-apollo': ['trading', 'workers', 'memory', 'backtesting'],
+  'world-iris': ['Stacks', 'Solana', 'wallet', 'caching'],
+  'world-gateway': ['API', 'security', 'wallet', 'verification'],
+  'world-dripperz': ['Ethereum', 'Solidity', 'minting', 'AWS'],
+};
+
+/** Native section targets represented by the scroll-anchor rail. */
+const PAGE_ANCHORS = [
+  { id: 'world-hub', label: 'Introduction' },
+  { id: 'world-profile', label: 'About me' },
+  ...SECTION_COPY.slice(1).map(({ id, label }) => ({ id, label })),
+  { id: 'world-contact', label: 'Contact' },
+];
+
+/**
+ * Small direct links show the active stop without replacing native scrolling.
+ * @returns An accessible rail of section links with the current anchor marked.
+ */
+function SectionAnchorRail() {
+  const [active, setActive] = useState(PAGE_ANCHORS[0]!.id);
+  useEffect(() => {
+    /** Mark the last chapter whose anchor has entered the upper reading area. */
+    function updateActiveAnchor() {
+      const threshold = window.scrollY + window.innerHeight * 0.35;
+      let current = PAGE_ANCHORS[0]!.id;
+      for (const anchor of PAGE_ANCHORS) {
+        const section = document.getElementById(anchor.id);
+        if (
+          section &&
+          section.getBoundingClientRect().top + window.scrollY <= threshold
+        )
+          current = anchor.id;
+      }
+      setActive(current);
+    }
+    updateActiveAnchor();
+    window.addEventListener('scroll', updateActiveAnchor, { passive: true });
+    window.addEventListener('resize', updateActiveAnchor);
+    return () => {
+      window.removeEventListener('scroll', updateActiveAnchor);
+      window.removeEventListener('resize', updateActiveAnchor);
+    };
+  }, []);
+
+  return (
+    <nav className="world-anchor-rail" aria-label="Section anchors">
+      {PAGE_ANCHORS.map(({ id, label }) => (
+        <a
+          key={id}
+          href={`#${id}`}
+          aria-label={`Go to ${label}`}
+          aria-current={active === id ? 'location' : undefined}
+          title={label}
+        >
+          <span aria-hidden="true" />
+        </a>
+      ))}
+    </nav>
+  );
+}
 
 /**
  * Keep an independent section alternative useful even if its small SVG fails.
@@ -140,6 +222,7 @@ export default function WorldPage() {
           <a href="#world-contact">Contact</a>
         </nav>
       </header>
+      <SectionAnchorRail />
       <main className="container world-main" id="world-main" tabIndex={-1}>
         <section
           id="world-hub"
@@ -199,14 +282,20 @@ export default function WorldPage() {
               </p>
               <h2 id={`${section.id}-title`}>{section.label}</h2>
               <p className="world-section-lead">{section.blocks[0]!.text}</p>
-              <CopyBlocks blocks={section.blocks.slice(1, 3)} />
+              <CopyBlocks
+                blocks={section.blocks.slice(1, 3)}
+                emphasis={SECTION_EMPHASIS[section.id]}
+              />
               {section.blocks.length > 3 && (
                 <details
                   className="world-copy-details"
                   onToggle={() => window.dispatchEvent(new Event('scroll'))}
                 >
                   <summary>Read more about {section.label}</summary>
-                  <CopyBlocks blocks={section.blocks.slice(3)} />
+                  <CopyBlocks
+                    blocks={section.blocks.slice(3)}
+                    emphasis={SECTION_EMPHASIS[section.id]}
+                  />
                 </details>
               )}
               {section.id === 'world-workflow' && (

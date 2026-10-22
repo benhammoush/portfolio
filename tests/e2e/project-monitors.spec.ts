@@ -20,7 +20,7 @@ for (const [chapter, label] of [
       timeout: 25_000,
     });
     await expect(canvas).toHaveAttribute(`data-${chapter}-ready`, 'true');
-    await expect(canvas).toHaveAttribute('data-camera-pose', '0.78,1.65,0.6');
+    await expect(canvas).toHaveAttribute('data-camera-pose', '-0.38,1.45,1.25');
     await page
       .getByRole('button', { name: 'Pause motion', exact: true })
       .click();
@@ -43,7 +43,7 @@ for (const [chapter, label] of [
   });
 }
 
-test('five tabs follow forward/reverse reading while the project camera stays fixed', async ({
+test('five tabs follow project reading while the About camera stays fixed', async ({
   page,
 }) => {
   test.setTimeout(120_000);

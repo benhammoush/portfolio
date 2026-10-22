@@ -107,7 +107,7 @@ test('desktop loads a real scene, supports native anchors and deliberate still m
     .click();
   await expect(page).toHaveURL(/#world-iris$/);
   await expect(canvas).toHaveAttribute('data-reading-section', 'world-iris');
-  await expect(canvas).toHaveAttribute('data-route-span', '0.55');
+  await expect(canvas).toHaveAttribute('data-route-span', '1.35');
   await expect(
     page.getByRole('heading', { name: 'Iris', exact: true }),
   ).toBeInViewport();
@@ -117,11 +117,11 @@ test('desktop loads a real scene, supports native anchors and deliberate still m
   ).toBeInViewport();
   await expect(canvas).toBeVisible({ timeout: 15_000 });
   await expect(canvas).toHaveAttribute('data-reading-section', 'world-iris');
-  await expect(canvas).toHaveAttribute('data-route-span', '0.55');
+  await expect(canvas).toHaveAttribute('data-route-span', '1.35');
   await page.setViewportSize({ width: 900, height: 900 });
   await expect
     .poll(async () => Number(await canvas.getAttribute('data-camera-zoom')))
-    .toBeCloseTo(900 / 0.55, 5);
+    .toBeCloseTo(900 / 1.35, 5);
   await page.getByRole('button', { name: 'Use still view' }).click();
   await expect(page.locator('canvas')).toHaveCount(0);
   await page.getByRole('button', { name: 'Enable 3D' }).click();

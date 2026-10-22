@@ -24,26 +24,21 @@ export interface PoseAnchor {
   pose: ReadingPose;
 }
 
-/** One fixed monitor-corner composition throughout the project reading sequence. */
-const PROJECT_POSE: ReadingPose = {
-  position: [0.78, 1.65, 0.6],
-  target: [0.76, 1.45, -0.46],
-  viewHeight: 0.55,
+/** The About view stays in place while the reader moves through project copy. */
+const ABOUT_POSE: ReadingPose = {
+  position: [-0.38, 1.45, 1.25],
+  target: [0.1, 1.22, -0.444],
+  viewHeight: 1.35,
 };
 
-/** Enter over the shoulder, hold through projects, then conclude beside the desk. */
+/** Hold the About view through projects, then conclude beside the desk. */
 export const SECTION_POSES: readonly (ReadingPose & { id: string })[] = [
-  {
-    id: 'world-profile',
-    position: [-0.38, 1.45, 1.25],
-    target: [0.1, 1.22, -0.444],
-    viewHeight: 1.35,
-  },
-  { id: 'world-workflow', ...PROJECT_POSE },
-  { id: 'world-apollo', ...PROJECT_POSE },
-  { id: 'world-iris', ...PROJECT_POSE },
-  { id: 'world-gateway', ...PROJECT_POSE },
-  { id: 'world-dripperz', ...PROJECT_POSE },
+  { id: 'world-profile', ...ABOUT_POSE },
+  { id: 'world-workflow', ...ABOUT_POSE },
+  { id: 'world-apollo', ...ABOUT_POSE },
+  { id: 'world-iris', ...ABOUT_POSE },
+  { id: 'world-gateway', ...ABOUT_POSE },
+  { id: 'world-dripperz', ...ABOUT_POSE },
   {
     id: 'world-contact',
     position: [1.8, 1.45, 2.6],
