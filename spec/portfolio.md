@@ -586,6 +586,13 @@ and framing span across all five sections, so forward/reverse project scrolling
 and expanded-copy reading do not move the camera. Keep Hero, About and Contact
 views, the full-screen scene, left-half frosted reading surface and explicit screen
 inspection behavior unchanged.
+
+The owner later changed this camera direction: keep the About view through Workflow
+and every project section instead of switching to the monitor's top-right view.
+The monitor artwork remains in the scene but is not the camera focal point. Keep
+the separate Contact conclusion, Hero, reading surface and explicit screen
+inspection behavior unchanged.
+
 The owner subsequently authorized the missing Iris, Crypto gateway and Dripperz
 monitor designs and their section integration. Create original public-safe vector
 concepts from the approved narratives: public-chain analytics, portable checkout
@@ -594,8 +601,9 @@ and activity as illustrative; no real addresses, credentials, payments, minting,
 collection assets or private product source. Add the three views to the same
 heading-led workspace and preserve direct entry, reverse intent, pause, reduced
 motion, independent artwork failures, HTML alternatives and bounded texture uploads.
-Do not change the existing Workflow/Apollo artwork, approved copy, camera pose or
-left-half reading surface. Local verification and owner design review only; no
+Do not change the existing Workflow/Apollo artwork or approved copy. Preserve the
+About camera view, left-half reading surface and explicit screen inspection.
+Local verification and owner design review only; no
 publication/deployment is authorized.
 Do not alter model or artwork. Preserve the pause, stationary, reduced-motion,
 keyboard, fallback and expanded-copy policies and the local-only endpoint above.

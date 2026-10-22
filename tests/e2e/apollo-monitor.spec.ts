@@ -15,7 +15,7 @@ test('Apollo and Workflow switch on one monitor without enabling animation when 
     timeout: 20_000,
   });
   await expect(canvas).toHaveAttribute('data-reading-section', 'world-apollo');
-  await expect(canvas).toHaveAttribute('data-route-span', '0.55');
+  await expect(canvas).toHaveAttribute('data-route-span', '1.35');
   await expect
     .poll(async () => Number(await canvas.getAttribute('data-workflow-time')), {
       timeout: 20_000,

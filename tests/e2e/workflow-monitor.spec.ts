@@ -19,7 +19,7 @@ test('Workflow keeps a quiet reading pose with optional larger-screen inspection
       timeout: 20_000,
     },
   );
-  await expect(canvas).toHaveAttribute('data-route-span', '0.55');
+  await expect(canvas).toHaveAttribute('data-route-span', '1.35');
   await expect(canvas).toHaveAttribute('data-workflow-active', 'true');
   await expect(
     page.locator('#world-workflow .world-workflow-poster'),

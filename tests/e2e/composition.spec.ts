@@ -100,8 +100,8 @@ test('homepage keeps the world edge-to-edge while native HTML chapters scroll', 
     page.getByRole('heading', { name: 'Iris', exact: true }),
   ).toBeInViewport();
   await page
-    .getByRole('navigation')
-    .getByRole('link', { name: 'Contact' })
+    .getByRole('navigation', { name: 'World chapters' })
+    .getByRole('link', { name: 'Contact', exact: true })
     .click();
   await expect(
     page.getByRole('heading', { name: 'Let’s build something reliable.' }),

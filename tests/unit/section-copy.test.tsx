@@ -36,7 +36,7 @@ test('all six approved sections appear once and retain every approved content bl
       ).toBeInTheDocument();
     }
     for (const block of section.blocks) {
-      expect(screen.getByText(block.text)).toBeInTheDocument();
+      expect(document.body).toHaveTextContent(block.text);
     }
   }
   expect(screen.getByRole('link', { name: 'Explore my work' })).toHaveAttribute(
@@ -46,6 +46,26 @@ test('all six approved sections appear once and retain every approved content bl
   expect(
     screen.queryByText(/Composition study\. The current object/),
   ).not.toBeInTheDocument();
+});
+
+test('project emphasis is limited to selected individual words', () => {
+  render(<WorldPage />);
+  const emphasized = [
+    ...document.querySelectorAll('.world-copy-section strong'),
+  ].map((word) => word.textContent!.toLowerCase());
+  expect(emphasized).toEqual(
+    expect.arrayContaining([
+      'trading',
+      'backtesting',
+      'solana',
+      'caching',
+      'security',
+      'verification',
+      'solidity',
+      'aws',
+    ]),
+  );
+  expect(emphasized.every((word) => !/\s/.test(word))).toBe(true);
 });
 
 test('the reading-first chapter retains its expressive lead and unboxed approved prose', () => {
