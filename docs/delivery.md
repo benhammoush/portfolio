@@ -10,6 +10,10 @@ then waits for native approval. CI dispatch is the exact-SHA dev recovery path.
 These supersede older combined-workflow invocations below, not existing hosting,
 identity, human acceptance or recovery requirements.
 
+The immutable foundation pin selects v1.0.1, including bounded Ubuntu browser-host
+dependency installation from the official HTTPS archive. Portfolio retains its
+locked Playwright version, browser suites and fail-closed verification gate.
+
 All Ubuntu jobs use `ubuntu-24.04`. Built-output browser checks now cover Chromium,
 Firefox and WebKit for core HTML, navigation, accessibility, responsive reading,
 illustrative screens and failure recovery. Specialized WebGL/camera/monitor suites
