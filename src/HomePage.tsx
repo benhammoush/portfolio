@@ -21,7 +21,7 @@ export default function HomePage() {
 
   return (
     <>
-      <a className="skip-link" href="#main-content">
+      <a className="skip-link" href="#main-content" tabIndex={0}>
         Skip to content
       </a>
       <header className="site-header container">

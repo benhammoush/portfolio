@@ -56,16 +56,19 @@ it('rejects invalid inputs and unavailable GitHub evidence', async () => {
   ).rejects.toThrow('Source ancestry read failed');
 });
 
-it('keeps the trusted ancestry gate before checkout and all candidate-controlled commands', () => {
-  const workflow = readFileSync('.github/workflows/delivery.yml', 'utf8');
-  const guard = workflow.indexOf('run: node scripts/check-delivery-source.mjs');
-  const candidateCheckout = workflow.indexOf(
-    '- name: Checkout exact candidate',
+it('delegates ancestry and candidate verification to the immutable shared guard before deployment', () => {
+  const workflow = readFileSync(
+    '.github/workflows/deploy-production.yml',
+    'utf8',
   );
-  const candidateCommands = workflow.indexOf('working-directory: candidate');
-  expect(guard).toBeGreaterThan(-1);
-  expect(candidateCheckout).toBeGreaterThan(guard);
-  expect(candidateCommands).toBeGreaterThan(candidateCheckout);
-  expect(workflow.slice(0, guard)).not.toContain('secrets.VERCEL_TOKEN');
-  expect(workflow.slice(0, guard)).not.toContain('npm ci');
+  expect(workflow).toMatch(
+    /ci-cd-workflows\/\.github\/workflows\/verify-web.yml@[a-f0-9]{40}/,
+  );
+  expect(workflow).toContain('needs: verify_release');
+  const beforeDeploy = workflow.slice(
+    0,
+    workflow.indexOf('\n  deploy_production:'),
+  );
+  expect(beforeDeploy).not.toContain('secrets.');
+  expect(beforeDeploy).toContain('source_sha: ${{ inputs.sha }}');
 });

@@ -203,7 +203,7 @@ export default function WorldPage() {
 
   return (
     <div className="world-page" ref={page}>
-      <a className="skip-link" href="#world-main">
+      <a className="skip-link" href="#world-main" tabIndex={0}>
         Skip to content
       </a>
       <WorldViewport />

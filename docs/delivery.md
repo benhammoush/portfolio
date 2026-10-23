@@ -1,5 +1,28 @@
 # Dev → production delivery
 
+## Versioned CI/CD entry points
+
+The [shared contract](https://github.com/benhammoush/ci-cd-workflows/blob/main/docs/contract.md)
+is pinned in `.github/ci-cd.json`. `ci.yml` checks PRs/main and delivers successful
+exact main commits to enabled dev. Manual `deploy-production.yml` selects a full
+merged `sha`, requires retained successful dev evidence, verifies the candidate,
+then waits for native approval. CI dispatch is the exact-SHA dev recovery path.
+These supersede older combined-workflow invocations below, not existing hosting,
+identity, human acceptance or recovery requirements.
+
+All Ubuntu jobs use `ubuntu-24.04`. Built-output browser checks now cover Chromium,
+Firefox and WebKit for core HTML, navigation, accessibility, responsive reading,
+illustrative screens and failure recovery. Specialized WebGL/camera/monitor suites
+retain their complete original Chromium coverage rather than claiming GPU parity
+across engines. Shared artifact/record integrity supplements existing routing
+and configuration smoke. `lockScope: all` preserves stricter cross-target exclusion.
+The standard environment switch is `DEPLOY_ENABLED`; the existing repository-level
+`DELIVERY_ENABLED` remains a declared compatibility fallback until an explicitly
+approved activation-neutral settings migration. No flag or credential is changed
+here. Existing required-check names remain compatible. Historical sources without
+versioned hooks fail closed; immutable artifact recovery is separately authorized.
+PR checks do not certify live delivery, real devices or owner acceptance.
+
 ## Status and authorization
 
 This is a **local implementation**, not a provisioned or operationally verified

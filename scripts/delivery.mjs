@@ -8,11 +8,15 @@ import {
   appendFileSync,
   cpSync,
   mkdirSync,
+  mkdtempSync,
+  rmSync,
   readFileSync,
   writeFileSync,
 } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
+import { join, resolve } from 'node:path';
+import { tmpdir } from 'node:os';
 import {
   applicationOrigin,
   assertCurrentSource,
@@ -68,6 +72,13 @@ function record(heading, record) {
     required('GITHUB_STEP_SUMMARY'),
     `\n### ${heading}\n\n\`\`\`json\n${JSON.stringify(record, null, 2)}\n\`\`\`\n`,
   );
+  if (env.CI_CANDIDATE_ROOT) {
+    const build = JSON.parse(readFileSync('ci-build.json', 'utf8'));
+    writeFileSync(
+      'delivery-record.json',
+      `${JSON.stringify({ ...record, schemaVersion: 1, sourceSha: build.sourceSha, environment: build.environment, artifactDigest: build.artifactDigest, configurationDigest: record.configuration, workflowRunId: env.GITHUB_RUN_ID, deploymentId: record.deployment ?? null, previousDeploymentId: record.previous ?? null, status: heading.startsWith('Read-only') ? 'smoke-verified-not-user-accepted' : heading.startsWith('Before') ? 'mutation-requested' : 'verification-pending' }, null, 2)}\n`,
+    );
+  }
 }
 
 /**
@@ -120,8 +131,10 @@ async function smoke(origin, identity, bypass) {
  * Verify source/provider configuration, upload one prebuilt target, then read-only smoke.
  * GitHub policy readback is an operator prerequisite; native approval gates the job.
  * Both target jobs share a mutation lock; external provider changes invalidate evidence.
+ * @param publish - Optional intercepted transport for offline orchestration tests.
  */
-export async function deliver() {
+export async function deliver(publish) {
+  const candidate = env.CI_CANDIDATE_ROOT ?? 'candidate';
   assert.equal(
     required('GITHUB_REF'),
     'refs/heads/main',
@@ -188,13 +201,13 @@ export async function deliver() {
     env.GITHUB_EVENT_NAME === 'push',
   );
   assert.equal(
-    execFileSync('git', ['-C', 'candidate', 'rev-parse', 'HEAD'], {
+    execFileSync('git', ['-C', candidate, 'rev-parse', 'HEAD'], {
       encoding: 'utf8',
     }).trim(),
     source,
   );
   const { version } = JSON.parse(
-    readFileSync('candidate/package.json', 'utf8'),
+    readFileSync(`${candidate}/package.json`, 'utf8'),
   );
   let project = await api(
     'vercel',
@@ -214,109 +227,123 @@ export async function deliver() {
   // Native approval is the owner's review of dev identity, acceptance and recovery.
   // No dev credential is exposed to production and no custom promotion manifest is used.
   // Own generated output only; repository source/configuration is never uploaded.
-  mkdirSync('.vercel/output', { recursive: true });
-  cpSync('candidate/dist', '.vercel/output/static', { recursive: true });
-  writeFileSync(
-    '.vercel/output/static/release.json',
-    `${JSON.stringify(identity)}\n`,
+  const staging = mkdtempSync(
+    join(env.RUNNER_TEMP || tmpdir(), 'portfolio-delivery-'),
   );
-  writeFileSync(
-    '.vercel/output/config.json',
-    JSON.stringify(hostingConfiguration()),
-  );
-  writeFileSync(
-    '.vercel/project.json',
-    JSON.stringify({ orgId: required('VERCEL_ORG_ID'), projectId }),
-  );
+  try {
+    const outputRoot = join(staging, '.vercel/output');
+    mkdirSync(outputRoot, { recursive: true });
+    cpSync(`${candidate}/dist`, join(outputRoot, 'static'), {
+      recursive: true,
+    });
+    writeFileSync(
+      join(outputRoot, 'static/release.json'),
+      `${JSON.stringify(identity)}\n`,
+    );
+    writeFileSync(
+      join(outputRoot, 'config.json'),
+      JSON.stringify(hostingConfiguration()),
+    );
+    writeFileSync(
+      join(staging, '.vercel/project.json'),
+      JSON.stringify({ orgId: required('VERCEL_ORG_ID'), projectId }),
+    );
 
-  // Final read immediately before mutation, inside the shared target mutation lock.
-  const latestMain = await api('github', `${repoPath}/git/ref/heads/main`);
-  assertCurrentSource(
-    source,
-    latestMain.object.sha,
-    env.GITHUB_EVENT_NAME === 'push',
-  );
-  project = await api(
-    'vercel',
-    `/v9/projects/${encodeURIComponent(projectId)}`,
-  );
-  assert.equal(
-    configurationDigest(project, { target, origin, epoch }),
-    configuration,
-    'Target configuration drifted.',
-  );
-  const previous = project.targets?.production?.id ?? null;
-  record('Before target mutation — retain for recovery', {
-    project: projectId,
-    origin,
-    previous,
-    ...identity,
-  });
-  // Pinned CLI; no latest tool resolution, project linking, remote build or source upload.
-  const output = execFileSync(
-    'npm',
-    [
-      'exec',
-      '--yes',
-      '--package=vercel@64.2.0',
-      '--',
+    // Final read immediately before mutation, inside the shared target mutation lock.
+    const latestMain = await api('github', `${repoPath}/git/ref/heads/main`);
+    assertCurrentSource(
+      source,
+      latestMain.object.sha,
+      env.GITHUB_EVENT_NAME === 'push',
+    );
+    project = await api(
       'vercel',
-      'deploy',
-      '--prebuilt',
-      '--prod',
-      '--yes',
-      '--token',
-      required('VERCEL_TOKEN'),
-      '--meta',
-      `portfolioSource=${source}`,
-      '--meta',
-      `portfolioVersion=${version}`,
-      '--meta',
-      `portfolioConfig=${configuration}`,
-      '--meta',
-      `portfolioRun=${identity.run}`,
-    ],
-    {
-      encoding: 'utf8',
-      timeout: 600_000,
-      stdio: ['ignore', 'pipe', 'pipe'],
-    },
-  ).trim();
-  const deployedOrigin = applicationOrigin(output);
-  assert.ok(new URL(deployedOrigin).hostname.endsWith('.vercel.app'));
-  const deployment = await api(
-    'vercel',
-    `/v13/deployments/${encodeURIComponent(new URL(deployedOrigin).hostname)}`,
-  );
-  assert.equal(deployment.projectId, projectId);
-  assert.equal(deployment.readyState, 'READY');
-  record('Deployment created — smoke/acceptance still required', {
-    deployment: deployment.id,
-    previous,
-    origin,
-    providerOrigin: deployedOrigin,
-    ...identity,
-  });
-  const after = await api(
-    'vercel',
-    `/v9/projects/${encodeURIComponent(projectId)}`,
-  );
-  assert.equal(
-    configurationDigest(after, { target, origin, epoch }),
-    configuration,
-    'Target configuration changed during deployment.',
-  );
-  assert.equal(
-    after.targets?.production?.id,
-    deployment.id,
-    'Target changed during deployment.',
-  );
-  await smoke(deployedOrigin, identity, env.SMOKE_BYPASS);
-  await smoke(origin, identity, env.SMOKE_BYPASS);
-  record(
-    'Read-only HTTP smoke passed — not human or public-launch acceptance',
-    { deployment: deployment.id, previous, ...identity },
-  );
+      `/v9/projects/${encodeURIComponent(projectId)}`,
+    );
+    assert.equal(
+      configurationDigest(project, { target, origin, epoch }),
+      configuration,
+      'Target configuration drifted.',
+    );
+    const previous = project.targets?.production?.id ?? null;
+    record('Before target mutation — retain for recovery', {
+      project: projectId,
+      origin,
+      previous,
+      ...identity,
+    });
+    const transport =
+      publish ??
+      (
+        await import(
+          pathToFileURL(
+            resolve(
+              required('CI_AUTOMATION_ROOT'),
+              'scripts/vercel-transport.mjs',
+            ),
+          ).href
+        )
+      ).deployPrebuilt;
+    const output = await transport(
+      staging,
+      env,
+      {
+        name: project.name,
+        projectId,
+        meta: {
+          portfolioSource: source,
+          portfolioVersion: version,
+          portfolioConfig: configuration,
+          portfolioRun: identity.run,
+        },
+      },
+      fetch,
+      (deployment) =>
+        record('Deployment created — smoke/acceptance still required', {
+          deployment: deployment.id,
+          previous,
+          origin,
+          ...identity,
+        }),
+    );
+    const deployedOrigin = applicationOrigin(output);
+    assert.ok(new URL(deployedOrigin).hostname.endsWith('.vercel.app'));
+    const deployment = await api(
+      'vercel',
+      `/v13/deployments/${encodeURIComponent(new URL(deployedOrigin).hostname)}`,
+    );
+    assert.equal(deployment.projectId, projectId);
+    assert.equal(deployment.readyState, 'READY');
+    record('Deployment created — smoke/acceptance still required', {
+      deployment: deployment.id,
+      previous,
+      origin,
+      providerOrigin: deployedOrigin,
+      ...identity,
+    });
+    const after = await api(
+      'vercel',
+      `/v9/projects/${encodeURIComponent(projectId)}`,
+    );
+    assert.equal(
+      configurationDigest(after, { target, origin, epoch }),
+      configuration,
+      'Target configuration changed during deployment.',
+    );
+    assert.equal(
+      after.targets?.production?.id,
+      deployment.id,
+      'Target changed during deployment.',
+    );
+    await smoke(deployedOrigin, identity, env.SMOKE_BYPASS);
+    await smoke(origin, identity, env.SMOKE_BYPASS);
+    record(
+      'Read-only HTTP smoke passed — not human or public-launch acceptance',
+      { deployment: deployment.id, previous, ...identity },
+    );
+  } finally {
+    rmSync(staging, { recursive: true, force: true });
+  }
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href)

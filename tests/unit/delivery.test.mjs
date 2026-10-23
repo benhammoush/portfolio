@@ -52,13 +52,17 @@ const deployment = {
 };
 
 it('wires only the target deployment credential without enabling delivery', () => {
-  const workflow = readFileSync('.github/workflows/delivery.yml', 'utf8');
+  const workflow = readFileSync('.github/workflows/ci.yml', 'utf8');
   expect(workflow).toContain('VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}');
   expect(workflow).not.toContain('DEV_VERCEL_TOKEN');
   expect(workflow).not.toContain('DEV_SMOKE_BYPASS');
   expect(workflow).not.toContain('READINESS_REFERENCE');
   expect(workflow).toContain('inputs.sha || github.sha');
-  expect(workflow).toContain("vars.DELIVERY_ENABLED == 'true'");
+  expect(workflow).toContain('needs: verify');
+  expect(workflow).toContain('environment: dev');
+  const config = JSON.parse(readFileSync('.github/ci-cd.json', 'utf8'));
+  expect(config.deploymentVariables).toContain('DEPLOY_ENABLED');
+  expect(config.deploymentVariables).toContain('DELIVERY_ENABLED');
 });
 
 describe('immutable source and safe application origin', () => {

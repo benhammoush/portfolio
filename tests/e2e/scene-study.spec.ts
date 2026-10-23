@@ -147,7 +147,7 @@ for (const chapter of ['workflow', 'iris']) {
           .evaluate(
             (element) => element.getBoundingClientRect().top + window.scrollY,
           ),
-      ).toBe(initialCopyTop);
+      ).toBeCloseTo(initialCopyTop, 2);
       expect(
         await page.evaluate(
           () => document.documentElement.scrollWidth > innerWidth,

@@ -83,9 +83,16 @@ for (const width of [390, 1440]) {
     const summary = page.locator('#world-apollo summary');
     await summary.focus();
     await page.keyboard.press('Enter');
+    await expect(page.locator('html')).toHaveCSS('scroll-snap-type', 'none');
     const lastParagraph = page.locator('#world-apollo details p').last();
     await lastParagraph.scrollIntoViewIfNeeded();
     await expect(lastParagraph).toBeInViewport();
+    await summary.focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('html')).toHaveCSS(
+      'scroll-snap-type',
+      'y mandatory',
+    );
     await page
       .getByRole('navigation')
       .getByRole('link', { name: 'Contact', exact: true })

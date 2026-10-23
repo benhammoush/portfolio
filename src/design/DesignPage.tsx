@@ -24,7 +24,7 @@ export default function DesignPage() {
 
   return (
     <div className="design-board">
-      <a className="skip-link" href="#design-main">
+      <a className="skip-link" href="#design-main" tabIndex={0}>
         Skip to concept
       </a>
       <header className="design-header">

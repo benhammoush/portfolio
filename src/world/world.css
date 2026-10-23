@@ -18,6 +18,10 @@ html.world-snap {
   scroll-snap-type: y mandatory;
   scroll-behavior: smooth;
 }
+/* Expanded prose must remain freely reachable when WebKit reapplies snap stops. */
+html.world-snap:has(.world-copy-details[open]) {
+  scroll-snap-type: none;
+}
 html.world-snap .world-section {
   scroll-snap-align: start;
   scroll-snap-stop: always;
