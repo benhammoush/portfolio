@@ -140,11 +140,11 @@ export async function deliver(publish) {
     'refs/heads/main',
     'Run delivery workflows from main only.',
   );
-  assert.equal(required('DELIVERY_ENABLED'), 'true', 'Delivery is disabled.');
   const target = required('DELIVERY_TARGET');
   assert.ok(['dev', 'production'].includes(target));
   required('VERCEL_TOKEN');
   if (target === 'production') {
+    assert.equal(required('DELIVERY_ENABLED'), 'true', 'Delivery is disabled.');
     assert.equal(
       env.GITHUB_EVENT_NAME,
       'workflow_dispatch',

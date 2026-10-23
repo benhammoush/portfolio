@@ -287,16 +287,30 @@ it.each([false, true])(
   },
 );
 
-it('does not mutate on disabled delivery, non-main execution, unmerged or superseded source', async () => {
-  for (const [name, value] of [
-    ['DELIVERY_ENABLED', 'false'],
-    ['GITHUB_REF', 'refs/heads/feature'],
-  ]) {
-    const original = process.env[name];
-    vi.stubEnv(name, value);
+it.each([undefined, 'false', 'true'])(
+  'dev ignores deployment opt-in %s',
+  async (enabled) => {
+    vi.stubEnv('DELIVERY_ENABLED', enabled);
+    await deliver();
+    expect(mocks.publish).toHaveBeenCalledTimes(1);
+  },
+);
+
+it.each([undefined, 'false'])(
+  'production retains deployment opt-in %s',
+  async (enabled) => {
+    selectProduction();
+    vi.stubEnv('DELIVERY_ENABLED', enabled);
     await expect(deliver()).rejects.toThrow();
-    vi.stubEnv(name, original);
-  }
+    expect(fetch).not.toHaveBeenCalled();
+    expect(mocks.publish).not.toHaveBeenCalled();
+  },
+);
+
+it('does not mutate on non-main execution, unmerged or superseded source', async () => {
+  vi.stubEnv('GITHUB_REF', 'refs/heads/feature');
+  await expect(deliver()).rejects.toThrow();
+  vi.stubEnv('GITHUB_REF', 'refs/heads/main');
   state.comparison = 'diverged';
   await expect(deliver()).rejects.toThrow('not reachable');
   state.comparison = 'identical';

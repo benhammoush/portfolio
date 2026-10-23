@@ -2,9 +2,11 @@
 
 ## Versioned CI/CD entry points
 
+Automation 2.0 removes dev opt-ins when this adoption is merged to main.
+
 The [shared contract](https://github.com/benhammoush/ci-cd-workflows/blob/main/docs/contract.md)
 is pinned in `.github/ci-cd.json`. `ci.yml` checks PRs/main and delivers successful
-exact main commits to enabled dev. Manual `deploy-production.yml` selects a full
+exact main commits to dev without an opt-in switch. Manual `deploy-production.yml` selects a full
 merged `sha`, requires retained successful dev evidence, verifies the candidate,
 then waits for native approval. CI dispatch is the exact-SHA dev recovery path.
 These supersede older combined-workflow invocations below, not existing hosting,
@@ -20,9 +22,9 @@ illustrative screens and failure recovery. Specialized WebGL/camera/monitor suit
 retain their complete original Chromium coverage rather than claiming GPU parity
 across engines. Shared artifact/record integrity supplements existing routing
 and configuration smoke. `lockScope: all` preserves stricter cross-target exclusion.
-The standard environment switch is `DEPLOY_ENABLED`; the existing repository-level
-`DELIVERY_ENABLED` remains a declared compatibility fallback until an explicitly
-approved activation-neutral settings migration. No flag or credential is changed
+Production retains the environment switch `DEPLOY_ENABLED` and legacy repository-level
+`DELIVERY_ENABLED` compatibility fallback until a separately approved settings migration.
+Dev ignores both switches, including absent/false values. No flag or credential is changed
 here. Existing required-check names remain compatible. Historical sources without
 versioned hooks fail closed; immutable artifact recovery is separately authorized.
 PR checks do not certify live delivery, real devices or owner acceptance.
@@ -30,9 +32,9 @@ PR checks do not certify live delivery, real devices or owner acceptance.
 ## Status and authorization
 
 This is a **local implementation**, not a provisioned or operationally verified
-release mechanism. No public launch is authorized. Workflows are disabled unless
-the repository variable `DELIVERY_ENABLED` is exactly `true`. Keep it unset until
-the separately authorized configuration/readiness review below is accepted.
+release mechanism. No public launch is authorized. Successful main verification
+automatically starts dev delivery; missing configuration or credentials fail closed.
+Production retains its opt-in, manual dispatch, dev evidence and native approval.
 There is no active staging target. Do not delete historical resources, revoke
 shared credentials or change other projects as part of this slice.
 
@@ -133,12 +135,12 @@ Before remote enablement, obtain decisions/evidence for:
 
 Repository variables (nonsecret):
 
-| Name                                      | Meaning                                                               |
-| ----------------------------------------- | --------------------------------------------------------------------- |
-| `DELIVERY_ENABLED`                        | Unset/false by default; enable only after authorized readiness review |
-| `DEV_PROJECT_ID`, `PRODUCTION_PROJECT_ID` | Distinct immutable `prj_` identities                                  |
-| `DEV_ORIGIN`                              | Approved HTTPS shared-dev origin                                      |
-| `DEV_CONFIG_ID`                           | Reviewed dev configuration generation                                 |
+| Name                                      | Meaning                                                          |
+| ----------------------------------------- | ---------------------------------------------------------------- |
+| `DELIVERY_ENABLED`                        | Production-only legacy fallback; dev ignores absent/false values |
+| `DEV_PROJECT_ID`, `PRODUCTION_PROJECT_ID` | Distinct immutable `prj_` identities                             |
+| `DEV_ORIGIN`                              | Approved HTTPS shared-dev origin                                 |
+| `DEV_CONFIG_ID`                           | Reviewed dev configuration generation                            |
 
 Each GitHub environment, `dev` and `production`, additionally provides:
 
@@ -233,8 +235,8 @@ For a dev application rollback rehearsal:
 
 1. Authorize a maintenance window; prevent competing deliveries using the same
    mutation lock or an explicitly approved pause, and verify no active mutation.
-   Do not cancel a running deployment. The repository enable flag only prevents
-   future jobs; it does not stop already-started work.
+   Do not cancel a running deployment. Dev ignores repository/environment enable
+   flags; they cannot pause future automatic delivery or stop already-started work.
 2. Verify the prior deployment belongs to the same target project, is still
    available/eligible, has compatible accepted configuration and serves the
    expected source/version. Record the selected current candidate too.
