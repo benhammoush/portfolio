@@ -13,7 +13,9 @@ export default function NotFoundPage() {
     <main>
       <h1>Page not found</h1>
       <p>We couldn’t find that page. You can return to the portfolio home.</p>
-      <Link to="/">Return to home</Link>
+      <Link to="/" tabIndex={0}>
+        Return to home
+      </Link>
     </main>
   );
 }

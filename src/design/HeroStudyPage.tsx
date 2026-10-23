@@ -23,7 +23,7 @@ export default function HeroStudyPage(props: HeroStudyProps) {
 
   return (
     <div className={`hero-study hero-study--${direction}`}>
-      <a className="skip-link" href="#hero-study-main">
+      <a className="skip-link" href="#hero-study-main" tabIndex={0}>
         Skip to hero
       </a>
       <header className="hero-study-toolbar">

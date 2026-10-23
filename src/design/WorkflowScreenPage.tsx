@@ -62,7 +62,7 @@ export default function WorkflowScreenPage() {
   }, []);
   return (
     <div className="workflow-screen-page">
-      <a className="skip-link" href="#workflow-screen-main">
+      <a className="skip-link" href="#workflow-screen-main" tabIndex={0}>
         Skip to screen concept
       </a>
       <header className="workflow-screen-header">

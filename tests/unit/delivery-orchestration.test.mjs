@@ -10,6 +10,8 @@ const mocks = vi.hoisted(() => ({
   summary: vi.fn(),
   write: vi.fn(),
   copy: vi.fn(),
+  publish: vi.fn(),
+  remove: vi.fn(),
 }));
 vi.mock('node:child_process', () => ({ execFileSync: mocks.exec }));
 vi.mock('node:fs', () => ({
@@ -17,9 +19,19 @@ vi.mock('node:fs', () => ({
   writeFileSync: mocks.write,
   cpSync: mocks.copy,
   mkdirSync: vi.fn(),
+  mkdtempSync: vi.fn(() => 'trusted-staging'),
+  rmSync: mocks.remove,
   readFileSync: vi.fn(() => JSON.stringify({ version: '0.1.0' })),
 }));
-import { deliver } from '../../scripts/delivery.mjs';
+import { deliver as runDelivery } from '../../scripts/delivery.mjs';
+
+/**
+ * Exercise production orchestration with provider mutations intercepted.
+ * @returns Completion of the checked delivery sequence.
+ */
+function deliver() {
+  return runDelivery(mocks.publish);
+}
 
 const source = 'a'.repeat(40);
 let state;
@@ -119,6 +131,7 @@ beforeEach(() => {
     GITHUB_RUN_ID: '12',
     GITHUB_RUN_ATTEMPT: '1',
     GITHUB_STEP_SUMMARY: 'test-summary',
+    CI_AUTOMATION_ROOT: '/trusted/automation',
     DEV_DEPLOYMENT_ID: 'dpl_accepted',
     DEV_ACCEPTANCE_REFERENCE: 'https://example.com/acceptance',
   };
@@ -163,11 +176,14 @@ beforeEach(() => {
       },
     },
   };
-  mocks.exec.mockImplementation((command, args) => {
-    if (command === 'git') return source;
-    expect(command).toBe('npm');
-    expect(args[args.indexOf('--token') + 1]).toBe('test-vercel');
-    expect(args).not.toContain('test-dev-verification');
+  mocks.exec.mockImplementation((command) => {
+    expect(command).toBe('git');
+    return source;
+  });
+  mocks.publish.mockImplementation((staging, env, settings) => {
+    expect(staging).toBe('trusted-staging');
+    expect(env.VERCEL_TOKEN).toBe('test-vercel');
+    expect(settings.meta.portfolioSource).toBe(source);
     expect(mocks.summary).toHaveBeenCalled();
     const targetProject =
       process.env.DELIVERY_TARGET === 'dev'
@@ -206,20 +222,70 @@ function selectProduction() {
 it('records prior identity before exactly one dev mutation and completes read-only smoke', async () => {
   vi.stubEnv('READINESS_REFERENCE', '');
   await deliver();
-  const mutations = mocks.exec.mock.calls.filter(
-    ([command]) => command === 'npm',
-  );
+  const mutations = mocks.publish.mock.calls;
   expect(mutations).toHaveLength(1);
-  expect(mutations[0][1]).toContain('--prebuilt');
+  expect(mutations[0][2].meta.portfolioSource).toBe(source);
   expect(mocks.copy).toHaveBeenCalledWith(
     'candidate/dist',
-    '.vercel/output/static',
+    expect.stringMatching(
+      /trusted-staging[\\/]\.vercel[\\/]output[\\/]static$/,
+    ),
     { recursive: true },
   );
   expect(mocks.summary.mock.calls[0][1]).toContain('dpl_accepted');
   expect(mocks.summary.mock.calls[0][1]).not.toContain('readiness');
   expect(mocks.summary.mock.calls.at(-1)[1]).toContain('HTTP smoke passed');
+  expect(mocks.remove).toHaveBeenCalledWith('trusted-staging', {
+    recursive: true,
+    force: true,
+  });
 });
+
+it.each([false, true])(
+  'records shared delivery evidence when hosted smoke fails=%s',
+  async (badAsset) => {
+    vi.stubEnv('CI_CANDIDATE_ROOT', 'candidate');
+    const build = {
+      sourceSha: source,
+      environment: 'dev',
+      artifactDigest: 'artifact-digest',
+    };
+    const { readFileSync } = await import('node:fs');
+    readFileSync.mockImplementation((path) =>
+      JSON.stringify(path === 'ci-build.json' ? build : { version: '0.1.0' }),
+    );
+    state.badAsset = badAsset;
+    try {
+      if (badAsset)
+        await expect(deliver()).rejects.toThrow('Hosted route failed');
+      else await deliver();
+      const records = mocks.write.mock.calls
+        .filter(([path]) => path === 'delivery-record.json')
+        .map(([, contents]) => JSON.parse(contents));
+      expect(records.map(({ status }) => status)).toEqual([
+        'mutation-requested',
+        'verification-pending',
+        ...(badAsset ? [] : ['smoke-verified-not-user-accepted']),
+      ]);
+      expect(records.at(-1)).toMatchObject({
+        schemaVersion: 1,
+        ...build,
+        configurationDigest: state.identity.configuration,
+        workflowRunId: '12',
+        deploymentId: 'dpl_new',
+        previousDeploymentId: 'dpl_accepted',
+      });
+      expect(mocks.remove).toHaveBeenCalledWith('trusted-staging', {
+        recursive: true,
+        force: true,
+      });
+    } finally {
+      readFileSync.mockImplementation(() =>
+        JSON.stringify({ version: '0.1.0' }),
+      );
+    }
+  },
+);
 
 it('does not mutate on disabled delivery, non-main execution, unmerged or superseded source', async () => {
   for (const [name, value] of [
@@ -236,9 +302,7 @@ it('does not mutate on disabled delivery, non-main execution, unmerged or supers
   state.comparison = 'identical';
   state.main = 'b'.repeat(40);
   await expect(deliver()).rejects.toThrow('superseded');
-  expect(
-    mocks.exec.mock.calls.filter(([command]) => command === 'npm'),
-  ).toHaveLength(0);
+  expect(mocks.publish.mock.calls).toHaveLength(0);
 });
 
 it.each([
@@ -268,9 +332,7 @@ it('production uses only its target token; dev acceptance is reviewed by the nat
   expect(
     mocks.summary.mock.calls.some(([, text]) => text.includes('dpl_prior')),
   ).toBe(true);
-  expect(
-    mocks.exec.mock.calls.filter(([command]) => command === 'npm'),
-  ).toHaveLength(1);
+  expect(mocks.publish.mock.calls).toHaveLength(1);
 });
 
 it('rejects missing built-in GitHub authentication before mutation', async () => {
@@ -298,26 +360,24 @@ it('rejects automatic production execution before network access', async () => {
   await expect(deliver()).rejects.toThrow('manual dispatch');
   expect(fetch).not.toHaveBeenCalled();
   expect(mocks.copy).not.toHaveBeenCalled();
-  expect(
-    mocks.exec.mock.calls.filter(([command]) => command === 'npm'),
-  ).toHaveLength(0);
+  expect(mocks.publish.mock.calls).toHaveLength(0);
 });
 
 it('requires a new production dispatch instead of retrying the approved run', async () => {
   selectProduction();
   vi.stubEnv('GITHUB_RUN_ATTEMPT', '2');
   await expect(deliver()).rejects.toThrow('new dispatch and approval');
-  expect(
-    mocks.exec.mock.calls.filter(([command]) => command === 'npm'),
-  ).toHaveLength(0);
+  expect(mocks.publish.mock.calls).toHaveLength(0);
 });
 
 it('retains recovery checkpoints and never retries after hosted smoke fails', async () => {
   state.badAsset = true;
   await expect(deliver()).rejects.toThrow('Hosted route failed');
-  expect(
-    mocks.exec.mock.calls.filter(([command]) => command === 'npm'),
-  ).toHaveLength(1);
+  expect(mocks.publish.mock.calls).toHaveLength(1);
+  expect(mocks.remove).toHaveBeenCalledWith('trusted-staging', {
+    recursive: true,
+    force: true,
+  });
   expect(
     mocks.summary.mock.calls.some(([, text]) =>
       text.includes('Deployment created'),

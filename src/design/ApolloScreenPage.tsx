@@ -63,7 +63,7 @@ export default function ApolloScreenPage() {
   }, []);
   return (
     <div className="workflow-screen-page">
-      <a className="skip-link" href="#apollo-screen-main">
+      <a className="skip-link" href="#apollo-screen-main" tabIndex={0}>
         Skip to Apollo concept
       </a>
       <header className="workflow-screen-header">

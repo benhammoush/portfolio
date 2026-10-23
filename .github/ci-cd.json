@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "profile": "web",
+  "nodeVersion": "24.21.0",
+  "automationSha": "1d4b201fc53f05c53de2fdc37ab9b184b676a1be",
+  "integration": false,
+  "lockScope": "all",
+  "legacyChecks": ["Foundation quality"],
+  "deploymentVariables": [
+    "DEPLOY_ENABLED",
+    "DELIVERY_ENABLED",
+    "VERCEL_ORG_ID",
+    "VERCEL_PROJECT_ID",
+    "DEV_PROJECT_ID",
+    "PRODUCTION_PROJECT_ID",
+    "TARGET_ORIGIN",
+    "DEV_ORIGIN",
+    "DELIVERY_CONFIG_ID",
+    "DEV_CONFIG_ID"
+  ],
+  "buildEnvironment": { "dev": {}, "production": {} }
+}

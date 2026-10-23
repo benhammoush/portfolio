@@ -73,7 +73,7 @@ export default function SceneStudyPage(props: SceneStudyProps) {
 
   return (
     <div className="scene-study">
-      <a className="skip-link" href="#scene-study-main">
+      <a className="skip-link" href="#scene-study-main" tabIndex={0}>
         Skip to section study
       </a>
       <header className="scene-study-toolbar">
