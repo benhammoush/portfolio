@@ -30,28 +30,28 @@ jobs:
   # 3D/GPU suites retain their full Chromium coverage (playwright.config.ts).
   # Project settings and legacy check names are declared in .github/ci-cd.json.
   verify:
-    uses: benhammoush/ci-cd-workflows/.github/workflows/verify-web.yml@37151e604a66c0dbb68b5631534c7124d4d95798
+    uses: benhammoush/ci-cd-workflows/.github/workflows/verify-web.yml@d7d0c297f0b4038e9815349fd16f79bb92d77ceb
     with:
       # Shared: implementation checkout and workflow use the same immutable pin.
-      automation_sha: 37151e604a66c0dbb68b5631534c7124d4d95798
+      automation_sha: d7d0c297f0b4038e9815349fd16f79bb92d77ceb
       # Shared: manual SHA or the exact PR/main event revision, never latest main.
       source_sha: ${{ inputs.sha || github.sha }}
       environment: dev
       # Project: keep Portfolio's pinned supported runtime.
       node_version: 24.21.0
   # Shared: only successful main push/manual dev verification can deliver dev.
-  # The called job binds dev, checks artifact integrity/enablement/freshness and
-  # retains delivery evidence. PRs cannot deploy; disabled targets stay disabled.
+  # The called job binds dev, checks artifact integrity/freshness and
+  # retains delivery evidence. PRs cannot deploy; dev has no boolean opt-in.
   # Project: scripts/ci-deploy.mjs delegates to the existing delivery controller
   # for static Vercel packaging, noindex/routing/identity smoke and recovery IDs.
-  # Project: DEPLOY_ENABLED retains the documented DELIVERY_ENABLED fallback;
-  # this caller does not migrate remote settings or enable either environment.
+  # Project: DEPLOY_ENABLED/DELIVERY_ENABLED apply only to production;
+  # this caller does not migrate remote settings or production approval.
   deploy_dev:
     needs: verify
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-    uses: benhammoush/ci-cd-workflows/.github/workflows/deploy-web.yml@37151e604a66c0dbb68b5631534c7124d4d95798
+    uses: benhammoush/ci-cd-workflows/.github/workflows/deploy-web.yml@d7d0c297f0b4038e9815349fd16f79bb92d77ceb
     with:
-      automation_sha: 37151e604a66c0dbb68b5631534c7124d4d95798
+      automation_sha: d7d0c297f0b4038e9815349fd16f79bb92d77ceb
       source_sha: ${{ inputs.sha || github.sha }}
       environment: dev
       node_version: 24.21.0
