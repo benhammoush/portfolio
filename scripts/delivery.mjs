@@ -144,7 +144,6 @@ export async function deliver(publish) {
   assert.ok(['dev', 'production'].includes(target));
   required('VERCEL_TOKEN');
   if (target === 'production') {
-    assert.equal(required('DELIVERY_ENABLED'), 'true', 'Delivery is disabled.');
     assert.equal(
       env.GITHUB_EVENT_NAME,
       'workflow_dispatch',
