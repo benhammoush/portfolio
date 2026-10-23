@@ -106,7 +106,7 @@ First-production recovery policy is accepted as described below; production
 execution remains deferred. These decisions do not authorize publication or
 deployment. Do not merge automatic dev delivery until dev configuration and
 readiness are accepted: `DELIVERY_ENABLED=false` cannot pause dev. For a dev
-maintenance pause, freeze main pushes/merges and manual CI dispatches, then let
+maintenance pause, freeze main pushes/merges, manual CI dispatches and workflow reruns, then let
 queued and active deliveries finish under the mutation lock before starting work.
 Never cancel an active mutation. Production retains its separately authorized opt-in.
 
