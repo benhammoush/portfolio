@@ -103,9 +103,12 @@ contract. Credentials must never enter Git, release metadata or evidence records
 Current owner decisions (2026-10-16): both foundation targets may be publicly
 reachable with `noindex, nofollow`; this is not authorization for public launch.
 First-production recovery policy is accepted as described below; production
-execution remains deferred. These decisions do not authorize publication,
-deployment or enablement; keep `DELIVERY_ENABLED` false until readiness is accepted
-and enablement is separately authorized.
+execution remains deferred. These decisions do not authorize publication or
+deployment. Do not merge automatic dev delivery until dev configuration and
+readiness are accepted: `DELIVERY_ENABLED=false` cannot pause dev. For a dev
+maintenance pause, freeze main pushes/merges and manual CI dispatches, then let
+queued and active deliveries finish under the mutation lock before starting work.
+Never cancel an active mutation. Production retains its separately authorized opt-in.
 
 Before remote enablement, obtain decisions/evidence for:
 
