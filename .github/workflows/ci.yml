@@ -30,10 +30,10 @@ jobs:
   # 3D/GPU suites retain their full Chromium coverage (playwright.config.ts).
   # Project settings and legacy check names are declared in .github/ci-cd.json.
   verify:
-    uses: benhammoush/ci-cd-workflows/.github/workflows/verify-web.yml@d7d0c297f0b4038e9815349fd16f79bb92d77ceb
+    uses: benhammoush/ci-cd-workflows/.github/workflows/verify-web.yml@a35aea526ca8b69d7ec27ff7952cff6af8c1bbe5
     with:
       # Shared: implementation checkout and workflow use the same immutable pin.
-      automation_sha: d7d0c297f0b4038e9815349fd16f79bb92d77ceb
+      automation_sha: a35aea526ca8b69d7ec27ff7952cff6af8c1bbe5
       # Shared: manual SHA or the exact PR/main event revision, never latest main.
       source_sha: ${{ inputs.sha || github.sha }}
       environment: dev
@@ -44,14 +44,14 @@ jobs:
   # retains delivery evidence. PRs cannot deploy; dev has no boolean opt-in.
   # Project: scripts/ci-deploy.mjs delegates to the existing delivery controller
   # for static Vercel packaging, noindex/routing/identity smoke and recovery IDs.
-  # Project: DEPLOY_ENABLED/DELIVERY_ENABLED apply only to production;
+  # Project: neither target uses a boolean deployment-enable switch;
   # this caller does not migrate remote settings or production approval.
   deploy_dev:
     needs: verify
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-    uses: benhammoush/ci-cd-workflows/.github/workflows/deploy-web.yml@d7d0c297f0b4038e9815349fd16f79bb92d77ceb
+    uses: benhammoush/ci-cd-workflows/.github/workflows/deploy-web.yml@a35aea526ca8b69d7ec27ff7952cff6af8c1bbe5
     with:
-      automation_sha: d7d0c297f0b4038e9815349fd16f79bb92d77ceb
+      automation_sha: a35aea526ca8b69d7ec27ff7952cff6af8c1bbe5
       source_sha: ${{ inputs.sha || github.sha }}
       environment: dev
       node_version: 24.21.0

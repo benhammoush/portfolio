@@ -2,7 +2,9 @@
 
 ## Versioned CI/CD entry points
 
-Automation 2.0 removes dev opt-ins when this adoption is merged to main.
+Automation 3.0 removes production deployment opt-ins; dev remains automatic.
+The verified immutable v3.0.0 release is pinned below. Delete obsolete live
+deployment flags only after this consumer adoption is merged and verified.
 
 The [shared contract](https://github.com/benhammoush/ci-cd-workflows/blob/main/docs/contract.md)
 is pinned in `.github/ci-cd.json`. `ci.yml` checks PRs/main and delivers successful
@@ -12,7 +14,7 @@ then waits for native approval. CI dispatch is the exact-SHA dev recovery path.
 These supersede older combined-workflow invocations below, not existing hosting,
 identity, human acceptance or recovery requirements.
 
-The immutable foundation pin selects v1.0.1, including bounded Ubuntu browser-host
+The current immutable foundation pin selects v3.0.0, including bounded Ubuntu browser-host
 dependency installation from the official HTTPS archive. Portfolio retains its
 locked Playwright version, browser suites and fail-closed verification gate.
 
@@ -22,9 +24,9 @@ illustrative screens and failure recovery. Specialized WebGL/camera/monitor suit
 retain their complete original Chromium coverage rather than claiming GPU parity
 across engines. Shared artifact/record integrity supplements existing routing
 and configuration smoke. `lockScope: all` preserves stricter cross-target exclusion.
-Production retains the environment switch `DEPLOY_ENABLED` and legacy repository-level
-`DELIVERY_ENABLED` compatibility fallback until a separately approved settings migration.
-Dev ignores both switches, including absent/false values. No flag or credential is changed
+Neither target uses `DEPLOY_ENABLED` or the legacy repository-level
+`DELIVERY_ENABLED` fallback; absent/false values do not skip delivery.
+Production remains manual and natively approved. No live flag or credential is changed
 here. Existing required-check names remain compatible. Historical sources without
 versioned hooks fail closed; immutable artifact recovery is separately authorized.
 PR checks do not certify live delivery, real devices or owner acceptance.
@@ -34,7 +36,7 @@ PR checks do not certify live delivery, real devices or owner acceptance.
 This is a **local implementation**, not a provisioned or operationally verified
 release mechanism. No public launch is authorized. Successful main verification
 automatically starts dev delivery; missing configuration or credentials fail closed.
-Production retains its opt-in, manual dispatch, dev evidence and native approval.
+Production retains manual dispatch, dev evidence and native approval without a boolean opt-in.
 There is no active staging target. Do not delete historical resources, revoke
 shared credentials or change other projects as part of this slice.
 
@@ -108,7 +110,7 @@ deployment. Do not merge automatic dev delivery until dev configuration and
 readiness are accepted: `DELIVERY_ENABLED=false` cannot pause dev. For a dev
 maintenance pause, freeze main pushes/merges, manual CI dispatches and workflow reruns, then let
 queued and active deliveries finish under the mutation lock before starting work.
-Never cancel an active mutation. Production retains its separately authorized opt-in.
+Never cancel an active mutation. Hold production by not dispatching it until separately authorized.
 
 Before remote enablement, obtain decisions/evidence for:
 
@@ -138,12 +140,11 @@ Before remote enablement, obtain decisions/evidence for:
 
 Repository variables (nonsecret):
 
-| Name                                      | Meaning                                                          |
-| ----------------------------------------- | ---------------------------------------------------------------- |
-| `DELIVERY_ENABLED`                        | Production-only legacy fallback; dev ignores absent/false values |
-| `DEV_PROJECT_ID`, `PRODUCTION_PROJECT_ID` | Distinct immutable `prj_` identities                             |
-| `DEV_ORIGIN`                              | Approved HTTPS shared-dev origin                                 |
-| `DEV_CONFIG_ID`                           | Reviewed dev configuration generation                            |
+| Name                                      | Meaning                               |
+| ----------------------------------------- | ------------------------------------- |
+| `DEV_PROJECT_ID`, `PRODUCTION_PROJECT_ID` | Distinct immutable `prj_` identities  |
+| `DEV_ORIGIN`                              | Approved HTTPS shared-dev origin      |
+| `DEV_CONFIG_ID`                           | Reviewed dev configuration generation |
 
 Each GitHub environment, `dev` and `production`, additionally provides:
 

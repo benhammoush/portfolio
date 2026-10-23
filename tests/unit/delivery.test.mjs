@@ -61,8 +61,8 @@ it('wires only the target deployment credential without enabling delivery', () =
   expect(workflow).toContain('needs: verify');
   expect(workflow).toContain('environment: dev');
   const config = JSON.parse(readFileSync('.github/ci-cd.json', 'utf8'));
-  expect(config.deploymentVariables).toContain('DEPLOY_ENABLED');
-  expect(config.deploymentVariables).toContain('DELIVERY_ENABLED');
+  expect(config.deploymentVariables).not.toContain('DEPLOY_ENABLED');
+  expect(config.deploymentVariables).not.toContain('DELIVERY_ENABLED');
 });
 
 describe('immutable source and safe application origin', () => {

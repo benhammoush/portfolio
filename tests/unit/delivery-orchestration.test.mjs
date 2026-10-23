@@ -296,14 +296,13 @@ it.each([undefined, 'false', 'true'])(
   },
 );
 
-it.each([undefined, 'false'])(
-  'production retains deployment opt-in %s',
+it.each([undefined, 'false', 'true'])(
+  'production ignores obsolete deployment opt-in %s',
   async (enabled) => {
     selectProduction();
     vi.stubEnv('DELIVERY_ENABLED', enabled);
-    await expect(deliver()).rejects.toThrow();
-    expect(fetch).not.toHaveBeenCalled();
-    expect(mocks.publish).not.toHaveBeenCalled();
+    await deliver();
+    expect(mocks.publish).toHaveBeenCalledTimes(1);
   },
 );
 
