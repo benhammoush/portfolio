@@ -38,11 +38,14 @@ contract. Credentials must never enter Git, release metadata or evidence records
 
 ## Mechanism
 
-- `delivery.yml` runs on protected-main pushes or manual dispatch **from main**.
-  Dispatch requires an exact full merged SHA. Both paths independently reproduce
-  the selected source and rerun the existing dependency audits and complete
-  `npm run check`; failures prevent deployment. `Foundation quality` remains the
-  existing required CI name, not a new deployment or acceptance claim.
+- `ci.yml` checks PRs and protected-main pushes; only a successful exact main
+  commit can automatically deliver dev. Its manual dispatch **from main** selects
+  an exact full merged SHA for dev revalidation/recovery. Production uses only
+  `deploy-production.yml` with an exact dev-accepted merged SHA and retained
+  successful dev-delivery evidence. Both paths run dependency audits, quality and
+  built-output browser checks before deployment. `Foundation quality` remains the
+  existing required CI name, not a deployment or acceptance claim. The superseded
+  `delivery.yml` is removed rather than retained as a competing trigger.
 - Delivery tooling is checked out from the workflow revision, separately from the
   selected application revision in `candidate/`. Old source still needs to pass
   the current hosting/identity contract; an arbitrary old commit is not guaranteed
@@ -69,18 +72,19 @@ contract. Credentials must never enter Git, release metadata or evidence records
   obtain fresh approval after diagnosing a failure. The approval is requested before
   the environment job starts; the approver must inspect the exact run inputs and
   acceptance record. Rejected runs must not be bypassed or retried as dev.
-- Per-target workflow concurrency and one shared `portfolio-delivery-mutation`
-  job lock serialize deployment jobs. Dev acceptance is reviewed manually.
+- The shared `deploy-<owner>-<repository>-all` job lock (`lockScope: all`)
+  serializes both targets, preserving stricter cross-target exclusion.
+  Dev acceptance is reviewed manually.
   Active runs are not cancelled by newer runs. GitHub may replace pending runs;
   this is not a FIFO delivery queue. Immediately before mutation, automatic dev
   runs reject a source superseded by current main. A main update after that read
   may finish the active deployment before its successor; do not cancel an active
   mutation. All future recovery jobs must use the same shared lock.
-- Only checked `dist` plus generated public `release.json` are uploaded through
-  Vercel CLI **64.2.0**, using Build Output API v3; no source/config secrets are
-  uploaded and no provider-side application build runs. The CLI is downloaded from
-  npm at runtime; its version is pinned, but its transitive tool dependencies are
-  not part of the application lockfile. Reassess tool provenance on upgrades.
+- Only checked `dist` plus generated public `release.json` are uploaded from a
+  fresh Build Output API v3 staging tree through the pinned foundation's fixed-origin
+  Vercel API transport. No source/config secrets are uploaded and no provider-side
+  application build or dynamically downloaded Vercel CLI runs. Upload and deployment
+  mutations are not retried; reassess transport provenance on foundation upgrades.
 - Both targets remain `noindex, nofollow`, including provider URLs. This is not
   access control. Filesystem-first routing serves existing files, returns errors
   for missing assets/file-like requests, and falls back to the HTML shell for app
@@ -161,7 +165,8 @@ Environment secrets:
 
 No additional GitHub personal access token is required. The built-in `GITHUB_TOKEN`
 with `contents: read` handles source ancestry/freshness checks both before candidate
-execution and during delivery. It is not used for administration readback. Keep the
+execution and during delivery; `actions: read` retrieves exact-SHA dev-delivery
+evidence. It is not used for administration readback. Keep the
 owner's broader CLI credential local; native approval policy is verified by the
 operator rather than by a token copied into Actions. The pure approval validator
 supports setup readback, not runtime controller enforcement.
@@ -191,7 +196,8 @@ evidence; fingerprints are not proof of human approval.
    dev deployment identity, walkthrough, smoke and recovery results/limitations,
    acceptance decision and reviewer. Do not publish private screenshots or raw
    operational exports in this public repository. A URL alone proves none of this.
-5. Dispatch production from main with the exact dev-accepted `sha`.
+5. Dispatch **Deploy production** (`deploy-production.yml`) from main with the
+   exact dev-accepted `sha`; retained successful dev-delivery evidence must match.
    The native approver must review the record's actual contents and current dev
    identity. Reject incomplete/mismatched acceptance; the workflow cannot determine
    whether an arbitrary evidence record is truthful or approved.

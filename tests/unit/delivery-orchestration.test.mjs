@@ -11,6 +11,7 @@ const mocks = vi.hoisted(() => ({
   write: vi.fn(),
   copy: vi.fn(),
   publish: vi.fn(),
+  remove: vi.fn(),
 }));
 vi.mock('node:child_process', () => ({ execFileSync: mocks.exec }));
 vi.mock('node:fs', () => ({
@@ -19,7 +20,7 @@ vi.mock('node:fs', () => ({
   cpSync: mocks.copy,
   mkdirSync: vi.fn(),
   mkdtempSync: vi.fn(() => 'trusted-staging'),
-  rmSync: vi.fn(),
+  rmSync: mocks.remove,
   readFileSync: vi.fn(() => JSON.stringify({ version: '0.1.0' })),
 }));
 import { deliver as runDelivery } from '../../scripts/delivery.mjs';
@@ -234,7 +235,57 @@ it('records prior identity before exactly one dev mutation and completes read-on
   expect(mocks.summary.mock.calls[0][1]).toContain('dpl_accepted');
   expect(mocks.summary.mock.calls[0][1]).not.toContain('readiness');
   expect(mocks.summary.mock.calls.at(-1)[1]).toContain('HTTP smoke passed');
+  expect(mocks.remove).toHaveBeenCalledWith('trusted-staging', {
+    recursive: true,
+    force: true,
+  });
 });
+
+it.each([false, true])(
+  'records shared delivery evidence when hosted smoke fails=%s',
+  async (badAsset) => {
+    vi.stubEnv('CI_CANDIDATE_ROOT', 'candidate');
+    const build = {
+      sourceSha: source,
+      environment: 'dev',
+      artifactDigest: 'artifact-digest',
+    };
+    const { readFileSync } = await import('node:fs');
+    readFileSync.mockImplementation((path) =>
+      JSON.stringify(path === 'ci-build.json' ? build : { version: '0.1.0' }),
+    );
+    state.badAsset = badAsset;
+    try {
+      if (badAsset)
+        await expect(deliver()).rejects.toThrow('Hosted route failed');
+      else await deliver();
+      const records = mocks.write.mock.calls
+        .filter(([path]) => path === 'delivery-record.json')
+        .map(([, contents]) => JSON.parse(contents));
+      expect(records.map(({ status }) => status)).toEqual([
+        'mutation-requested',
+        'verification-pending',
+        ...(badAsset ? [] : ['smoke-verified-not-user-accepted']),
+      ]);
+      expect(records.at(-1)).toMatchObject({
+        schemaVersion: 1,
+        ...build,
+        configurationDigest: state.identity.configuration,
+        workflowRunId: '12',
+        deploymentId: 'dpl_new',
+        previousDeploymentId: 'dpl_accepted',
+      });
+      expect(mocks.remove).toHaveBeenCalledWith('trusted-staging', {
+        recursive: true,
+        force: true,
+      });
+    } finally {
+      readFileSync.mockImplementation(() =>
+        JSON.stringify({ version: '0.1.0' }),
+      );
+    }
+  },
+);
 
 it('does not mutate on disabled delivery, non-main execution, unmerged or superseded source', async () => {
   for (const [name, value] of [
@@ -323,6 +374,10 @@ it('retains recovery checkpoints and never retries after hosted smoke fails', as
   state.badAsset = true;
   await expect(deliver()).rejects.toThrow('Hosted route failed');
   expect(mocks.publish.mock.calls).toHaveLength(1);
+  expect(mocks.remove).toHaveBeenCalledWith('trusted-staging', {
+    recursive: true,
+    force: true,
+  });
   expect(
     mocks.summary.mock.calls.some(([, text]) =>
       text.includes('Deployment created'),
