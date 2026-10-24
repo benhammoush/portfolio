@@ -279,8 +279,9 @@ deployment is authorized by this slice.
 
 The local `/design` route presents the proposed hub/Iris architectural gallery as
 original static vector artwork, not live 3D. It is a review-only addition to the
-0.2.0 local candidate, not a launch route or another shipped version. See
-[art direction](../docs/design-direction.md). Stop for owner visual feedback before
+0.2.0 local candidate, not a launch route or another shipped version. Its retained
+[static study](../src/design/DesignPage.tsx) is not the current desk-scene direction.
+Stop for owner visual feedback before
 installing world dependencies or treating this proposal as the accepted prototype.
 Actual WebGL fallback/lifecycle behavior and measured performance remain unverified.
 
