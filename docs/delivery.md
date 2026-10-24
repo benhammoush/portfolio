@@ -2,9 +2,20 @@
 
 ## Versioned CI/CD entry points
 
-Automation 3.0 removes production deployment opt-ins; dev remains automatic.
-The verified immutable v3.0.0 release is pinned below. Delete obsolete live
-deployment flags only after this consumer adoption is merged and verified.
+Automation 4.0 retains flag-free delivery and adds consistent job names and weekly
+vulnerability audits. The published immutable shared revision is pinned in
+`.github/ci-cd.json`; source adoption does not change live settings.
+
+Prepared job naming replaces the old verification aliases with standalone `Verify`.
+Existing required-check settings below remain live until the owner approves the
+[coordinated check-name migration](https://github.com/benhammoush/ci-cd-workflows/blob/main/docs/contract.md#canonical-job-names-and-required-check-migration).
+Do not merge the naming change under unchanged protections. Workflow comments are
+limited to two header lines; this runbook and the shared contract own the detail.
+
+The `.github/workflows/weekly-vuln-audit.yml` caller uses the same published shared
+SHA as release workflows and runs weekly or manually after adoption on main.
+It checks vulnerabilities without updating dependencies or deploying. See the
+[shared audit contract](https://github.com/benhammoush/ci-cd-workflows/blob/64b5e00a3d2895a8cba05b040f0d5a0415613d9e/docs/contract.md#weekly-vulnerability-audits).
 
 The [shared contract](https://github.com/benhammoush/ci-cd-workflows/blob/main/docs/contract.md)
 is pinned in `.github/ci-cd.json`. `ci.yml` checks PRs/main and delivers successful
@@ -14,7 +25,7 @@ then waits for native approval. CI dispatch is the exact-SHA dev recovery path.
 These supersede older combined-workflow invocations below, not existing hosting,
 identity, human acceptance or recovery requirements.
 
-The current immutable foundation pin selects v3.0.0, including bounded Ubuntu browser-host
+The current immutable foundation pin selects v4.0.0, including bounded Ubuntu browser-host
 dependency installation from the official HTTPS archive. Portfolio retains its
 locked Playwright version, browser suites and fail-closed verification gate.
 
@@ -51,8 +62,9 @@ contract. Credentials must never enter Git, release metadata or evidence records
   an exact full merged SHA for dev revalidation/recovery. Production uses only
   `deploy-production.yml` with an exact dev-accepted merged SHA and retained
   successful dev-delivery evidence. Both paths run dependency audits, quality and
-  built-output browser checks before deployment. `Foundation quality` remains the
-  existing required CI name, not a deployment or acceptance claim. The superseded
+  built-output browser checks before deployment. Standalone `Verify` replaces the
+  old required CI alias through coordinated settings migration; it is not an
+  acceptance claim. The superseded
   `delivery.yml` is removed rather than retained as a competing trigger.
 - Delivery tooling is checked out from the workflow revision, separately from the
   selected application revision in `candidate/`. Old source still needs to pass
@@ -118,7 +130,7 @@ Before remote enablement, obtain decisions/evidence for:
    Decide whether dev is authenticated or public-but-unlisted; noindex alone does
    not make drafts private. Confirm production hosting of the foundation is allowed
    without treating it as public launch. Test provider URL protection too.
-2. Actual protected-main `Foundation quality` check, agreed review count/bypass
+2. Actual protected-main `Verify` and `CodeRabbit` checks, agreed review count/bypass
    policy, force-push/deletion controls and provider access isolation. Do not assume
    these from YAML or an old CI run. Main/environment governance and other provider
    writers are prerequisite evidence reviewed by humans, not enforced by controller
