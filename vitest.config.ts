@@ -8,7 +8,7 @@ export default defineConfig({
   oxc: { jsx: { runtime: 'automatic' } },
   test: {
     environment: 'jsdom',
-    include: ['tests/unit/**/*.test.{ts,tsx,mjs}'],
+    include: ['tests/{unit,tooling}/**/*.test.{ts,tsx,mjs}'],
     setupFiles: ['tests/setup.ts'],
     clearMocks: true,
   },
