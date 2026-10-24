@@ -38,7 +38,8 @@ and configuration smoke. `lockScope: all` preserves stricter cross-target exclus
 Neither target uses `DEPLOY_ENABLED` or the legacy repository-level
 `DELIVERY_ENABLED` fallback; absent/false values do not skip delivery.
 Production remains manual and natively approved. No live flag or credential is changed
-here. Existing required-check names remain compatible. Historical sources without
+here. Required-check names must follow the coordinated migration described above.
+Historical sources without
 versioned hooks fail closed; immutable artifact recovery is separately authorized.
 PR checks do not certify live delivery, real devices or owner acceptance.
 
