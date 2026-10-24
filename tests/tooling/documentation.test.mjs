@@ -172,7 +172,7 @@ test.each([
 });
 
 test.each([
-  'src/content/project-schema.ts',
+  'src/world/section-copy.ts',
   'tests/setup.ts',
   'scripts/check-version.mjs',
   'eslint.config.mjs',
