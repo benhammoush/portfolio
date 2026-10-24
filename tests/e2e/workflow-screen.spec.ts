@@ -3,14 +3,11 @@
  * @packageDocumentation
  */
 import { expect, test } from '@playwright/test';
+import { collectEngineRequests } from './support/engineRequests';
 
 for (const width of [320, 1440]) {
   test(`Workflow screen concept is usable at ${width}px`, async ({ page }) => {
-    const engines: string[] = [];
-    page.on('request', (request) => {
-      if (/WorldCanvas|\.glb|draco_/.test(request.url()))
-        engines.push(request.url());
-    });
+    const engines = collectEngineRequests(page);
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/screen-study/workflow');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(

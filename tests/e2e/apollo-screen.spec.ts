@@ -3,18 +3,17 @@
  * @packageDocumentation
  */
 import { expect, test } from '@playwright/test';
+import { collectEngineRequests } from './support/engineRequests';
 
 for (const width of [320, 1440]) {
   test(`Apollo artwork is clearly illustrative and usable at ${width}px`, async ({
     page,
   }) => {
     const external: string[] = [];
-    const engines: string[] = [];
+    const engines = collectEngineRequests(page);
     page.on('request', (request) => {
       if (!request.url().startsWith('http://127.0.0.1:3100/'))
         external.push(request.url());
-      if (/WorldCanvas|\.glb|draco_/.test(request.url()))
-        engines.push(request.url());
     });
     await page.setViewportSize({ width, height: 900 });
     await page.emulateMedia({ reducedMotion: 'reduce' });
