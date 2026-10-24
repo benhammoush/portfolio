@@ -6,7 +6,6 @@ import { expect, test } from 'vitest';
 import {
   CHAPTERS,
   chapterProgress,
-  cameraProgress,
   interpolateAxis,
 } from '../../src/world/chapters';
 
@@ -15,15 +14,6 @@ test('normalizes chapter positions and clamps either end', () => {
   expect(chapterProgress(100, 100, 500)).toBe(0);
   expect(chapterProgress(300, 100, 500)).toBe(0.5);
   expect(chapterProgress(700, 100, 500)).toBe(1);
-});
-
-test('camera travel begins on the first scroll when the gallery opens in view', () => {
-  expect(cameraProgress(0, 470, 1230, 900)).toBe(0);
-  expect(cameraProgress(100, 470, 1230, 900)).toBeGreaterThan(0);
-  expect(cameraProgress(1110, 470, 1230, 900)).toBe(1);
-  expect(cameraProgress(1109.4, 470, 1230.2, 900)).toBe(1);
-  expect(cameraProgress(1108.9, 470, 1230.2, 900)).toBeLessThan(1);
-  expect(cameraProgress(100, 470, 1230, 0)).toBe(0);
 });
 
 test('rejects degenerate or nonfinite layout positions', () => {

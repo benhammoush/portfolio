@@ -56,29 +56,6 @@ export function chapterProgress(
 }
 
 /**
- * Begin camera travel as the gallery enters the opening viewport, not only after
- * the reader has scrolled past the introduction. Keep native anchor end framing.
- * @param scroll - Current document scroll offset in CSS pixels.
- * @param hubTop - First chapter's document top in CSS pixels.
- * @param irisTop - Second chapter's document top in CSS pixels.
- * @param viewportHeight - Visible viewport height in CSS pixels.
- * @returns Clamped camera progress with an earlier, viewport-relative start.
- */
-export function cameraProgress(
-  scroll: number,
-  hubTop: number,
-  irisTop: number,
-  viewportHeight: number,
-): number {
-  if (!Number.isFinite(viewportHeight) || viewportHeight <= 0) return 0;
-  const start = Math.max(0, hubTop - viewportHeight * 0.65);
-  const end = irisTop - 120;
-  // Native fragment scrolling can round a fractional CSS-pixel target. Normalize
-  // that final pixel to its exact pose rather than leaving the chapter almost at rest.
-  return chapterProgress(scroll >= end - 1 ? end : scroll, start, end);
-}
-
-/**
  * Interpolate a camera point without allocations in the render loop.
  * @param start - The wide hub pose.
  * @param end - The closer Iris pose.
