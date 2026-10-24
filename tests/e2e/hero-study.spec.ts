@@ -3,6 +3,7 @@
  * @packageDocumentation
  */
 import { expect, test } from '@playwright/test';
+import { collectEngineRequests } from './support/engineRequests';
 
 for (const path of ['/hero-study', '/hero-study/immersive']) {
   for (const viewport of [
@@ -16,12 +17,7 @@ for (const path of ['/hero-study', '/hero-study/immersive']) {
     test(`${path} is readable and engine-free at ${viewport.width}px`, async ({
       page,
     }) => {
-      const engineRequests: string[] = [];
-      page.on('request', (request) => {
-        if (/WorldCanvas|\.glb|draco_/.test(request.url())) {
-          engineRequests.push(request.url());
-        }
-      });
+      const engineRequests = collectEngineRequests(page);
       await page.setViewportSize(viewport);
       await page.emulateMedia({ reducedMotion: 'reduce' });
       await page.goto(path);

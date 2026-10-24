@@ -3,6 +3,7 @@
  * @packageDocumentation
  */
 import { expect, test } from '@playwright/test';
+import { collectEngineRequests } from './support/engineRequests';
 
 for (const study of [
   {
@@ -28,11 +29,7 @@ for (const study of [
     test(`${study.label} keeps content primary at ${width}px without loading 3D`, async ({
       page,
     }) => {
-      const engineRequests: string[] = [];
-      page.on('request', (request) => {
-        if (/WorldCanvas|\.glb|draco_/.test(request.url()))
-          engineRequests.push(request.url());
-      });
+      const engineRequests = collectEngineRequests(page);
       await page.setViewportSize({ width, height: 900 });
       await page.emulateMedia({ reducedMotion: 'reduce' });
       await page.goto(study.path);
