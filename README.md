@@ -1,22 +1,32 @@
 # Portfolio
 
-A personal portfolio with an animated 3D desk scene, readable project stories and
-standalone design studies.
+A personal portfolio presenting projects through readable stories and an animated
+3D desk scene. The experience is a work in progress; its content remains available
+without WebGL. JavaScript is required.
 
-Work in progress. The 3D experience is optional; text remains available without
-WebGL. JavaScript is required.
+## Tech stack
 
-## Tech stack and system design
+| Layer                 | Technology                           |
+| --------------------- | ------------------------------------ |
+| Interface and routing | React, TypeScript, React Router      |
+| 3D rendering          | Three.js, React Three Fiber          |
+| Models                | Local GLB assets and Draco decoding  |
+| Build                 | Vite, with static output for hosting |
+| Testing               | Vitest, Testing Library, Playwright  |
 
-| Layer                 | Tools                                                            |
-| --------------------- | ---------------------------------------------------------------- |
-| Interface and routing | React, TypeScript, React Router                                  |
-| 3D rendering          | Three.js, React Three Fiber, local GLB models and Draco decoding |
-| Build                 | Vite, with static output for hosting                             |
-| Testing               | Vitest, Testing Library, Playwright                              |
+## Features
+
+- Explore project stories and profile information through HTML content.
+- Navigate an optional 3D workspace with project displays.
+- Browse standalone visual and scene studies.
+- Read the same core content when 3D is disabled, loading or unavailable.
+
+## Boundaries and integration
 
 The application runs entirely in the browser, with no application backend or
-database. React renders the content and navigation as HTML; the optional 3D
-renderer loads separately. Models, artwork and decoders are served locally with
-the site. Static alternatives keep the content usable when 3D is disabled,
-loading or unavailable.
+database. React handles content and navigation; the optional 3D renderer loads
+separately. Models, artwork and decoders are served locally with the site.
+
+Project displays illustrate the work rather than acting as live integrations
+with those products. Static alternatives preserve access to content when the
+3D experience is unavailable.
