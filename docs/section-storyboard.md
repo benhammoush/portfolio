@@ -8,9 +8,12 @@ Exception: [the exact Apollo section wording is now approved](approved-section-c
 It supersedes the candidate Apollo headline/copy direction below, not media gates or
 other section drafts.
 
-Next review artifact: [selected evidence anchors and entry/reading/exit frames](section-frames.md),
-with a [layout contact sheet](section-frames.svg). Source inspection grounds the
-proposed journeys; no actual UI capture or Apollo excerpt has been approved by that step.
+The earlier entry/reading/exit frame proposal and its contact sheet are superseded
+by [approved section copy](approved-section-copy.md) and the
+[current world composition](world-prototype.md). They did not approve actual UI
+captures or an Apollo excerpt. Any future product capture still needs an approved
+sanitized source, original product colors, required attribution and an honest
+fixture label; it is not evidence of live balances or payment acceptance.
 
 ## Narrative and composition contract
 
