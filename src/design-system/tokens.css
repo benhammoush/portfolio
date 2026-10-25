@@ -1,0 +1,23 @@
+/* Shared profile UI; independent studies and 3D artwork retain scoped palettes. */
+:root {
+  --ink: #202b33;
+  --muted: #52616b;
+  --accent: #17574e;
+  --surface: #f3f5f4;
+  --line: #dce2df;
+  --radius: 1.25rem;
+  --color-background: #fcfcfa;
+  --color-card: white;
+  --color-on-accent: white;
+  --font-body: system-ui, sans-serif;
+  --font-size-caption: 0.8rem;
+  --font-size-detail: 0.85rem;
+  --font-size-heading-sm: 1.4rem;
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
+  --radius-control: 0.5rem;
+  --shadow-card: 0 8px 24px #202b3306;
+}
