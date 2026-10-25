@@ -182,8 +182,6 @@ test.each([
 
 test.each([
   'dist/generated.ts',
-  '.next/generated.ts',
-  'next-env.d.ts',
   'coverage/generated.ts',
   'test-results/generated.ts',
   'playwright-report/generated.ts',

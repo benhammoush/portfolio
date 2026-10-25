@@ -45,14 +45,12 @@ const config = defineConfig(
     // Only generated output is excluded; tests and tooling remain documented.
     ignores: [
       'node_modules/**',
-      '.next/**',
       'dist/**',
       'out/**',
       'build/**',
       'coverage/**',
       'playwright-report/**',
       'test-results/**',
-      'next-env.d.ts',
     ],
   },
   js.configs.recommended,
