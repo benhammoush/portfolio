@@ -1,13 +1,10 @@
 node_modules/
-# Legacy ignored Next.js output is left alone during migration; it is not source.
-.next/
 dist/
 out/
 build/
 coverage/
 playwright-report/
 test-results/
-next-env.d.ts
 *.tsbuildinfo
 .env*
 *.log

@@ -15,6 +15,7 @@ test('the full gate builds once and retains every quality/browser stage', () => 
   for (const command of [
     'npm run format:check',
     'npm run lint',
+    'npm run audit:dependencies',
     'npm test',
     'npm run build',
     'npm run test:e2e',
