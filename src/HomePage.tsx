@@ -4,6 +4,7 @@
  */
 import { useEffect } from 'react';
 import { APP_VERSION } from './appVersion';
+import { Card } from './design-system';
 
 /**
  * Present the approved profile with native section navigation and email contact.
@@ -89,30 +90,30 @@ export default function HomePage() {
           <p className="eyebrow">02 / Expertise</p>
           <h2 id="expertise-title">From interface to infrastructure.</h2>
           <div className="capability-grid">
-            <article className="card">
+            <Card>
               <h3>Interfaces</h3>
               <p>
                 React and TypeScript interfaces, data-heavy dashboards and
                 real-time integrations.
               </p>
               <p className="card-detail">React / TypeScript / WebSockets</p>
-            </article>
-            <article className="card">
+            </Card>
+            <Card>
               <h3>APIs & processing</h3>
               <p>
                 REST APIs, background workers, third-party integrations and job
                 orchestration.
               </p>
               <p className="card-detail">Python / FastAPI / REST APIs</p>
-            </article>
-            <article className="card">
+            </Card>
+            <Card>
               <h3>Delivery foundations</h3>
               <p>
                 Application infrastructure and source control across Linux and
                 Windows environments.
               </p>
               <p className="card-detail">AWS EC2 / Nginx / IIS / Git</p>
-            </article>
+            </Card>
           </div>
         </section>
         <section

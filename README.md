@@ -23,6 +23,9 @@ without WebGL. JavaScript is required.
 
 ## Boundaries and integration
 
+Shared profile styling and reusable UI are documented in the
+[portfolio design system](src/design-system/README.md).
+
 The application runs entirely in the browser, with no application backend or
 database. React handles content and navigation; the optional 3D renderer loads
 separately. Models, artwork and decoders are served locally with the site.
