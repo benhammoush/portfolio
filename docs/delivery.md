@@ -2,30 +2,36 @@
 
 ## Versioned CI/CD entry points
 
-Automation 4.0 retains flag-free delivery and adds consistent job names and weekly
-vulnerability audits. The published immutable shared revision is pinned in
+Automation 5.0 separates PR verification, dev delivery and production delivery
+with distinct job names, retaining flag-free delivery and weekly vulnerability
+audits. The published immutable shared revision is pinned in
 `.github/ci-cd.json`; source adoption does not change live settings.
 
-Prepared job naming replaces the old verification aliases with standalone `Verify`.
-Existing required-check settings below remain live until the owner approves the
-[coordinated check-name migration](https://github.com/benhammoush/ci-cd-workflows/blob/main/docs/contract.md#canonical-job-names-and-required-check-migration).
-Do not merge the naming change under unchanged protections. Workflow comments are
-limited to two header lines; this runbook and the shared contract own the detail.
+The standalone PR `Verify` result preserves the existing required-check context;
+the older check-name migration below is historical. No protection change is
+needed for this workflow split. Workflow comments are limited to two header lines;
+this runbook and the shared contract own the detail.
 
 The `.github/workflows/weekly-vuln-audit.yml` caller uses the same published shared
 SHA as release workflows and runs weekly or manually after adoption on main.
 It checks vulnerabilities without updating dependencies or deploying. See the
-[shared audit contract](https://github.com/benhammoush/ci-cd-workflows/blob/64b5e00a3d2895a8cba05b040f0d5a0415613d9e/docs/contract.md#weekly-vulnerability-audits).
+[shared audit contract](https://github.com/benhammoush/ci-cd-workflows/blob/d1143395dc6a078ef284978c1daf039ed06ff7d1/docs/contract.md#weekly-vulnerability-audits).
 
 The [shared contract](https://github.com/benhammoush/ci-cd-workflows/blob/main/docs/contract.md)
-is pinned in `.github/ci-cd.json`. `ci.yml` checks PRs/main and delivers successful
-exact main commits to dev without an opt-in switch. Manual `deploy-production.yml` selects a full
+is pinned in `.github/ci-cd.json`. `verify-pr.yml` checks PR creation, updates and
+reopening without deployment jobs or secrets. `verify-and-deploy-dev.yml` verifies
+main pushes and delivers successful exact main commits to dev without an opt-in
+switch. Manual `verify-and-deploy-prod.yml` selects a full
 merged `sha`, requires retained successful dev evidence, verifies the candidate,
-then waits for native approval. CI dispatch is the exact-SHA dev recovery path.
+then waits for native approval. Dev-workflow dispatch is the exact-SHA recovery path.
 These supersede older combined-workflow invocations below, not existing hosting,
 identity, human acceptance or recovery requirements.
 
-The current immutable foundation pin selects v4.0.0, including bounded Ubuntu browser-host
+All three entry points, the weekly audit and `.github/ci-cd.json` pin published
+shared revision `d1143395dc6a078ef284978c1daf039ed06ff7d1` (automation 5.0).
+Publication does not authorize a merge, deployment or production approval.
+
+The current immutable foundation pin selects v5.0.0, including bounded Ubuntu browser-host
 dependency installation from the official HTTPS archive. Portfolio retains its
 locked Playwright version, browser suites and fail-closed verification gate.
 
@@ -58,10 +64,11 @@ contract. Credentials must never enter Git, release metadata or evidence records
 
 ## Mechanism
 
-- `ci.yml` checks PRs and protected-main pushes; only a successful exact main
+- `verify-pr.yml` checks PRs; `verify-and-deploy-dev.yml` checks protected-main pushes.
+  Only a successful exact main
   commit can automatically deliver dev. Its manual dispatch **from main** selects
   an exact full merged SHA for dev revalidation/recovery. Production uses only
-  `deploy-production.yml` with an exact dev-accepted merged SHA and retained
+  `verify-and-deploy-prod.yml` with an exact dev-accepted merged SHA and retained
   successful dev-delivery evidence. Both paths run dependency audits, quality and
   built-output browser checks before deployment. Standalone `Verify` replaces the
   old required CI alias through coordinated settings migration; it is not an
@@ -219,7 +226,7 @@ evidence; fingerprints are not proof of human approval.
    dev deployment identity, walkthrough, smoke and recovery results/limitations,
    acceptance decision and reviewer. Do not publish private screenshots or raw
    operational exports in this public repository. A URL alone proves none of this.
-5. Dispatch **Deploy production** (`deploy-production.yml`) from main with the
+5. Dispatch **Verify and deploy to prod** (`verify-and-deploy-prod.yml`) from main with the
    exact dev-accepted `sha`; retained successful dev-delivery evidence must match.
    The native approver must review the record's actual contents and current dev
    identity. Reject incomplete/mismatched acceptance; the workflow cannot determine
