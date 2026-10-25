@@ -201,19 +201,19 @@ test('camera framing follows the CSS breakpoint despite the scrollbar width', as
   await page.setViewportSize({ width: 768, height: 900 });
   await page.goto('/');
   const canvas = page.locator('canvas[data-intro-ready="true"]');
-  expect(
-    Number(await canvas.getAttribute('data-camera-offset-y')),
-  ).toBeLessThan(0);
+  await expect
+    .poll(async () => Number(await canvas.getAttribute('data-camera-offset-y')))
+    .toBeLessThan(0);
   await page.setViewportSize({ width: 767, height: 900 });
   await expect(page.locator('canvas')).toHaveCount(0);
   await page.getByRole('button', { name: 'View stationary 3D' }).click();
-  expect(
-    Number(await canvas.getAttribute('data-camera-offset-y')),
-  ).toBeLessThan(0);
+  await expect
+    .poll(async () => Number(await canvas.getAttribute('data-camera-offset-y')))
+    .toBeLessThan(0);
   await page.setViewportSize({ width: 1920, height: 600 });
-  expect(
-    Number(await canvas.getAttribute('data-camera-offset-y')),
-  ).toBeLessThan(0);
+  await expect
+    .poll(async () => Number(await canvas.getAttribute('data-camera-offset-y')))
+    .toBeLessThan(0);
 });
 
 test('lost context unmounts WebGL and preserves chapter content', async ({
