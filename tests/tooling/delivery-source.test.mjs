@@ -91,7 +91,7 @@ it('rejects invalid inputs and unavailable GitHub evidence', async () => {
 
 it('delegates ancestry and candidate verification to the immutable shared guard before deployment', () => {
   const workflow = readFileSync(
-    '.github/workflows/deploy-production.yml',
+    '.github/workflows/verify-and-deploy-prod.yml',
     'utf8',
   );
   expect(workflow).toMatch(

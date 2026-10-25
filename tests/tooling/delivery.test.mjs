@@ -52,7 +52,10 @@ const deployment = {
 };
 
 it('wires only the target deployment credential without enabling delivery', () => {
-  const workflow = readFileSync('.github/workflows/ci.yml', 'utf8');
+  const workflow = readFileSync(
+    '.github/workflows/verify-and-deploy-dev.yml',
+    'utf8',
+  );
   expect(workflow).toContain('VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}');
   expect(workflow).not.toContain('DEV_VERCEL_TOKEN');
   expect(workflow).not.toContain('DEV_SMOKE_BYPASS');
