@@ -28,11 +28,12 @@ for (const chapter of ['iris', 'gateway', 'dripperz'] as const) {
       /<script|<foreignObject|(?:href|src)=["']https?:|0x[0-9a-fA-F]{40}/,
     );
     const drawImage = vi.fn();
+    const strokeRect = vi.fn();
     const context = {
       drawImage,
       fillRect: vi.fn(),
       fillText: vi.fn(),
-      strokeRect: vi.fn(),
+      strokeRect,
     } as unknown as CanvasRenderingContext2D;
     drawProjectTexture(context, new Image(), chapter, 1.8);
     expect(drawImage).toHaveBeenCalled();
@@ -41,6 +42,6 @@ for (const chapter of ['iris', 'gateway', 'dripperz'] as const) {
       expect(args[5] + args[7]).toBeLessThanOrEqual(1040);
       expect(args[6] + args[8]).toBeLessThanOrEqual(464);
     }
-    expect(context.strokeRect).not.toHaveBeenCalled();
+    expect(strokeRect).not.toHaveBeenCalled();
   });
 }

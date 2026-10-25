@@ -91,9 +91,9 @@ export function useSectionNavigation() {
       const bottom =
         content.getBoundingClientRect().bottom + scrollY - innerHeight;
       const reading =
-        step > 0 ? scrollY < bottom - 2 : scrollY > positions[index]! + 2;
+        step > 0 ? scrollY < bottom - 2 : scrollY > positions[index] + 2;
       if (destination === null && reading) {
-        const limit = step > 0 ? bottom : positions[index]!;
+        const limit = step > 0 ? bottom : positions[index];
         const pixels =
           event.deltaY *
           (event.deltaMode === 1
@@ -113,7 +113,7 @@ export function useSectionNavigation() {
       if (destination !== null) index = destination;
       const next = Math.max(0, Math.min(sections.length - 1, index + step));
       if (next === index) return;
-      const target = positions[next]!;
+      const target = positions[next];
       if (Math.abs(target - scrollY) <= 2) {
         clearDestination();
         return;

@@ -30,19 +30,19 @@ test('the full-screen tour reaches physical landmarks behind the reading surface
     await page
       .locator('#' + id)
       .evaluate((e) => e.scrollIntoView({ behavior: 'instant' }));
-    await expect(canvas).toHaveAttribute('data-reading-section', id!);
+    await expect(canvas).toHaveAttribute('data-reading-section', id);
     // Compare numerically: hero-to-route arithmetic can leave sub-ULP differences.
     for (const [attribute, expected] of [
-      ['data-camera-pose', eye!],
-      ['data-camera-target', target!],
+      ['data-camera-pose', eye],
+      ['data-camera-target', target],
     ]) {
       await expect
         .poll(async () =>
           Math.max(
-            ...(await canvas.getAttribute(attribute!))!
+            ...(await canvas.getAttribute(attribute))!
               .split(',')
               .map((value, axis) =>
-                Math.abs(Number(value) - Number(expected!.split(',')[axis])),
+                Math.abs(Number(value) - Number(expected.split(',')[axis])),
               ),
           ),
         )
@@ -80,7 +80,7 @@ test('the full-screen tour reaches physical landmarks behind the reading surface
       // Verify rendered geometry, not just canvas bounds: a former opaque-header
       // compositor interaction blanked the bottom strip of the actual scene.
       expect(
-        Math.max(...corner.map((v, i) => Math.abs(v - [240, 243, 239][i]!))),
+        Math.max(...corner.map((v, i) => Math.abs(v - [240, 243, 239][i]))),
       ).toBeGreaterThan(30);
     }
   }

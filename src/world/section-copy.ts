@@ -34,12 +34,12 @@ const identities: Record<string, string> = {
 export const SECTION_COPY: CopySection[] = approvedCopy
   .split(/^## /m)
   .slice(1)
-  .filter((section) => section.split('\n')[0]!.trim() in identities)
+  .filter((section) => section.split('\n')[0].trim() in identities)
   .map((section) => {
     const [label, ...lines] = section.trim().split('\n');
     return {
-      id: identities[label!]!,
-      label: label!,
+      id: identities[label],
+      label,
       blocks: lines
         .join('\n')
         .trim()

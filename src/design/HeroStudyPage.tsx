@@ -19,7 +19,7 @@ interface HeroStudyProps {
  */
 export default function HeroStudyPage(props: HeroStudyProps) {
   const direction = props.direction;
-  const introduction = SECTION_COPY[0]!;
+  const introduction = SECTION_COPY[0];
 
   return (
     <div className={`hero-study hero-study--${direction}`}>
@@ -65,9 +65,9 @@ export default function HeroStudyPage(props: HeroStudyProps) {
           aria-labelledby="hero-study-title"
         >
           <div className="hero-study-copy">
-            <h1 id="hero-study-title">{introduction.blocks[0]!.text}</h1>
+            <h1 id="hero-study-title">{introduction.blocks[0].text}</h1>
             <p className="hero-study-description">
-              {introduction.blocks[1]!.text}
+              {introduction.blocks[1].text}
             </p>
             <div className="hero-study-actions">
               <a className="hero-study-primary" href="/#world-apollo">

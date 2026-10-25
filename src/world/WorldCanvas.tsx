@@ -118,7 +118,7 @@ function ScrollCamera(props: WorldCanvasProps) {
 
   useFrame(({ camera, size }, delta) => {
     if (!active.current) return;
-    const first = CHAPTERS[0]!;
+    const first = CHAPTERS[0];
     const hub = document.getElementById(first.id);
     if (!hub) return;
     // Preserve the accepted hero before entering the physical landmark route.
@@ -173,11 +173,11 @@ function ScrollCamera(props: WorldCanvasProps) {
     const last = {
       position: reading.position.map(
         (value, axis) =>
-          value + (WORKFLOW_POSE.position[axis]! - value) * inspection.current,
+          value + (WORKFLOW_POSE.position[axis] - value) * inspection.current,
       ) as [number, number, number],
       target: reading.target.map(
         (value, axis) =>
-          value + (WORKFLOW_POSE.target[axis]! - value) * inspection.current,
+          value + (WORKFLOW_POSE.target[axis] - value) * inspection.current,
       ) as [number, number, number],
     };
     const horizontalOffset =
@@ -306,7 +306,7 @@ export default function WorldCanvas(props: WorldCanvasProps) {
   const model = useLoader(GLTFLoader, sceneUrl, configureIntroLoader);
   return (
     <Canvas
-      camera={{ position: CHAPTERS[0]!.position, fov: 28, near: 0.1, far: 300 }}
+      camera={{ position: CHAPTERS[0].position, fov: 28, near: 0.1, far: 300 }}
       // Do not force four physical pixels per CSS pixel for continuous desk motion.
       dpr={[1, 1.5]}
       frameloop="demand"

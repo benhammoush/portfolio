@@ -210,7 +210,7 @@ test('texture uploads stay capped when camera invalidations exceed 20 Hz', () =>
   }
   expect(paints.length).toBeLessThanOrEqual(21);
   for (let index = 1; index < paints.length; index += 1)
-    expect(paints[index]! - paints[index - 1]!).toBeGreaterThanOrEqual(50);
+    expect(paints[index] - paints[index - 1]).toBeGreaterThanOrEqual(50);
   expect(shouldPaintWorkflow(49, 0)).toBe(false);
   expect(shouldPaintWorkflow(50, 0)).toBe(true);
   expect(shouldPaintWorkflow(NaN, 0)).toBe(false);

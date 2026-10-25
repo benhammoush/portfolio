@@ -97,12 +97,12 @@ const PAGE_ANCHORS = [
  * @returns An accessible rail of section links with the current anchor marked.
  */
 function SectionAnchorRail() {
-  const [active, setActive] = useState(PAGE_ANCHORS[0]!.id);
+  const [active, setActive] = useState(PAGE_ANCHORS[0].id);
   useEffect(() => {
     /** Mark the last chapter whose anchor has entered the upper reading area. */
     function updateActiveAnchor() {
       const threshold = window.scrollY + window.innerHeight * 0.35;
-      let current = PAGE_ANCHORS[0]!.id;
+      let current = PAGE_ANCHORS[0].id;
       for (const anchor of PAGE_ANCHORS) {
         const section = document.getElementById(anchor.id);
         if (
@@ -198,7 +198,7 @@ export default function WorldPage() {
       window.removeEventListener('resize', updateReadingBackdrop);
     };
   }, []);
-  const introduction = SECTION_COPY[0]!;
+  const introduction = SECTION_COPY[0];
   const projects = SECTION_COPY.slice(2);
 
   return (
@@ -230,8 +230,8 @@ export default function WorldPage() {
           aria-labelledby="world-title"
         >
           <div className="world-section-inner">
-            <h1 id="world-title">{introduction.blocks[0]!.text}</h1>
-            <p className="world-intro-detail">{introduction.blocks[1]!.text}</p>
+            <h1 id="world-title">{introduction.blocks[0].text}</h1>
+            <p className="world-intro-detail">{introduction.blocks[1].text}</p>
             <div className="world-actions">
               <a className="world-link" href="#world-apollo">
                 Explore my work <span aria-hidden="true">↓</span>
@@ -281,7 +281,7 @@ export default function WorldPage() {
                 {section.id === 'world-workflow' ? 'Workflow' : 'Project'}
               </p>
               <h2 id={`${section.id}-title`}>{section.label}</h2>
-              <p className="world-section-lead">{section.blocks[0]!.text}</p>
+              <p className="world-section-lead">{section.blocks[0].text}</p>
               <CopyBlocks
                 blocks={section.blocks.slice(1, 3)}
                 emphasis={SECTION_EMPHASIS[section.id]}

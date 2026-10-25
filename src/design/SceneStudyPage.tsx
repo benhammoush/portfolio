@@ -100,7 +100,7 @@ export default function SceneStudyPage(props: SceneStudyProps) {
       >
         <article className="scene-study-copy">
           <p className="scene-study-label">{section.label}</p>
-          <h1>{section.blocks[0]!.text}</h1>
+          <h1>{section.blocks[0].text}</h1>
           {paragraphs.map((block) => (
             <p key={block.text}>{block.text}</p>
           ))}

@@ -302,7 +302,10 @@ test('engine download failure leaves a useful illustration and navigation', asyn
 
 test('unavailable WebGL fails safely without losing HTML', async ({ page }) => {
   await page.addInitScript(() => {
-    const original = HTMLCanvasElement.prototype.getContext;
+    const original = Reflect.get<HTMLCanvasElement, 'getContext'>(
+      HTMLCanvasElement.prototype,
+      'getContext',
+    );
     Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
       /**
        * Simulate an unsupported graphics context while preserving unrelated canvas APIs.
@@ -317,7 +320,8 @@ test('unavailable WebGL fails safely without losing HTML', async ({ page }) => {
       ) {
         if (kind.startsWith('webgl') || kind === 'experimental-webgl')
           return null;
-        return Reflect.apply(original, this, [kind, ...args]);
+        const result: unknown = Reflect.apply(original, this, [kind, ...args]);
+        return result;
       },
     });
   });
@@ -424,7 +428,7 @@ test('malformed compressed geometry releases its worker and falls back to the po
     const jsonLength = body.readUInt32LE(12);
     const model = JSON.parse(
       body.subarray(20, 20 + jsonLength).toString('utf8'),
-    );
+    ) as import('../intro-model').IntroModel;
     const view =
       model.bufferViews[
         model.meshes[0].primitives[0].extensions.KHR_draco_mesh_compression

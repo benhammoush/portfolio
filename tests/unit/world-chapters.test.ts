@@ -24,8 +24,8 @@ test('rejects degenerate or nonfinite layout positions', () => {
 });
 
 test('shared poses preserve exact endpoints and linear coordinates', () => {
-  const start = CHAPTERS[0]!;
-  const end = CHAPTERS[1]!;
+  const start = CHAPTERS[0];
+  const end = CHAPTERS[1];
   expect(new Set(CHAPTERS.map((chapter) => chapter.id)).size).toBe(
     CHAPTERS.length,
   );

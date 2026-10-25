@@ -140,7 +140,7 @@ export function drawDesktopScreen(context: CanvasRenderingContext2D) {
       404,
       34,
       34,
-      ['#83a9bd', '#c2a7cd', '#cfb685'][index]!,
+      ['#83a9bd', '#c2a7cd', '#cfb685'][index],
     );
   });
 }
@@ -272,8 +272,8 @@ export function drawWorkspacePointer(
         : requested === 'close'
           ? [frame.left + 18 * frame.scale, frame.top + 15 * frame.scale]
           : [78 + MONITOR_CHAPTERS.indexOf(requested) * 164, 51];
-    const x = 810 + (target[0]! - 810) * smooth;
-    const y = 340 + (target[1]! - 340) * smooth;
+    const x = 810 + (target[0] - 810) * smooth;
+    const y = 340 + (target[1] - 340) * smooth;
     context.save();
     context.translate(x, y);
     context.fillStyle = '#fbfaf4';

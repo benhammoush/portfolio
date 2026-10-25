@@ -4,15 +4,14 @@
  */
 import { readFileSync } from 'node:fs';
 import { expect, test } from 'vitest';
+import manifest from '../../src/assets/intro/intro-scene.json';
+import type { IntroModel } from '../intro-model';
 
 const model = readFileSync('src/assets/intro/intro-scene.glb');
 const jsonLength = model.readUInt32LE(12);
 const document = JSON.parse(
   model.subarray(20, 20 + jsonLength).toString('utf8'),
-);
-const manifest = JSON.parse(
-  readFileSync('src/assets/intro/intro-scene.json', 'utf8'),
-);
+) as IntroModel;
 
 /**
  * Read uncompressed float animation tracks (geometry itself remains Draco).
@@ -22,9 +21,7 @@ const manifest = JSON.parse(
 function animationValues(index: number): number[] {
   const accessor = document.accessors[index];
   expect(accessor.componentType).toBe(5126);
-  const width = { SCALAR: 1, VEC3: 3, VEC4: 4 }[
-    accessor.type as 'SCALAR' | 'VEC3' | 'VEC4'
-  ]!;
+  const width = { SCALAR: 1, VEC3: 3, VEC4: 4 }[accessor.type];
   const view = document.bufferViews[accessor.bufferView];
   const start =
     28 + jsonLength + (view.byteOffset ?? 0) + (accessor.byteOffset ?? 0);
@@ -49,7 +46,7 @@ test('articulated loop closes at matching poses with bounded joint motion', () =
       const angles = Array.from({ length: values.length / 4 }, (_, frame) => {
         const dot = values
           .slice(frame * 4, frame * 4 + 4)
-          .reduce((sum, value, axis) => sum + value * values[axis]!, 0);
+          .reduce((sum, value, axis) => sum + value * values[axis], 0);
         return 2 * Math.acos(Math.min(1, Math.abs(dot)));
       });
       // Separate finger articulation replaces moving the entire palm up/down.
@@ -57,13 +54,11 @@ test('articulated loop closes at matching poses with bounded joint motion', () =
       expect(Math.max(...angles)).toBeLessThan(0.25);
     }
     for (let axis = 0; axis < width; axis++) {
-      expect(values.at(-width + axis)).toBeCloseTo(values[axis]!, 6);
+      expect(values.at(-width + axis)).toBeCloseTo(values[axis], 6);
       if (channel.target.path === 'translation') {
         const positions = values.filter((_, i) => i % width === axis);
         expect(
-          Math.max(
-            ...positions.map((value) => Math.abs(value - positions[0]!)),
-          ),
+          Math.max(...positions.map((value) => Math.abs(value - positions[0]))),
         ).toBeLessThan(
           document.nodes[channel.target.node].name.startsWith('Mouse') &&
             document.nodes[channel.target.node].name !== 'MouseDevice'
@@ -174,11 +169,11 @@ test('intro GLB embeds geometry and a bounded character clip without camera or l
       (entry: { name: string }) => entry.name === `Web / ${name}`,
     );
     expect(
-      material.pbrMetallicRoughness.baseColorFactor
+      material!.pbrMetallicRoughness.baseColorFactor
         .slice(0, 3)
         .every((channel: number) => channel < 0.06),
     ).toBe(true);
-    for (const channel of material.extensions?.KHR_materials_sheen
+    for (const channel of material!.extensions?.KHR_materials_sheen
       ?.sheenColorFactor ?? []) {
       expect(channel).toBeLessThanOrEqual(0.031);
     }
@@ -215,14 +210,14 @@ test('flag cloth and star flutter while the pole and stand remain unskinned', ()
     expect(
       document.nodes.find(
         (node: { name: string }) => node.name === `Web / ${name}`,
-      ).skin,
+      )!.skin,
     ).toBeDefined();
   }
   expect(
     document.nodes.find(
       (node: { name: string }) =>
         node.name === 'Web / Flag review / dark stand',
-    ).skin,
+    )!.skin,
   ).toBeUndefined();
   const animation = document.animations[0];
   const wave = animation.channels.find(
@@ -230,11 +225,11 @@ test('flag cloth and star flutter while the pole and stand remain unskinned', ()
       document.nodes[channel.target.node].name === 'FlagWave15' &&
       channel.target.path === 'rotation',
   );
-  const rotations = animationValues(animation.samplers[wave.sampler].output);
+  const rotations = animationValues(animation.samplers[wave!.sampler].output);
   const angles = Array.from({ length: rotations.length / 4 }, (_, frame) => {
     const dot = rotations
       .slice(frame * 4, frame * 4 + 4)
-      .reduce((sum, value, axis) => sum + value * rotations[axis]!, 0);
+      .reduce((sum, value, axis) => sum + value * rotations[axis], 0);
     return 2 * Math.acos(Math.min(1, Math.abs(dot)));
   });
   expect(Math.max(...angles)).toBeGreaterThan(0.2);
@@ -247,7 +242,7 @@ test('lower-body batches are skinned and include an occasional heel rock', () =>
       document.nodes.find(
         (node: { name: string }) =>
           node.name === `Web / Character review / ${material}`,
-      ).skin,
+      )!.skin,
     ).toBeDefined();
   }
   const clip = document.animations[0];
@@ -256,7 +251,7 @@ test('lower-body batches are skinned and include an occasional heel rock', () =>
       document.nodes[channel.target.node].name === 'RightFoot' &&
       channel.target.path === 'rotation',
   );
-  const values = animationValues(clip.samplers[foot.sampler].output);
+  const values = animationValues(clip.samplers[foot!.sampler].output);
   const angles = Array.from(
     { length: values.length / 4 },
     (_, frame) =>
@@ -267,7 +262,7 @@ test('lower-body batches are skinned and include an occasional heel rock', () =>
           Math.abs(
             values
               .slice(frame * 4, frame * 4 + 4)
-              .reduce((sum, value, axis) => sum + value * values[axis]!, 0),
+              .reduce((sum, value, axis) => sum + value * values[axis], 0),
           ),
         ),
       ),

@@ -26,7 +26,7 @@ test('each native stop selects its physical camera waypoint', () => {
       blend: 0,
     });
     expect(
-      Math.hypot(...frame.position.map((v, i) => v - frame.target[i]!)),
+      Math.hypot(...frame.position.map((v, i) => v - frame.target[i])),
     ).toBeGreaterThan(0.5);
     expect(frame.viewHeight).toBeGreaterThan(0);
   }
@@ -44,11 +44,11 @@ test('the About view stays fixed from About through Dripperz', () => {
     'world-dripperz',
     'world-contact',
   ]);
-  expect(SECTION_POSES[0]!.position[0]).toBeLessThan(0);
-  expect(SECTION_POSES[0]!.position[1]).toBeGreaterThan(1.4);
-  expect(SECTION_POSES[1]!.position).toEqual(SECTION_POSES[0]!.position);
-  expect(SECTION_POSES[1]!.target).toEqual([0.1, 1.22, -0.444]);
-  const workflow = SECTION_POSES[1]!;
+  expect(SECTION_POSES[0].position[0]).toBeLessThan(0);
+  expect(SECTION_POSES[0].position[1]).toBeGreaterThan(1.4);
+  expect(SECTION_POSES[1].position).toEqual(SECTION_POSES[0].position);
+  expect(SECTION_POSES[1].target).toEqual([0.1, 1.22, -0.444]);
+  const workflow = SECTION_POSES[1];
   for (let y = 2000; y <= 6000; y += 125) {
     expect(sampleReadingPose(anchors, y, true)).toMatchObject({
       position: workflow.position,
@@ -74,13 +74,13 @@ test('pause and invalid offsets choose finite reached waypoints immediately', ()
   expect(sampleReadingPose(anchors, 2500, false)).toMatchObject({
     from: 'world-workflow',
     blend: 0,
-    target: SECTION_POSES[1]!.target,
+    target: SECTION_POSES[1].target,
   });
   expect(sampleReadingPose(anchors, 1999.5, false).from).toBe('world-workflow');
   expect(sampleReadingPose(anchors, NaN, true)).toEqual(
     sampleReadingPose(anchors, 1000, true),
   );
   expect(sampleReadingPose([], 0, true).position).toEqual(
-    SECTION_POSES[0]!.position,
+    SECTION_POSES[0].position,
   );
 });

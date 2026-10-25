@@ -111,7 +111,7 @@ test('a fresh gesture can read tall content after a previous anchor step', () =>
   wheel();
   vi.stubGlobal('scrollY', 900);
   window.dispatchEvent(new Event('scrollend'));
-  const section = document.querySelectorAll('.world-section')[1]!;
+  const section = document.querySelectorAll('.world-section')[1];
   vi.spyOn(section, 'getBoundingClientRect').mockImplementation(
     () => new DOMRect(0, 900 - scrollY, 1200, 1800),
   );

@@ -52,7 +52,7 @@ test('project emphasis is limited to selected individual words', () => {
   render(<WorldPage />);
   const emphasized = [
     ...document.querySelectorAll('.world-copy-section strong'),
-  ].map((word) => word.textContent!.toLowerCase());
+  ].map((word) => word.textContent.toLowerCase());
   expect(emphasized).toEqual(
     expect.arrayContaining([
       'trading',

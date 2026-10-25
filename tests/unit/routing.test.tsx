@@ -99,16 +99,16 @@ for (const [path, direction] of [
 ]) {
   test(`matches the independent static hero study at ${path}`, () => {
     render(
-      <MemoryRouter initialEntries={[path!]}>
+      <MemoryRouter initialEntries={[path]}>
         <App />
       </MemoryRouter>,
     );
-    const introduction = SECTION_COPY[0]!;
+    const introduction = SECTION_COPY[0];
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      introduction.blocks[0]!.text,
+      introduction.blocks[0].text,
     );
-    expect(screen.getByText(introduction.blocks[1]!.text)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: direction! })).toHaveAttribute(
+    expect(screen.getByText(introduction.blocks[1].text)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: direction })).toHaveAttribute(
       'aria-current',
       'page',
     );
@@ -134,7 +134,7 @@ for (const [path, sectionId, cueCount] of [
       (candidate) => candidate.id === sectionId,
     )!;
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      section.blocks[0]!.text,
+      section.blocks[0].text,
     );
     const paragraphs =
       sectionId === 'world-hub'
