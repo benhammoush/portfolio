@@ -30,3 +30,6 @@ separately. Models, artwork and decoders are served locally with the site.
 Project displays illustrate the work rather than acting as live integrations
 with those products. Static alternatives preserve access to content when the
 3D experience is unavailable.
+
+See [the product specification](docs/spec/portfolio.md) and
+[approved section copy](docs/approved-section-copy.md) for scope and content boundaries.
