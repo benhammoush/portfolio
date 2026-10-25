@@ -6,9 +6,14 @@
 import { readFileSync } from 'node:fs';
 import { expect, test } from 'vitest';
 
-const { scripts } = JSON.parse(
+const { scripts, engines, packageManager } = JSON.parse(
   readFileSync(new URL('../../package.json', import.meta.url)),
 );
+
+test('preserves the selected exact npm toolchain', () => {
+  expect(engines.npm).toBe('11.19.0');
+  expect(packageManager).toBe(`npm@${engines.npm}`);
+});
 
 test('the full gate builds once and retains every quality/browser stage', () => {
   const check = scripts.check.split(' && ');
