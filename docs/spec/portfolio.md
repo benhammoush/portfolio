@@ -42,7 +42,7 @@ traceable and recoverable delivery.
 - Homepage chapter order: introduction, engineering workflow, Apollo, Iris,
   Crypto gateway, contact. The owner explicitly removed the duplicate Apollo entry.
   A shared chapter configuration connects HTML IDs and world poses. Section content
-  and composition are proposed in the [storyboard](../docs/section-storyboard.md)
+  and composition are proposed in the [storyboard](../section-storyboard.md)
   before choosing 3D objects/animation. This order does not accept the rejected Iris
   object or silently cancel separately specified case studies outside the homepage.
 - Mobile, keyboard, focus/skip navigation, reduced motion, static/loading/error,
@@ -204,7 +204,7 @@ The subsequent local delivery-implementation slice is authorized separately. It
 adds disabled-by-default workflows, exact-source/configuration guards, static
 hosting output, read-only smoke hooks, negative regression tests and delivery/
 recovery instructions. Its checkpoint is local checks and read-only review, not
-remote enablement or operational acceptance. See [delivery runbook](../docs/delivery.md).
+remote enablement or operational acceptance. See [delivery runbook](../delivery.md).
 
 ## Foundation implementation contract (0.1.0)
 
@@ -280,7 +280,7 @@ deployment is authorized by this slice.
 The local `/design` route presents the proposed hub/Iris architectural gallery as
 original static vector artwork, not live 3D. It is a review-only addition to the
 0.2.0 local candidate, not a launch route or another shipped version. Its retained
-[static study](../src/design/DesignPage.tsx) is not the current desk-scene direction.
+[static study](../../src/design/DesignPage.tsx) is not the current desk-scene direction.
 Stop for owner visual feedback before
 installing world dependencies or treating this proposal as the accepted prototype.
 Actual WebGL fallback/lifecycle behavior and measured performance remain unverified.
@@ -301,7 +301,7 @@ The new optional-world feature deliberately aligns package/lock/runtime at 0.3.0
 Renderer settings are provisional implementation choices, not accepted performance
 budgets. Collect preliminary local browser evidence and report its limitations;
 physical devices, budgets and full-world expansion remain future decisions.
-See [prototype checkpoint](../docs/world-prototype.md). Stop after local checks,
+See [prototype checkpoint](../world-prototype.md). Stop after local checks,
 read-only review and owner walkthrough; no publication or deployment is included.
 
 ## Integrated page-composition revision
