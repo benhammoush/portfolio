@@ -49,7 +49,7 @@ for (const width of [1440, 1920]) {
       );
     expect(composition).toHaveLength(7);
     for (const card of composition) {
-      expect(card.left).toBeCloseTo(composition[0]!.left, 0);
+      expect(card.left).toBeCloseTo(composition[0].left, 0);
       expect(card.width).toBeGreaterThan(540);
       expect(card.width).toBeLessThanOrEqual(704);
       expect(card.right).toBeLessThanOrEqual(width / 2 + 1);
@@ -150,7 +150,7 @@ for (const width of [390, 1440]) {
               (channel <= 0.04045
                 ? channel / 12.92
                 : ((channel + 0.055) / 1.055) ** 2.4) *
-                [0.2126, 0.7152, 0.0722][index]!
+                [0.2126, 0.7152, 0.0722][index]
             );
           }, 0);
         const backgroundLum = luminance(

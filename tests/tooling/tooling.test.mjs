@@ -16,7 +16,9 @@ const lock = JSON.parse(
 const eslint = new ESLint();
 // Import the full supported lint stack before timing individual rule assertions.
 beforeAll(async () => {
-  await eslint.calculateConfigForFile('src/tooling-fixture.tsx');
+  await eslint.lintText(overview + 'export {};', {
+    filePath: 'src/world/section-copy.ts',
+  });
 }, 30_000);
 const overview =
   '/**\n * Synthetic lint fixture.\n * @packageDocumentation\n */\n';
@@ -43,7 +45,7 @@ test('uses Vite and supported ESLint 10 without the previous lint dependency cha
 test('keeps TypeScript violations blocking', async () => {
   const [result] = await eslint.lintText(
     overview + 'export const value: any = 1;',
-    { filePath: 'src/tooling-fixture.ts' },
+    { filePath: 'src/world/section-copy.ts' },
   );
   expect(result.messages).toContainEqual(
     expect.objectContaining({
@@ -63,11 +65,24 @@ export function BadComponent() {
   return <main />;
 }`;
   const [result] = await eslint.lintText(source, {
-    filePath: 'src/tooling-fixture.tsx',
+    filePath: 'src/world/WorldPage.tsx',
   });
   expect(result.messages).toContainEqual(
     expect.objectContaining({
       ruleId: 'react-hooks/rules-of-hooks',
+      severity: 2,
+    }),
+  );
+});
+
+test('keeps unhandled promises blocking through the real TypeScript project', async () => {
+  const [result] = await eslint.lintText(overview + 'Promise.resolve(1);', {
+    filePath: 'src/world/section-copy.ts',
+  });
+  expect(result.fatalErrorCount).toBe(0);
+  expect(result.messages).toContainEqual(
+    expect.objectContaining({
+      ruleId: '@typescript-eslint/no-floating-promises',
       severity: 2,
     }),
   );

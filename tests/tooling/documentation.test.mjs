@@ -5,8 +5,14 @@
  */
 import { ESLint } from 'eslint';
 import { beforeAll, expect, test } from 'vitest';
+import tseslint from 'typescript-eslint';
 
-const eslint = new ESLint();
+// Only virtual fixtures lack a TS project entry; real sources retain typed lint.
+const eslint = new ESLint({
+  overrideConfig: [
+    { files: ['**/*.{ts,tsx}'], ...tseslint.configs.disableTypeChecked },
+  ],
+});
 // Cold parser/plugin imports belong to bounded setup, not the per-fixture budget.
 beforeAll(async () => {
   await eslint.calculateConfigForFile('src/documentation-fixture.tsx');
@@ -141,6 +147,20 @@ test('requires result documentation for a returned value', async () => {
         goodFunction.replace(' * @returns The unchanged identity.\n', ''),
     ),
   ).toContain('jsdoc/require-returns');
+});
+
+test('requires parameter and return tags on callable interface contracts', async () => {
+  for (const signature of [
+    'read(value: string): string;',
+    'read: (value: string) => string;',
+  ]) {
+    const errors = await documentationErrors(
+      overview +
+        `/** Fixture contract. */ interface Fixture { /** Read identity. */ ${signature} }`,
+    );
+    expect(errors).toContain('jsdoc/require-param');
+    expect(errors).toContain('jsdoc/require-returns');
+  }
 });
 
 test.each([

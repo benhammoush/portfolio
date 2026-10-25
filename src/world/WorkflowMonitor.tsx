@@ -51,7 +51,9 @@ interface WorkflowMonitorProps {
   animate: boolean;
   /** Only desktop motion policy may open the workspace; other modes retain its still desktop. */
   cameraTravel: boolean;
-  /** Reuse the authored supported mouse motion for deliberate window/tab actions. */
+  /** Reuse the authored supported mouse motion for deliberate window/tab actions.
+   * @param elapsed - Playback time in seconds for the authored gesture.
+   */
   onGesture: (elapsed: number) => void;
 }
 

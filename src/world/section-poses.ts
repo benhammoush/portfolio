@@ -72,16 +72,15 @@ export function sampleReadingPose(
   const first = anchors[0];
   if (!first)
     return {
-      ...SECTION_POSES[0]!,
+      ...SECTION_POSES[0],
       from: 'world-profile',
       to: 'world-profile',
       blend: 0,
     };
   const y = Number.isFinite(scroll) ? scroll : first.top;
   let index = 0;
-  while (index + 1 < anchors.length && y >= anchors[index + 1]!.top - 1)
-    index++;
-  const from = anchors[index]!;
+  while (index + 1 < anchors.length && y >= anchors[index + 1].top - 1) index++;
+  const from = anchors[index];
   const to = anchors[index + 1] ?? from;
   const distance = to.top - from.top;
   const t =
@@ -94,10 +93,10 @@ export function sampleReadingPose(
     to: to.id,
     blend,
     position: from.pose.position.map(
-      (value, axis) => value + (to.pose.position[axis]! - value) * blend,
+      (value, axis) => value + (to.pose.position[axis] - value) * blend,
     ) as unknown as Point,
     target: from.pose.target.map(
-      (value, axis) => value + (to.pose.target[axis]! - value) * blend,
+      (value, axis) => value + (to.pose.target[axis] - value) * blend,
     ) as unknown as Point,
     viewHeight:
       from.pose.viewHeight +
