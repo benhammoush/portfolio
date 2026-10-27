@@ -158,9 +158,7 @@ function ScrollCamera(props: WorldCanvasProps) {
     const first = CHAPTERS[0];
     const hub = document.getElementById(first.id);
     if (!hub) return;
-    // Preserve the accepted hero before entering the physical landmark route.
-    // Dock before profile copy enters, not after it is already behind the chair.
-    // The opening pose stays exact at scroll zero.
+    // Ease the opening separately from native scroll; initial anchors remain exact.
     const heroBottom = hub.getBoundingClientRect().bottom;
     const requestedIntroFraction =
       1 -
@@ -169,13 +167,14 @@ function ScrollCamera(props: WorldCanvasProps) {
         0,
         Math.max(1, heroBottom + window.scrollY - window.innerHeight * 0.9),
       );
+    const requestedOpeningFraction = cameraTravel ? requestedIntroFraction : 1;
     openingFraction.current = advanceOpeningFraction(
       openingFraction.current,
-      requestedIntroFraction,
+      requestedOpeningFraction,
       delta,
       cameraTravel && props.animateIntro,
     );
-    if (openingFraction.current !== requestedIntroFraction) invalidate();
+    if (openingFraction.current !== requestedOpeningFraction) invalidate();
     const introFraction = openingFraction.current;
     const introWeight = introFraction * introFraction * (3 - 2 * introFraction);
     // Match CSS/media policy, not the scrollbar-reduced canvas width at 768px.
@@ -240,9 +239,7 @@ function ScrollCamera(props: WorldCanvasProps) {
       size.width * 0.22 * (1 - openingWeight);
     const verticalOffset =
       (poster
-        ? size.height / 2 -
-          (poster.y + (cameraTravel ? window.scrollY : 0)) -
-          poster.height / 2
+        ? size.height / 2 - (poster.y + window.scrollY) - poster.height / 2
         : 0) * openingWeight;
     if (
       camera.view?.fullWidth !== size.width ||
@@ -334,7 +331,7 @@ function ScrollCamera(props: WorldCanvasProps) {
       'data-camera-mode',
       requestedInspection
         ? 'inspect'
-        : introWeight === 0 && !cameraTravel
+        : requestedIntroFraction === 0 && !cameraTravel
           ? 'stationary-reading'
           : progress === 1
             ? 'reading'

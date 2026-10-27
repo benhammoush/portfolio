@@ -129,6 +129,15 @@ for (const width of [390, 768, 1024, 1440, 1920]) {
           ),
         )
         .toBe('visible');
+      await page.keyboard.press('Escape');
+      await expect(page.locator('.world-brand')).toBeFocused();
+      await expect
+        .poll(() =>
+          apollo.evaluate(
+            (element) => getComputedStyle(element, '::after').visibility,
+          ),
+        )
+        .toBe('hidden');
     }
     if ([390, 1440].includes(width))
       await page.screenshot({

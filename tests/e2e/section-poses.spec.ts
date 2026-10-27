@@ -194,40 +194,57 @@ test('the About camera holds through project scrolling, expanded copy and paused
   expect(box!.width).toBeGreaterThanOrEqual(1180);
 });
 
-test('reduced-motion startup never follows section camera poses', async ({
-  page,
-}) => {
-  test.setTimeout(120_000);
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/');
-  const canvas = page.locator('canvas[data-world-ready="true"]');
-  await expect(canvas).toHaveAttribute('data-reading-section', 'stationary');
-  const pose = await canvas.getAttribute('data-camera-pose');
-  await page
-    .locator('#world-dripperz')
-    .evaluate((element) => element.scrollIntoView({ behavior: 'instant' }));
-  await expect(canvas).toHaveAttribute(
-    'data-camera-mode',
-    'stationary-reading',
-  );
-  await expect(canvas).toHaveAttribute('data-route-span', '0');
-  await expect(canvas).toHaveAttribute('data-camera-pose', pose!);
-  const horizontalOffset = await canvas.getAttribute('data-camera-offset-x');
-  await expect(canvas).toHaveAttribute('data-camera-offset-y', '0');
-  for (const chapter of ['contact', 'dripperz']) {
-    await page.locator(`#world-${chapter}`).evaluate(async (element) => {
-      element.scrollIntoView({ behavior: 'instant' });
-      // Observe a completed demand frame, not stale diagnostics from the last stop.
-      await new Promise<void>((resolve) =>
-        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
-      );
+for (const width of [390, 1440]) {
+  test(`stationary framing keeps its eye, lens and offsets while scrolling at ${width}px`, async ({
+    page,
+  }) => {
+    test.setTimeout(120_000);
+    await page.setViewportSize({ width, height: 900 });
+    await page.emulateMedia({
+      reducedMotion: width === 1440 ? 'reduce' : 'no-preference',
     });
-    await expect(canvas).toHaveAttribute('data-reading-section', 'stationary');
-    await expect(canvas).toHaveAttribute('data-camera-pose', pose!);
-    await expect(canvas).toHaveAttribute(
-      'data-camera-offset-x',
-      horizontalOffset!,
+    await page.goto('/');
+    const canvas = page.locator('canvas[data-world-ready="true"]');
+    await expect(canvas).toHaveAttribute('data-scene-loaded', 'true', {
+      timeout: 45_000,
+    });
+    const pose = await canvas.getAttribute('data-camera-pose');
+    const fov = Number(await canvas.getAttribute('data-camera-fov'));
+    const x = Number(await canvas.getAttribute('data-camera-offset-x'));
+    const y = Number(await canvas.getAttribute('data-camera-offset-y'));
+    // Explicit animation changes never opt a stationary camera into scroll travel.
+    await clickSceneControl(
+      page,
+      width === 1440 ? 'Resume motion' : 'Pause motion',
     );
-    await expect(canvas).toHaveAttribute('data-camera-offset-y', '0');
-  }
-});
+    for (const chapter of ['profile', 'dripperz', 'contact', 'dripperz']) {
+      await page.locator(`#world-${chapter}`).evaluate(async (element) => {
+        element.scrollIntoView({ behavior: 'instant' });
+        await new Promise<void>((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+        );
+      });
+      await expect(canvas).toHaveAttribute(
+        'data-camera-mode',
+        'stationary-reading',
+      );
+      await expect(canvas).toHaveAttribute('data-route-span', '0');
+      await expect(canvas).toHaveAttribute(
+        'data-reading-section',
+        'stationary',
+      );
+      await expect(canvas).toHaveAttribute('data-camera-pose', pose!);
+      expect(Number(await canvas.getAttribute('data-camera-fov'))).toBeCloseTo(
+        fov,
+        5,
+      );
+      expect(
+        Number(await canvas.getAttribute('data-camera-offset-x')),
+      ).toBeCloseTo(x, 2);
+      // DOMRect coordinates lose tiny subpixel precision after a long page scroll.
+      expect(
+        Number(await canvas.getAttribute('data-camera-offset-y')),
+      ).toBeCloseTo(y, 2);
+    }
+  });
+}
