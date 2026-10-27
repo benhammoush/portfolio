@@ -3,7 +3,7 @@
  * @packageDocumentation
  */
 
-/** Approved stories that still need their own decorative monitor artwork. */
+/** Approved stories with independent decorative monitor artwork. */
 interface ProjectScreenArtworkProps {
   /** Project identity; artwork never requests accounts, providers or live data. */
   project: 'iris' | 'gateway' | 'dripperz';

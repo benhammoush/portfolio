@@ -3,6 +3,7 @@
  * @packageDocumentation
  */
 import { expect, test } from '@playwright/test';
+import { collectEngineRequests } from './support/engineRequests';
 
 for (const width of [1440, 1920]) {
   test(`post-hero chapters keep one dominant reading column at ${width}px`, async ({
@@ -32,6 +33,16 @@ for (const width of [1440, 1920]) {
       top: '0px',
       position: 'fixed',
     });
+    expect(
+      await page
+        .locator('.world-main')
+        .evaluate((e) => getComputedStyle(e, '::before').backgroundColor),
+    ).toBe('rgba(23, 29, 34, 0.25)');
+    expect(
+      await page
+        .locator('.world-main')
+        .evaluate((e) => getComputedStyle(e, '::before').maskImage),
+    ).toContain('70%');
     const composition = await page
       .locator('.world-section:not(.world-intro) .world-section-inner')
       .evaluateAll((cards) =>
@@ -102,8 +113,23 @@ for (const width of [390, 1440]) {
   }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.emulateMedia({ reducedMotion: 'reduce' });
+    const engines = collectEngineRequests(page);
     await page.goto('/#world-apollo');
     const section = page.locator('#world-apollo');
+    const metrics = await section
+      .locator('.world-section-inner')
+      .evaluate((element) => ({
+        width: element.getBoundingClientRect().width,
+        background: getComputedStyle(element).backgroundColor,
+        font: getComputedStyle(
+          element.querySelector('p:not(.world-eyebrow, .world-section-lead)')!,
+        ).fontSize,
+      }));
+    expect(metrics.width).toBeGreaterThan(Math.min(320, width - 80));
+    expect(metrics.font).toBe(width >= 1200 ? '20px' : '19px');
+    expect(metrics.background).toBe(
+      width >= 1200 ? 'rgba(0, 0, 0, 0)' : 'rgba(23, 29, 34, 0.84)',
+    );
     await expect(
       section.getByRole('heading', { level: 2, name: 'Apollo', exact: true }),
     ).toBeInViewport();
@@ -133,10 +159,6 @@ for (const width of [390, 1440]) {
                 '::before',
               )
             : getComputedStyle(card);
-        const background = backdrop.backgroundColor
-          .match(/[\d.]+/g)!
-          .map(Number);
-        const alpha = background[3] ?? 1;
         /**
          * Relative luminance after alpha composition, per WCAG.
          * @param rgb - Three sRGB channels in the 0–255 range.
@@ -153,17 +175,43 @@ for (const width of [390, 1440]) {
                 [0.2126, 0.7152, 0.0722][index]
             );
           }, 0);
-        const backgroundLum = luminance(
-          background.slice(0, 3).map((v) => v * alpha),
-        );
         const ratios = Array.from(
-          card.querySelectorAll('h2,h3,p,a,summary,span'),
+          card.querySelectorAll('h2,h3,p,a,summary,span,strong'),
         ).map((e) => {
+          const surfaces: number[][] = [];
+          for (
+            let parent: Element | null = e;
+            parent;
+            parent = parent.parentElement
+          ) {
+            surfaces.unshift(
+              getComputedStyle(parent)
+                .backgroundColor.match(/[\d.]+/g)!
+                .map(Number),
+            );
+            if (parent === card) break;
+          }
+          // This reduced-motion check covers the static reading surface, not arbitrary 3D pixels.
+          const background = surfaces.reduce(
+            (under, over) => {
+              const alpha = over[3] ?? 1;
+              return under.map(
+                (value, index) => over[index] * alpha + value * (1 - alpha),
+              );
+            },
+            getComputedStyle(document.querySelector('.world-page')!)
+              .backgroundColor.match(/[\d.]+/g)!
+              .map(Number)
+              .slice(0, 3),
+          );
           const rgb = getComputedStyle(e)
             .color.match(/[\d.]+/g)!
             .map(Number)
             .slice(0, 3);
-          return (backgroundLum + 0.05) / (luminance(rgb) + 0.05);
+          const values = [luminance(background), luminance(rgb)].sort(
+            (a, b) => b - a,
+          );
+          return (values[0] + 0.05) / (values[1] + 0.05);
         });
         return {
           minimum: Math.min(...ratios),
@@ -172,11 +220,20 @@ for (const width of [390, 1440]) {
           opacity: getComputedStyle(card).opacity,
         };
       });
-    // Black is the darkest possible scene pixel; the tint protects type even there.
     expect(contrast.minimum).toBeGreaterThanOrEqual(4.5);
     expect(contrast.blur).toBe('blur(16px)');
     expect(contrast.filter).toBe('none');
     expect(contrast.opacity).toBe('1');
+    if (width >= 1200) {
+      for (const block of await section
+        .locator(
+          '.world-section-inner > :is(h2,p,details,.world-project-links)',
+        )
+        .all()) {
+        await expect(block).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+        await expect(block).toHaveCSS('box-shadow', 'none');
+      }
+    }
     for (const paragraph of await section
       .locator('.world-section-inner > p:not(.world-eyebrow)')
       .all()) {
@@ -191,5 +248,36 @@ for (const width of [390, 1440]) {
     const lastParagraph = section.locator('details p').last();
     await lastParagraph.scrollIntoViewIfNeeded();
     await expect(lastParagraph).toBeInViewport();
+    for (const chapter of [
+      'workflow',
+      'apollo',
+      'iris',
+      'gateway',
+      'dripperz',
+    ]) {
+      const story = page.locator(`#world-${chapter}`);
+      await story.evaluate((element) =>
+        element.scrollIntoView({ behavior: 'instant' }),
+      );
+      await expect(story.getByRole('heading', { level: 2 })).toBeInViewport();
+      const image = story.locator('img.world-workflow-poster');
+      await expect(image).toBeVisible();
+      await expect
+        .poll(() =>
+          image.evaluate(
+            (element: HTMLImageElement) =>
+              element.complete && element.naturalWidth > 0,
+          ),
+        )
+        .toBe(true);
+      expect((await image.boundingBox())!.width).toBeLessThan(385);
+    }
+    await expect(page.locator('canvas')).toHaveCount(0);
+    expect(engines).toEqual([]);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth > innerWidth,
+      ),
+    ).toBe(false);
   });
 }

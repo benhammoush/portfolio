@@ -24,11 +24,10 @@ export const CHAPTERS: readonly Chapter[] = [
   {
     id: 'world-hub',
     label: 'Introduction',
-    position: [0.1, 0.84, 7.14],
-    target: [0.1, 0.8, 0],
-    // Desk-height rear pullback; 2.5 / 0.7 keeps the scene approximately
-    // 30% smaller than the original desk-height framing at the target plane.
-    viewHeight: 2.5 / 0.7,
+    position: [0.1, 0.74, 7.14],
+    target: [0.1, 0.7, 0],
+    // A slightly wider opening; Contact reuses this complete view, not just its eye.
+    viewHeight: 4.4,
   },
   {
     id: 'world-iris',

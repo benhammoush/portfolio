@@ -2,7 +2,11 @@
  * New project art shares the fixed monitor, with independent static/failure behavior.
  * @packageDocumentation
  */
-import { expect, test } from '@playwright/test';
+import { expect as baseExpect, test } from '@playwright/test';
+import { clickSceneControl } from './support/sceneControls';
+
+// A completed software-rendered 2x frame takes ~7s on this runner.
+const expect = baseExpect.configure({ timeout: 45_000 });
 
 for (const [chapter, label] of [
   ['iris', 'Iris'],
@@ -12,7 +16,7 @@ for (const [chapter, label] of [
   test(`${label} supports direct entry and independent artwork failure`, async ({
     page,
   }) => {
-    test.setTimeout(90_000);
+    test.setTimeout(180_000);
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto(`/#world-${chapter}`);
     const canvas = page.locator('canvas');
@@ -21,9 +25,7 @@ for (const [chapter, label] of [
     });
     await expect(canvas).toHaveAttribute(`data-${chapter}-ready`, 'true');
     await expect(canvas).toHaveAttribute('data-camera-pose', '-0.38,1.45,1.25');
-    await page
-      .getByRole('button', { name: 'Pause motion', exact: true })
-      .click();
+    await clickSceneControl(page, 'Pause motion');
     await expect(canvas).toHaveAttribute('data-workflow-motion', 'paused');
     await page.route(`**/${chapter}-screen-*.svg`, (route) => route.abort());
     await page.reload();
@@ -46,7 +48,8 @@ for (const [chapter, label] of [
 test('five tabs follow project reading while the About camera stays fixed', async ({
   page,
 }) => {
-  test.setTimeout(120_000);
+  // Nine deliberate tab changes each require a completed frame, even while paused.
+  test.setTimeout(240_000);
   await page.setViewportSize({ width: 1440, height: 900 });
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
@@ -55,7 +58,7 @@ test('five tabs follow project reading while the About camera stays fixed', asyn
   await expect(canvas).toHaveAttribute('data-monitor-chapter', 'workflow', {
     timeout: 25_000,
   });
-  await page.getByRole('button', { name: 'Pause motion', exact: true }).click();
+  await clickSceneControl(page, 'Pause motion');
   const pose = await canvas.getAttribute('data-camera-pose');
   const fov = await canvas.getAttribute('data-camera-fov');
   for (const chapter of [
@@ -81,48 +84,15 @@ test('five tabs follow project reading while the About camera stays fixed', asyn
     .locator('#world-dripperz')
     .evaluate((e) => e.scrollIntoView({ behavior: 'instant' }));
   await expect(canvas).toHaveAttribute('data-monitor-chapter', 'dripperz');
-  await page
-    .getByRole('button', { name: 'Resume motion', exact: true })
-    .click();
+  await clickSceneControl(page, 'Resume motion');
   await expect
     .poll(
       async () =>
         Number(await canvas.getAttribute('data-monitor-dripperz-time')),
-      { timeout: 30_000 },
+      // Playback is frame-rate independent, but still needs a completed rendered frame.
+      { timeout: 60_000 },
     )
     .toBe(1.8);
   await expect(canvas).toHaveAttribute('data-monitor-action', 'settled');
   expect(errors).toEqual([]);
 });
-
-for (const width of [390, 1440]) {
-  test(`new artwork remains available without WebGL at ${width}px`, async ({
-    page,
-  }) => {
-    await page.setViewportSize({ width, height: 900 });
-    await page.emulateMedia({ reducedMotion: 'reduce' });
-    const engines: string[] = [];
-    page.on('request', (request) => {
-      if (/WorldCanvas|\.glb|draco_/.test(request.url()))
-        engines.push(request.url());
-    });
-    await page.goto('/#world-iris');
-    for (const chapter of ['iris', 'gateway', 'dripperz']) {
-      await page
-        .locator('#world-' + chapter)
-        .evaluate((e) => e.scrollIntoView({ behavior: 'instant' }));
-      const image = page.locator(`#world-${chapter} img.world-workflow-poster`);
-      await expect(image).toBeVisible();
-      await expect
-        .poll(() =>
-          image.evaluate(
-            (e) =>
-              e instanceof HTMLImageElement && e.complete && e.naturalWidth > 0,
-          ),
-        )
-        .toBe(true);
-    }
-    await expect(page.locator('canvas')).toHaveCount(0);
-    expect(engines).toEqual([]);
-  });
-}

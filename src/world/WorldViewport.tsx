@@ -13,6 +13,7 @@ import {
 import type { ReactNode } from 'react';
 import introPoster from '../assets/intro/desktop-poster.png';
 import { readMonitorFocus } from './workflow-focus';
+import SceneLoadingScreen from './SceneLoadingScreen';
 
 const LazyCanvas = lazy(() => import('./WorldCanvas'));
 const WIDTH_MEDIA = '(min-width: 768px)';
@@ -184,6 +185,9 @@ export default function WorldViewport() {
 
   return (
     <figure className="world-viewport" data-live={live}>
+      {live && (
+        <SceneLoadingScreen onSkip={() => setChoice({ policy, live: false })} />
+      )}
       <div className="world-stage">
         {live ? (
           <WorldBoundary onFailure={onFailure}>
@@ -230,31 +234,47 @@ export default function WorldViewport() {
                     ? 'Still view: this window is under 768 pixels wide. Optional 3D is stationary; widen the window for camera travel.'
                     : 'Still view. The complete story stays in HTML.'}
         </span>
-        {live && cameraTravel && screenContext && (
-          <button
-            type="button"
-            aria-pressed={inspect}
-            onClick={() => setInspect(!inspect)}
-          >
-            {inspect ? 'Return to reading' : 'View screen'}
-          </button>
-        )}
-        {live && cameraTravel && (
-          <button type="button" onClick={() => setMotionPaused(!motionPaused)}>
-            {motionPaused ? 'Resume motion' : 'Pause motion'}
-          </button>
-        )}
         {!lost && !failed && (
-          <button
-            type="button"
-            onClick={() => setChoice({ policy, live: !live })}
+          <details
+            className="world-scene-options"
+            onKeyDown={(event) => {
+              if (event.key !== 'Escape') return;
+              event.currentTarget.open = false;
+              event.currentTarget.querySelector('summary')?.focus();
+              event.stopPropagation();
+            }}
           >
-            {live
-              ? 'Use still view'
-              : cameraTravel
-                ? 'Enable 3D'
-                : 'View stationary 3D'}
-          </button>
+            <summary>Scene options</summary>
+            <div className="world-scene-actions">
+              {live && cameraTravel && screenContext && (
+                <button
+                  type="button"
+                  aria-pressed={inspect}
+                  onClick={() => setInspect(!inspect)}
+                >
+                  {inspect ? 'Return to reading' : 'View screen'}
+                </button>
+              )}
+              {live && cameraTravel && (
+                <button
+                  type="button"
+                  onClick={() => setMotionPaused(!motionPaused)}
+                >
+                  {motionPaused ? 'Resume motion' : 'Pause motion'}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setChoice({ policy, live: !live })}
+              >
+                {live
+                  ? 'Use still view'
+                  : cameraTravel
+                    ? 'Enable 3D'
+                    : 'View stationary 3D'}
+              </button>
+            </div>
+          </details>
         )}
       </figcaption>
     </figure>

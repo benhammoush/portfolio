@@ -3,6 +3,7 @@
  * @packageDocumentation
  */
 import { expect, test, type Locator, type Page } from '@playwright/test';
+import { clickSceneControl, openSceneOptions } from './support/sceneControls';
 
 /**
  * Advance the frozen clock until a native scroll or React update reaches the canvas.
@@ -34,7 +35,8 @@ test.beforeEach(async ({ page }) => {
 test('Workflow opens a window over the original screen, with pause and static reverse intent', async ({
   page,
 }, testInfo) => {
-  test.setTimeout(120_000);
+  // Full-resolution software rendering must complete the same clock-driven assertions.
+  test.setTimeout(180_000);
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
   const canvas = page.locator('canvas[data-world-ready="true"]');
@@ -45,15 +47,21 @@ test('Workflow opens a window over the original screen, with pause and static re
   await expect(canvas).toHaveAttribute('data-monitor-desktop', 'ready');
   const desktopFrames = await canvas.getAttribute('data-workflow-frames');
   await page.evaluate(() =>
-    document.querySelector('.world-profile')!.scrollIntoView(),
+    document
+      .querySelector('.world-profile')!
+      .scrollIntoView({ behavior: 'instant' }),
   );
-  await expect(canvas).toHaveAttribute('data-camera-mode', 'reading');
+  // This test exercises window animation; native smooth-scroll behavior has separate coverage.
+  await expect(canvas).toHaveAttribute('data-camera-mode', 'reading', {
+    timeout: 20_000,
+  });
   await expect(canvas).toHaveAttribute('data-monitor-window', 'closed');
   await expect(canvas).toHaveAttribute('data-workflow-active', 'false');
   await expect(canvas).toHaveAttribute('data-workflow-frames', desktopFrames!);
   await expect(
     page.locator('#world-workflow .world-workflow-poster'),
   ).toBeHidden();
+  await openSceneOptions(page);
   await page.clock.pauseAt(await page.evaluate(() => Date.now() + 60_000));
   // Drive a real partial window deterministically, even if software rendering
   // would otherwise skip straight from the first frame to the finished action.
@@ -100,17 +108,13 @@ test('Workflow opens a window over the original screen, with pause and static re
   await expect(canvas).toHaveAttribute('data-monitor-window-amount', amount!);
   await expect(canvas).toHaveAttribute('data-monitor-window-time', clock!);
   await expect(canvas).toHaveAttribute('data-workflow-frames', frames!);
-  await page.getByRole('button', { name: 'View screen', exact: true }).click();
+  await clickSceneControl(page, 'View screen');
   await page.screenshot({
     path: testInfo.outputPath('workflow-opening-window.png'),
     timeout: 60_000,
   });
-  await page
-    .getByRole('button', { name: 'Return to reading', exact: true })
-    .click();
-  await page
-    .getByRole('button', { name: 'Resume motion', exact: true })
-    .click();
+  await clickSceneControl(page, 'Return to reading');
+  await clickSceneControl(page, 'Resume motion');
   await page.clock.runFor(50);
   await expect
     .poll(
@@ -125,7 +129,7 @@ test('Workflow opens a window over the original screen, with pause and static re
   await expectWindowState(page, canvas, 'open');
   await expect(canvas).toHaveAttribute('data-monitor-window-amount', '1');
   await expect(canvas).toHaveAttribute('data-monitor-chapter', 'workflow');
-  await page.getByRole('button', { name: 'Pause motion', exact: true }).click();
+  await clickSceneControl(page, 'Pause motion');
   await page.evaluate(() =>
     document
       .getElementById('world-profile')!
@@ -158,6 +162,7 @@ test('a running launch freezes while hidden and reverses from its partial window
   await expect(canvas).toHaveAttribute('data-workflow-ready', 'true', {
     timeout: 25_000,
   });
+  await openSceneOptions(page);
   await page.clock.pauseAt(await page.evaluate(() => Date.now() + 60_000));
   await page.evaluate(() => {
     const canvas = document.querySelector('canvas')!;

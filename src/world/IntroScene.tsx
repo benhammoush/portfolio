@@ -8,6 +8,8 @@ import { AnimationMixer, Mesh, SkinnedMesh } from 'three';
 import type { AnimationClip, Group } from 'three';
 import { clone } from 'three/addons/utils/SkeletonUtils.js';
 import WorkflowMonitor from './WorkflowMonitor';
+import { installPersonalModel } from './personal-model';
+import { refineKeyboardAnimation } from './keyboard-animation';
 
 /** Cached model resolved before the canvas is mounted, avoiding hidden-canvas suspension. */
 interface IntroSceneProps {
@@ -32,17 +34,24 @@ interface IntroSceneProps {
 export default function IntroScene(props: IntroSceneProps) {
   const scene = useMemo(() => clone(props.scene), [props.scene]);
   const mixer = useMemo(() => new AnimationMixer(scene), [scene]);
+  const clip = useMemo(
+    () =>
+      props.animations[0] ? refineKeyboardAnimation(props.animations[0]) : null,
+    [props.animations],
+  );
   const timer = useRef<number | undefined>(undefined);
   const { gl, invalidate } = useThree();
   useEffect(() => {
-    const clip = props.animations[0];
-    if (clip) mixer.clipAction(clip).play();
+    if (clip) {
+      mixer.clipAction(clip).play();
+      mixer.update(0);
+    }
     invalidate();
     return () => {
       mixer.stopAllAction();
       mixer.uncacheRoot(scene);
     };
-  }, [mixer, scene, props.animations, invalidate]);
+  }, [mixer, scene, clip, invalidate]);
   useEffect(() => {
     invalidate();
     return () => window.clearTimeout(timer.current);
@@ -71,15 +80,17 @@ export default function IntroScene(props: IntroSceneProps) {
     timer.current = window.setTimeout(invalidate, 32);
   });
   useEffect(() => {
+    const cleanupPersonalModel = installPersonalModel(scene);
     scene.traverse((object) => {
       if (object instanceof Mesh) {
-        object.castShadow = false;
-        object.receiveShadow = false;
+        object.castShadow = true;
+        object.receiveShadow = true;
       }
     });
     gl.domElement.setAttribute('data-intro-ready', 'true');
     invalidate();
     return () => {
+      cleanupPersonalModel();
       gl.domElement.removeAttribute('data-intro-ready');
       // SkeletonUtils owns new skeletons/bone textures, but shares the cached
       // geometry and materials. Release only the per-mount skeleton resources.

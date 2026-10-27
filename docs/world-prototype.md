@@ -7,7 +7,7 @@ states. See **Shared monitor integration trial** below and the product spec.
 
 Local candidate **0.3.0**, ongoing prototype iteration. `/` and `/world` now compose
 HTML through one viewport-sized world; `/about` retains the CV-based profile.
-`/design` retains the earlier static study, not the accepted page composition.
+The earlier `/design` and study routes have been retired; this proposal is historical.
 The owner rejected the boxed viewport and Iris object; current geometry is held
 only to assess the new full-page composition, not treated as accepted art.
 This iteration needs owner walkthrough, not public launch or full-world expansion.
@@ -74,7 +74,7 @@ publication, remote enablement or deployment is authorized by this prototype.
 ## Shared monitor integration trial (five project tabs)
 
 The owner authorized original Iris, Crypto gateway and Dripperz monitor concepts.
-`src/design/ProjectScreenArtwork.tsx` is their public-safe source: a teal public-chain
+`src/artwork/ProjectScreenArtwork.tsx` is their public-safe source: a teal public-chain
 explorer, a checkout/trust-boundary composition, and a cyberpunk mint workspace with
 original collectible-like artwork (not an actual collection asset). All are clearly
 illustrative, with no live values, real addresses, transactions or private source.
@@ -95,7 +95,13 @@ interactive checkout or minting application.
 The newest local revision retains direction D's reading column, quiet sans-serif
 project name and expressive local-system-serif lead, now on a frosted surface.
 Approved paragraphs remain verbatim, not the design mockup's draft short summaries.
-Hero, existing Workflow/Apollo artwork and the original tab/window behavior are unchanged.
+Hero framing, all five monitor artworks and the original tab/window behavior are unchanged.
+The owner-approved evening room adds a matte wall, a simple grounding surface and
+a small lamp at the far-right desktop corner, away from the plant, flask and copy.
+Warm lamp light and restrained cool fill replace the daytime studio lighting.
+The lamp has one bounded shadow map; decorative character motion retains the
+existing demand-driven loop. Room geometry, materials, shadow resources and the
+reflection texture are owned by the canvas mount and released when it exits.
 
 `src/world/section-poses.ts` owns a physical eye/target/framing route rather than
 alternating orbit variations. The accepted wide hero enters an over-left-shoulder
@@ -116,13 +122,101 @@ without clipping the rest of the scene. On desktop (1200px+), one fixed frosted
 sheet covers the left 50% of the viewport, full height, instead of rounded panels;
 all reading content stays inside that half. Smaller layouts retain readable-width
 surfaces rather than squeezing prose into half a phone/tablet. The backdrop is
-independent of WebGL and disappears on returning to the hero. It uses a 16px
-backdrop blur and 84% light tint; lettering itself
-stays fully opaque and sharp. The tint protects contrast even over black geometry;
-browsers without backdrop-filter use a 97% tint instead. The hero stays unchanged.
+independent of WebGL and disappears on returning to the hero. On desktop it uses
+a 16px backdrop blur and 25% charcoal tint, feathering to transparent across the
+sheet's rightmost 30%. Text blocks have soft-edged 70% local backing and warm,
+fully opaque lettering to protect contrast even over bright geometry. Smaller
+layouts use an 84% dark tint; browsers without backdrop-filter use a 97% dark tint.
+The loading/still/mobile alternative is captured from this same lit room and
+authored monitor desktop, without baking HTML controls into the image. The source
+model and the separate design-study poster remain untouched.
+The personalized local revision adds three geometric wood panels on the left and
+two staggered wall shelves on the right: the existing animated Vietnamese flag
+is relocated off the desk, and a small bronze-style full-planche sculpture is
+procedurally modeled from the owner's reference. A sculpted bonsai replaces the
+original plant and pot. These are stylized meshes, not scanned copies of the photos.
+The centered monitor has a 0.598 × 0.336 active display (approximately 27 inches,
+16:9 in the scene's metre-like scale), replacing the oversized off-center model
+and stand. The IDE default is original VS Code-inspired illustrative artwork;
+project windows keep their authored aspect ratio, inset within the display.
+Contact returns to the opening eye/target, with the normal right-side reading
+composition retained. Runtime customization touches only the mounted clone, and
+static decor is batched by material; the source GLB and shared loader cache stay intact.
+The subsequent owner revision replaces the chevron panels with a single vertical
+oak-slat section on the left, running continuously from the floor to the existing
+wall's top (Y=7.5). The flag and stand are scaled to 80% together around their foot;
+the flag shelf moves higher/right and the planche shelf lower/left. Both objects
+remain seated on their respective shelves, including during flag animation.
+The latest owner adjustment returns the smaller flag to its original desktop foot
+at [-0.55, 0.8275, -0.4], retaining the wave and 80% scale. Both shelves keep their
+current positions; the upper shelf is now empty. The full-height slat section
+shifts a further 0.3 scene units left, centered at X=-1.32.
+The owner subsequently removed the now-empty upper shelf; retain only the occupied
+planche-statue shelf. The flag remains on the desk.
+The owner removed the individual dark blurred patches behind desktop text blocks.
+Retain the 25% feathered frosted reading sheet, but no local paragraph/heading
+backgrounds or backing shadows. Mobile and no-blur fallback surfaces are unchanged.
+Static contrast checks cover the static reading surface; without local opaque
+backing, live contrast depends on the scene composition and requires visual checks.
+The owner tried a 1px canvas finishing blur, then rejected that approach. The
+current pass removes it and supersamples desktop rendering at 2×, even on 1×
+displays; stationary narrow opt-ins retain their 1–1.5× cap. Keep MSAA and the
+demand-driven lifecycle. One bounded point-normal tessellation pass curves new
+edge points on the character and selected chair surfaces while retaining authored
+vertices, seams and normalized bone influences. This operates on per-mount owned
+geometry, leaving the GLB and loader cache untouched. Bonsai foliage and the statue
+use denser spheres/cylinders; the trunk is one tapered curved tube, the pot has a
+rounded lathed rim, and the monitor housing/stand have small rounded bevels.
+The existing monitor art, scene layout and camera path remain unchanged. The
+comparison uses two fixed views per element with identical lighting and clip time:
+before = 1.5× plus the prior 1px blur; after = 2× without blur and refined geometry.
+Additional geometry and pixel work increase GPU cost; no device-performance
+acceptance is implied. Refresh the owned static poster from the same revised scene.
+
+The subsequent loader/display/pose revision adds a native initial loading dialog
+with measured model-byte progress, honest indeterminate preparation stages and a
+keyboard-accessible opt-out. A first-frame callback completes it; loading never
+forces static-policy visitors to request the engine. The monitor now uses a true
+1040×585 full-panel canvas recessed 2mm behind an extruded bezel, with an emissive
+clear-coated display. The IDE and workspace footer reflow into the extra height;
+authored project artwork remains undistorted. The keyboard clip is copied and
+retargeted locally to support the lifted wrist and reduce finger travel, preserving
+the cached clip and unrelated motion. The opening viewHeight is 4.4; Contact restores
+the full opening framing, including lens and offsets, not merely its eye/target.
+The shared opening/Contact eye is `[0.1, 0.74, 7.14]`, target `[0.1, 0.7, 0]`:
+both are lowered by 0.1 scene units without changing the viewing angle.
+The owner is now trialing `blur(0.5px)` on `.world-canvas canvas` only, retaining
+the renderer resolution and leaving HTML, navigation and loading UI unfiltered.
+Close-up comparison with original geometry and disabled shadows identified the
+main character's neck seams in the decimated source and the raised ring as the
+retained former hood opening. A clone-local smooth neck loft replaces only that
+skin island, reusing the existing Spine/Head bindings and source attribute storage.
+Its open ends taper into the existing head/shirt. The raised collar's triangles
+are removed from the rib batch; cuffs remain. No source GLB or facial geometry
+changes, additional material, or extra character draw call is needed.
+An independent anatomical planche study lives under the ignored local
+`.opencode/artifacts/statue-review-01/` folder. It is not imported by the website
+and remains unapproved. The owner instead approved the existing website statue's
+slimmer, hollow-body variant with rounded shoulders. Implement that contour in
+the owned torso geometry and batch two small matching shoulder caps into the
+existing bronze mesh. Preserve all other statue parts, shelf placement and scale;
+no external model download or additional draw call is needed. Private local
+`.opencode/artifacts/` studies are outside the project formatting/lint targets;
+handwritten application modules, tests and project tooling remain gated.
+The mobile still crop includes the lamp, and its soft outer edges blend into the
+page background. This masks only the HTML image container, never the live 3D canvas.
+The compact Scene options disclosure keeps inspection, pause/resume and still-view
+actions available without showing a row of buttons. It starts closed, supports
+native keyboard operation and returns focus to its trigger on Escape. Failure
+messages remain visible outside the disclosure.
+The compact header omits the decorative name dot and shares its top row with
+Scene options. It is approximately 65px high on desktop and 72px on narrow screens;
+section anchors reserve 80px and 88px respectively to keep headings clear.
 Text and monitor artwork do not move or change with the scene. Resize and expanded
 copy re-measure stops. The slim left rail links the native section anchors and marks
-the current stop; selected individual project keywords use restrained bold emphasis.
+the current stop. Owner-selected phrases highlight workflow, technology and
+delivered capabilities across About, Workflow and projects, including Read more.
+The approved wording remains unchanged; these replace the earlier single-word highlights.
 Pause selects the reached stop; reduced-motion and narrow stationary policies never
 follow the route. Character/flag animation keeps its separate pause and hidden-tab
 safeguards. This is not owner visual acceptance or a measured physical-device
@@ -231,11 +325,15 @@ screen changes still apply while manually paused, without advancing animation.
 Pause and hidden time never advance the gesture or view clocks. Paused tab changes
 resolve immediately without synthetic input. Narrow/reduced-motion layouts remain
 static by default; stationary opt-ins do not animate or approach the screen.
+Visible playback uses active elapsed time rather than a capped increment per frame,
+so sparse rendering does not stretch a short gesture into dozens of seconds.
 Surface resources and timers are disposed;
 the loader-cached model is not modified or disposed. The generated SVG is also
 the independent HTML alternative; failure retains readable section content.
 
 This is a local visual trial, not an accepted device/render budget or deployment.
 Cold software-rendered shader startup can be slow; the browser tests verify
-functionality, not device performance. Owner review must confirm framing,
+functionality, not device performance. Monitor and reading-interaction assertions
+allow multiple software-rendered frames; this is not a device-performance target.
+Owner review must confirm framing,
 screen readability, motion and content priority before further scene work.

@@ -21,6 +21,7 @@ try {
     reducedMotion: 'reduce',
   });
   await page.goto(url.href);
+  await page.locator('.world-scene-options summary').click();
   await page
     .getByRole('button', { name: 'View stationary 3D', exact: true })
     .click();
@@ -32,14 +33,14 @@ try {
     undefined,
     { timeout: 45_000 },
   );
-  // Keep the existing camera/model/light policy. Only align its poster rectangle to
-  // this transparent image, with the stationary clip at its untouched initial pose.
+  // Keep the opening eye/target, widening and lowering the static composition so
+  // the new upper shelf and statue fit above the desk without clipping.
   await page.addStyleTag({
     content: `
     html, body, #root, .world-page, .world-stage { background: transparent !important; }
-    .world-header, .world-main, .world-viewport figcaption, .world-notice, .skip-link { visibility: hidden !important; }
+    .world-header, .world-main, .world-anchor-rail, .world-viewport figcaption, .world-notice, .skip-link { visibility: hidden !important; }
     .world-stage { inset: 0 !important; width: 1200px !important; height: 900px !important; clip-path: none !important; }
-    .world-intro-poster { position: fixed !important; inset: 0 auto auto 0 !important; width: 1200px !important; height: 900px !important; transform: none !important; margin: 0 !important; }
+    .world-intro-poster { position: fixed !important; inset: 100px auto auto 150px !important; width: 900px !important; height: 900px !important; transform: none !important; margin: 0 !important; }
   `,
   });
   await page.evaluate(() => {
@@ -49,7 +50,7 @@ try {
   await page.waitForFunction(
     () =>
       document.querySelector('canvas')?.getAttribute('data-camera-offset-y') ===
-      '0',
+      '-100',
   );
   await page.evaluate(
     () =>
@@ -63,7 +64,7 @@ try {
     clip: { x: 0, y: 0, width: 1200, height: 900 },
     timeout: 60_000,
   });
-  console.log(`Captured static OS desktop poster: ${output}`);
+  console.log(`Captured static evening desktop poster: ${output}`);
 } finally {
   await browser.close();
 }

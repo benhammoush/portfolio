@@ -14,6 +14,7 @@ import IntroScene from './IntroScene';
 import { configureIntroLoader } from './intro-loader';
 import { SECTION_POSES, sampleReadingPose } from './section-poses';
 import type { PoseAnchor } from './section-poses';
+import { finishSceneLoading } from './scene-loading';
 
 /** Props shared by the scene lifecycle and its canvas boundary. */
 interface WorldCanvasProps {
@@ -25,6 +26,35 @@ interface WorldCanvasProps {
   animateIntro: boolean;
   /** Close-up is an explicit request, not the default scroll composition. */
   inspect: boolean;
+}
+
+/** Signal readiness after, not before, the first complete scene frame reaches the renderer.
+ * @returns No geometry; owns its single pending animation-frame callback.
+ */
+function FirstSceneFrame() {
+  const gl = useThree((state) => state.gl);
+  const ticket = useRef<number | null>(null);
+  useEffect(
+    () => () => {
+      if (ticket.current !== null) cancelAnimationFrame(ticket.current);
+      ticket.current = null;
+    },
+    [],
+  );
+  useFrame(() => {
+    if (
+      ticket.current !== null ||
+      gl.domElement.getAttribute('data-intro-ready') !== 'true' ||
+      gl.domElement.getAttribute('data-evening-room') !== 'ready' ||
+      gl.domElement.getAttribute('data-monitor-desktop') !== 'ready'
+    )
+      return;
+    ticket.current = requestAnimationFrame(() => {
+      gl.domElement.setAttribute('data-scene-loaded', 'true');
+      finishSceneLoading();
+    });
+  });
+  return null;
 }
 
 /**
@@ -164,11 +194,19 @@ function ScrollCamera(props: WorldCanvasProps) {
       window.scrollY,
       props.animateIntro,
     );
+    const returnToOpening =
+      reading.from === 'world-contact'
+        ? 1
+        : reading.to === 'world-contact'
+          ? reading.blend
+          : 0;
+    const openingWeight = introWeight + (1 - introWeight) * returnToOpening;
     // Full-screen framing: the HTML reading surface supplies contrast, not a rail.
     const routeSpan =
       reading.viewHeight + (1.4 - reading.viewHeight) * inspection.current;
     const worldSpan =
-      size.height / heroZoom + (routeSpan - size.height / heroZoom) * progress;
+      (size.height / heroZoom) * openingWeight +
+      routeSpan * (1 - openingWeight);
     const zoom = size.height / worldSpan;
     const last = {
       position: reading.position.map(
@@ -182,11 +220,14 @@ function ScrollCamera(props: WorldCanvasProps) {
     };
     const horizontalOffset =
       (poster ? size.width / 2 - poster.x - poster.width / 2 : 0) *
-        introWeight -
-      size.width * 0.22 * progress;
+        openingWeight -
+      size.width * 0.22 * (1 - openingWeight);
     const verticalOffset =
-      (poster ? size.height / 2 - poster.y - poster.height / 2 : 0) *
-      introWeight;
+      (poster
+        ? size.height / 2 -
+          (poster.y + (cameraTravel ? window.scrollY : 0)) -
+          poster.height / 2
+        : 0) * openingWeight;
     if (
       camera.view?.fullWidth !== size.width ||
       camera.view?.fullHeight !== size.height ||
@@ -307,10 +348,11 @@ export default function WorldCanvas(props: WorldCanvasProps) {
   return (
     <Canvas
       camera={{ position: CHAPTERS[0].position, fov: 28, near: 0.1, far: 300 }}
-      // Do not force four physical pixels per CSS pixel for continuous desk motion.
-      dpr={[1, 1.5]}
+      // Desktop supersamples even 1x screens; stationary narrow opt-ins keep the lighter cap.
+      dpr={props.cameraTravel ? 2 : [1, 1.5]}
       frameloop="demand"
-      gl={{ antialias: true, alpha: true }}
+      shadows
+      gl={{ antialias: true, alpha: true, toneMappingExposure: 1.05 }}
       fallback={<p>WebGL unavailable. Use the still view below.</p>}
     >
       <GalleryLighting />
@@ -326,6 +368,7 @@ export default function WorldCanvas(props: WorldCanvasProps) {
         inspect={props.inspect}
         animateIntro={props.animateIntro}
       />
+      <FirstSceneFrame />
     </Canvas>
   );
 }

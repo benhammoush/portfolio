@@ -2,13 +2,17 @@
  * Accepted screen artwork, native camera approach and independent static alternatives.
  * @packageDocumentation
  */
-import { expect, test } from '@playwright/test';
+import { expect as baseExpect, test } from '@playwright/test';
+import { clickSceneControl } from './support/sceneControls';
+
+// Match the multi-frame allowance of the other software-rendered monitor checks.
+const expect = baseExpect.configure({ timeout: 45_000 });
 
 test('Workflow keeps a quiet reading pose with optional larger-screen inspection', async ({
   page,
 }, testInfo) => {
   // Multiple cold software-rendered mounts plus captures are not a device budget.
-  test.setTimeout(180_000);
+  test.setTimeout(240_000);
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/#world-workflow');
   const canvas = page.locator('canvas[data-world-ready="true"]');
@@ -32,7 +36,7 @@ test('Workflow keeps a quiet reading pose with optional larger-screen inspection
     .toBeGreaterThan(0.05);
   const pose = await canvas.getAttribute('data-camera-pose');
   const fov = await canvas.getAttribute('data-camera-fov');
-  await page.getByRole('button', { name: 'Pause motion', exact: true }).click();
+  await clickSceneControl(page, 'Pause motion');
   await expect(canvas).toHaveAttribute('data-workflow-motion', 'paused');
   const pausedTime = await canvas.getAttribute('data-workflow-time');
   const pausedFrames = await canvas.getAttribute('data-workflow-frames');
@@ -44,7 +48,7 @@ test('Workflow keeps a quiet reading pose with optional larger-screen inspection
   await expect(canvas).toHaveAttribute('data-workflow-time', pausedTime!);
   await expect(canvas).toHaveAttribute('data-workflow-frames', pausedFrames!);
   await expect(canvas).toHaveAttribute('data-camera-pose', pose!);
-  await page.getByRole('button', { name: 'View screen', exact: true }).click();
+  await clickSceneControl(page, 'View screen');
   await expect(canvas).toHaveAttribute('data-camera-mode', 'inspect');
   await expect
     .poll(async () => Number(await canvas.getAttribute('data-camera-fov')))
@@ -64,19 +68,15 @@ test('Workflow keeps a quiet reading pose with optional larger-screen inspection
     page.getByRole('button', { name: 'View screen', exact: true }),
   ).toHaveAttribute('aria-pressed', 'false');
   await expect(canvas).toHaveAttribute('data-camera-mode', 'reading');
-  await page.getByRole('button', { name: 'View screen', exact: true }).click();
-  await page
-    .getByRole('button', { name: 'Return to reading', exact: true })
-    .click();
+  await clickSceneControl(page, 'View screen');
+  await clickSceneControl(page, 'Return to reading');
   await expect(canvas).toHaveAttribute('data-camera-pose', pose!);
   await expect(canvas).toHaveAttribute('data-camera-fov', fov!);
   await page.screenshot({
     path: testInfo.outputPath('workflow-closeup.png'),
     timeout: 60_000,
   });
-  await page
-    .getByRole('button', { name: 'Resume motion', exact: true })
-    .click();
+  await clickSceneControl(page, 'Resume motion');
   await expect(canvas).toHaveAttribute('data-workflow-motion', 'playing');
   const burst = await page.evaluate(async () => {
     const canvas = document.querySelector('canvas')!;
@@ -95,21 +95,19 @@ test('Workflow keeps a quiet reading pose with optional larger-screen inspection
     };
   });
   expect(burst.frames).toBeLessThanOrEqual(Math.floor(burst.elapsed / 50) + 1);
-  await page
-    .getByRole('button', { name: 'Use still view', exact: true })
-    .click();
+  await clickSceneControl(page, 'Use still view');
   await expect(page.locator('canvas')).toHaveCount(0);
   await expect(
     page.locator('#world-workflow .world-workflow-poster'),
   ).toBeVisible();
-  await page.getByRole('button', { name: 'Enable 3D', exact: true }).click();
+  await clickSceneControl(page, 'Enable 3D');
   await expect(canvas).toHaveAttribute('data-workflow-active', 'true', {
     timeout: 20_000,
   });
   await page.goto('/');
   await expect(page.locator('canvas')).toHaveAttribute(
     'data-camera-pose',
-    '0.1,0.84,7.14',
+    '0.1,0.74,7.14',
     { timeout: 20_000 },
   );
 });
@@ -136,14 +134,14 @@ test('reduced motion keeps Workflow still, with no engine and readable HTML', as
   ).toBeVisible();
   await expect(page.locator('canvas')).toHaveCount(0);
   expect(requests).toEqual([]);
-  await page.getByRole('button', { name: 'View stationary 3D' }).click();
+  await clickSceneControl(page, 'View stationary 3D');
   const canvas = page.locator('canvas');
   await expect(canvas).toHaveAttribute('data-workflow-motion', 'paused', {
     timeout: 20_000,
   });
   await expect(canvas).toHaveAttribute('data-workflow-active', 'false');
   await expect(canvas).toHaveAttribute('data-monitor-desktop', 'ready');
-  await expect(canvas).toHaveAttribute('data-camera-pose', '0.1,0.84,7.14');
+  await expect(canvas).toHaveAttribute('data-camera-pose', '0.1,0.74,7.14');
   await expect(
     page.locator('#world-workflow .world-workflow-poster'),
   ).toBeVisible();

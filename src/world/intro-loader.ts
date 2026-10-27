@@ -6,6 +6,7 @@ import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import type { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import decoderJs from 'three/examples/jsm/libs/draco/gltf/draco_wasm_wrapper.js?url';
 import decoderWasm from 'three/examples/jsm/libs/draco/gltf/draco_decoder.wasm?url';
+import { prepareScene, reportSceneDownload } from './scene-loading';
 
 // This module belongs to the optional engine chunk. Do not preload the decoder:
 // narrow/reduced-motion visitors should download only the approved poster.
@@ -37,9 +38,16 @@ export function configureIntroLoader(loader: GLTFLoader) {
       url,
       (model) => {
         decoder.dispose();
+        prepareScene();
         onLoad(model);
       },
-      onProgress,
+      (event) => {
+        reportSceneDownload(
+          event.loaded,
+          event.lengthComputable ? event.total : 0,
+        );
+        onProgress?.(event);
+      },
       (error) => {
         decoder.dispose();
         onError?.(error);

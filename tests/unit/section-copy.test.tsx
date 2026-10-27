@@ -26,6 +26,9 @@ test('all six approved sections appear once and retain every approved content bl
     'Dripperz',
   ]);
   expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
+  expect(document.querySelector('.world-brand')).toHaveTextContent(
+    /^Guillaume Ammouche$/,
+  );
   expect(screen.getByRole('heading', { name: 'About me' })).toBeInTheDocument();
   expect(document.querySelector('.world-copy-right')).toBeNull();
   for (const section of SECTION_COPY) {
@@ -48,24 +51,52 @@ test('all six approved sections appear once and retain every approved content bl
   ).not.toBeInTheDocument();
 });
 
-test('project emphasis is limited to selected individual words', () => {
+test('emphasis matches every approved workflow, stack and outcome phrase', () => {
   render(<WorldPage />);
-  const emphasized = [
-    ...document.querySelectorAll('.world-copy-section strong'),
-  ].map((word) => word.textContent.toLowerCase());
-  expect(emphasized).toEqual(
-    expect.arrayContaining([
-      'trading',
-      'backtesting',
-      'solana',
-      'caching',
-      'security',
-      'verification',
-      'solidity',
-      'aws',
-    ]),
-  );
-  expect(emphasized.every((word) => !/\s/.test(word))).toBe(true);
+  const expected: Record<string, string[]> = {
+    'world-profile': [
+      'understanding the problem and its constraints',
+      'across the application',
+    ],
+    'world-workflow': [
+      'architecture and interface design',
+      'tests',
+      'CI/CD pipelines',
+      'continuing to improve it through use',
+    ],
+    'world-apollo': [
+      'bring everything into one place',
+      'used and tested individually',
+      'Python/FastAPI',
+      'React/TypeScript',
+      'keeping long-running analysis separate from API requests',
+    ],
+    'world-iris': [
+      'Solana',
+      'combining several providers',
+      'handling external-service failures',
+    ],
+    'world-gateway': [
+      'API',
+      'without depending on a particular commerce platform',
+      'signing stays in the customer’s wallet',
+      'backend verifies transactions independently',
+    ],
+    'world-dripperz': [
+      'Solidity',
+      'supply limits, reservations and sale controls',
+      'React/TypeScript',
+      'dedicated desktop and mobile layouts',
+      'AWS',
+    ],
+  };
+  for (const [id, phrases] of Object.entries(expected)) {
+    expect(
+      [...document.querySelectorAll(`#${id} strong`)].map((e) => e.textContent),
+    ).toEqual(phrases);
+  }
+  expect(document.querySelector('#world-hub strong')).toBeNull();
+  expect(document.querySelector('#world-contact strong')).toBeNull();
 });
 
 test('the reading-first chapter retains its expressive lead and unboxed approved prose', () => {

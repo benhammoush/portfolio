@@ -8,12 +8,17 @@ import { defineConfig, devices } from '@playwright/test';
 const gpuSuites = [
   '**/apollo-monitor.spec.ts',
   '**/content-first.spec.ts',
+  '**/evening-room.spec.ts',
+  '**/scene-polish.spec.ts',
   '**/monitor-launch.spec.ts',
   '**/project-monitors.spec.ts',
   '**/section-poses.spec.ts',
   '**/workflow-monitor.spec.ts',
   '**/world.spec.ts',
 ];
+
+// HTTP response contracts use no browser APIs, so running each engine adds no coverage.
+const singleProjectSuites = [...gpuSuites, '**/asset-serving.spec.ts'];
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -25,12 +30,12 @@ export default defineConfig({
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     {
       name: 'firefox',
-      testIgnore: gpuSuites,
+      testIgnore: singleProjectSuites,
       use: { ...devices['Desktop Firefox'] },
     },
     {
       name: 'webkit',
-      testIgnore: gpuSuites,
+      testIgnore: singleProjectSuites,
       use: { ...devices['Desktop Safari'] },
     },
   ],

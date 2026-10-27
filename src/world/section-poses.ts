@@ -3,6 +3,7 @@
  * @packageDocumentation
  */
 import type { Point } from './chapters';
+import { CHAPTERS } from './chapters';
 
 /** World-space eye, focal point and framing span; no model/artwork is mutated. */
 export interface ReadingPose {
@@ -31,7 +32,7 @@ const ABOUT_POSE: ReadingPose = {
   viewHeight: 1.35,
 };
 
-/** Hold the About view through projects, then conclude beside the desk. */
+/** Hold the About view through projects, then return to the opening desk view. */
 export const SECTION_POSES: readonly (ReadingPose & { id: string })[] = [
   { id: 'world-profile', ...ABOUT_POSE },
   { id: 'world-workflow', ...ABOUT_POSE },
@@ -41,9 +42,9 @@ export const SECTION_POSES: readonly (ReadingPose & { id: string })[] = [
   { id: 'world-dripperz', ...ABOUT_POSE },
   {
     id: 'world-contact',
-    position: [1.8, 1.45, 2.6],
-    target: [0.18, 0.97, 0.06],
-    viewHeight: 2.25,
+    position: CHAPTERS[0].position,
+    target: CHAPTERS[0].target,
+    viewHeight: CHAPTERS[0].viewHeight,
   },
 ];
 

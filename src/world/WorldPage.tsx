@@ -23,7 +23,7 @@ import { useSectionNavigation } from './useSectionNavigation';
 interface CopyBlocksProps {
   /** Ordered paragraphs and subsection headings. */
   blocks: CopyBlock[];
-  /** Individual terms to emphasize without changing approved copy. */
+  /** Selected workflow, stack and outcome phrases; approved wording stays intact. */
   emphasis?: readonly string[];
 }
 
@@ -44,7 +44,7 @@ function CopyBlocks(props: CopyBlocksProps) {
               .split(pattern)
               .map((part, index) =>
                 props.emphasis!.some(
-                  (word) => word.toLowerCase() === part.toLowerCase(),
+                  (phrase) => phrase.toLowerCase() === part.toLowerCase(),
                 ) ? (
                   <strong key={index}>{part}</strong>
                 ) : (
@@ -76,12 +76,43 @@ const SCREEN_POSTERS: Record<MonitorChapter, string> = {
   dripperz: dripperzPoster,
 };
 
-/** A few single-word anchors give each project copy a quick visual scan point. */
+/** Owner-selected workflow, technology and outcome highlights in the exact copy. */
 const SECTION_EMPHASIS: Record<string, readonly string[]> = {
-  'world-apollo': ['trading', 'workers', 'memory', 'backtesting'],
-  'world-iris': ['Stacks', 'Solana', 'wallet', 'caching'],
-  'world-gateway': ['API', 'security', 'wallet', 'verification'],
-  'world-dripperz': ['Ethereum', 'Solidity', 'minting', 'AWS'],
+  'world-profile': [
+    'understanding the problem and its constraints',
+    'across the application',
+  ],
+  'world-workflow': [
+    'architecture and interface design',
+    'tests',
+    'CI/CD pipelines',
+    'continuing to improve it through use',
+  ],
+  'world-apollo': [
+    'used and tested individually',
+    'Python/FastAPI',
+    'React/TypeScript',
+    'bring everything into one place',
+    'keeping long-running analysis separate from API requests',
+  ],
+  'world-iris': [
+    'combining several providers',
+    'handling external-service failures',
+    'Solana',
+  ],
+  'world-gateway': [
+    'signing stays in the customer’s wallet',
+    'backend verifies transactions independently',
+    'API',
+    'without depending on a particular commerce platform',
+  ],
+  'world-dripperz': [
+    'supply limits, reservations and sale controls',
+    'Solidity',
+    'React/TypeScript',
+    'AWS',
+    'dedicated desktop and mobile layouts',
+  ],
 };
 
 /** Native section targets represented by the scroll-anchor rail. */
@@ -123,7 +154,11 @@ function SectionAnchorRail() {
   }, []);
 
   return (
-    <nav className="world-anchor-rail" aria-label="Section anchors">
+    <nav
+      className="world-anchor-rail"
+      aria-label="Section anchors"
+      hidden={active === PAGE_ANCHORS[0].id}
+    >
       {PAGE_ANCHORS.map(({ id, label }) => (
         <a
           key={id}
@@ -209,7 +244,7 @@ export default function WorldPage() {
       <WorldViewport />
       <header className="world-header">
         <a className="world-brand" href="#world-hub">
-          Guillaume Ammouche<span aria-hidden="true">.</span>
+          Guillaume Ammouche
         </a>
         <nav aria-label="World chapters">
           {CHAPTERS.map((chapter) => (
@@ -222,7 +257,6 @@ export default function WorldPage() {
           <a href="#world-contact">Contact</a>
         </nav>
       </header>
-      <SectionAnchorRail />
       <main className="container world-main" id="world-main" tabIndex={-1}>
         <section
           id="world-hub"
@@ -251,92 +285,108 @@ export default function WorldPage() {
             />
           </div>
         </section>
-        <section
-          id="world-profile"
-          className="world-profile world-section"
-          aria-label="Experience and life outside work"
-        >
-          <div className="world-section-inner">
-            <h2>About me</h2>
-            <CopyBlocks blocks={introduction.blocks.slice(2, 4)} />
-            <details
-              className="world-copy-details"
-              onToggle={() => window.dispatchEvent(new Event('scroll'))}
+        <div className="world-reading-layout">
+          <SectionAnchorRail />
+          <div className="world-reading-sections">
+            <section
+              id="world-profile"
+              className="world-profile world-section"
+              aria-label="Experience and life outside work"
             >
-              <summary>Read more about me</summary>
-              <CopyBlocks blocks={introduction.blocks.slice(4)} />
-            </details>
-          </div>
-        </section>
-        {SECTION_COPY.slice(1).map((section, index) => (
-          <section
-            key={section.id}
-            id={section.id}
-            className={`world-copy-section world-section world-workflow-section${section.id === 'world-iris' ? ' world-iris-section' : ''}`}
-            aria-labelledby={`${section.id}-title`}
-          >
-            <div className="world-section-inner">
-              <p className="world-eyebrow">
-                <span>{String(index + 1).padStart(2, '0')} /</span>
-                {section.id === 'world-workflow' ? 'Workflow' : 'Project'}
-              </p>
-              <h2 id={`${section.id}-title`}>{section.label}</h2>
-              <p className="world-section-lead">{section.blocks[0].text}</p>
-              <CopyBlocks
-                blocks={section.blocks.slice(1, 3)}
-                emphasis={SECTION_EMPHASIS[section.id]}
-              />
-              {section.blocks.length > 3 && (
+              <div className="world-section-inner">
+                <h2>About me</h2>
+                <CopyBlocks
+                  blocks={introduction.blocks.slice(2, 4)}
+                  emphasis={SECTION_EMPHASIS['world-profile']}
+                />
                 <details
                   className="world-copy-details"
                   onToggle={() => window.dispatchEvent(new Event('scroll'))}
                 >
-                  <summary>Read more about {section.label}</summary>
+                  <summary>Read more about me</summary>
                   <CopyBlocks
-                    blocks={section.blocks.slice(3)}
-                    emphasis={SECTION_EMPHASIS[section.id]}
+                    blocks={introduction.blocks.slice(4)}
+                    emphasis={SECTION_EMPHASIS['world-profile']}
                   />
                 </details>
-              )}
-              {section.id === 'world-workflow' && (
-                <ul
-                  className="world-project-links"
-                  aria-label="Project sections"
-                >
-                  {projects.map((project) => (
-                    <li key={project.id}>
-                      <a href={`#${project.id}`}>
-                        {project.label} <span aria-hidden="true">↓</span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-            <ScreenPoster
-              chapter={MONITOR_CHAPTERS.find(
-                (chapter) => section.id === `world-${chapter}`,
-              )!}
-            />
-          </section>
-        ))}
-        <section
-          id="world-contact"
-          className="world-contact world-section"
-          aria-labelledby="world-contact-title"
-        >
-          <div className="world-section-inner">
-            <p className="world-eyebrow">Next / A conversation</p>
-            <h2 id="world-contact-title">Let’s build something reliable.</h2>
-            <p>For full-stack development opportunities, reach me by email.</p>
-            <a
-              className="world-contact-link"
-              href="mailto:guillaumeammouche@protonmail.com"
+              </div>
+            </section>
+            {SECTION_COPY.slice(1).map((section, index) => (
+              <section
+                key={section.id}
+                id={section.id}
+                className={`world-copy-section world-section world-workflow-section${section.id === 'world-iris' ? ' world-iris-section' : ''}`}
+                aria-labelledby={`${section.id}-title`}
+              >
+                <div className="world-section-inner">
+                  <p className="world-eyebrow">
+                    <span>{String(index + 1).padStart(2, '0')} /</span>
+                    {section.id === 'world-workflow' ? 'Workflow' : 'Project'}
+                  </p>
+                  <h2 id={`${section.id}-title`}>{section.label}</h2>
+                  <p className="world-section-lead">{section.blocks[0].text}</p>
+                  <CopyBlocks
+                    blocks={section.blocks.slice(1, 3)}
+                    emphasis={SECTION_EMPHASIS[section.id]}
+                  />
+                  {section.blocks.length > 3 && (
+                    <details
+                      className="world-copy-details"
+                      onToggle={() => window.dispatchEvent(new Event('scroll'))}
+                    >
+                      <summary>Read more about {section.label}</summary>
+                      <CopyBlocks
+                        blocks={section.blocks.slice(3)}
+                        emphasis={SECTION_EMPHASIS[section.id]}
+                      />
+                    </details>
+                  )}
+                  {section.id === 'world-workflow' && (
+                    <ul
+                      className="world-project-links"
+                      aria-label="Project sections"
+                    >
+                      {projects.map((project) => (
+                        <li key={project.id}>
+                          <a href={`#${project.id}`}>
+                            {project.label} <span aria-hidden="true">↓</span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                <ScreenPoster
+                  chapter={MONITOR_CHAPTERS.find(
+                    (chapter) => section.id === `world-${chapter}`,
+                  )!}
+                />
+              </section>
+            ))}
+            <section
+              id="world-contact"
+              className="world-contact world-section"
+              aria-labelledby="world-contact-title"
             >
-              guillaumeammouche@protonmail.com <span aria-hidden="true">↗</span>
-            </a>
+              <div className="world-section-inner">
+                <p className="world-eyebrow">Next / A conversation</p>
+                <h2 id="world-contact-title">
+                  Let’s build something reliable.
+                </h2>
+                <p>
+                  For full-stack development opportunities, reach me by email.
+                </p>
+                <a
+                  className="world-contact-link"
+                  href="mailto:guillaumeammouche@protonmail.com"
+                >
+                  guillaumeammouche@protonmail.com{' '}
+                  <span aria-hidden="true">↗</span>
+                </a>
+              </div>
+            </section>
           </div>
-        </section>
+        </div>
         <footer className="world-footer">
           <p>
             Local composition study · Not a public launch · Version{' '}

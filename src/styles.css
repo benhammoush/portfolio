@@ -27,16 +27,13 @@ main:not(.container) {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding-block: 1.75rem;
+  padding-block: 0.625rem;
   border-bottom: 1px solid var(--line);
 }
 .wordmark {
   font-weight: 700;
   color: var(--ink);
   text-decoration: none;
-}
-.wordmark span {
-  color: var(--accent);
 }
 nav {
   display: flex;
@@ -153,6 +150,7 @@ section[id] {
   .site-header {
     align-items: flex-start;
     flex-direction: column;
+    gap: 0.25rem;
   }
   .section-grid,
   .capability-grid {

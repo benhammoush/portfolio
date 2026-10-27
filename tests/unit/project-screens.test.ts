@@ -7,6 +7,7 @@ import { execFileSync } from 'node:child_process';
 import { expect, test, vi } from 'vitest';
 import { drawProjectTexture } from '../../src/world/project-texture';
 
+// Each provenance check starts TypeScript and Prettier in a separate Node process.
 for (const chapter of ['iris', 'gateway', 'dripperz'] as const) {
   test(`${chapter} SVG matches its original source and has no external or transactional content`, () => {
     expect(() =>
@@ -43,5 +44,5 @@ for (const chapter of ['iris', 'gateway', 'dripperz'] as const) {
       expect(args[6] + args[8]).toBeLessThanOrEqual(464);
     }
     expect(strokeRect).not.toHaveBeenCalled();
-  });
+  }, 20_000);
 }
