@@ -65,7 +65,7 @@ test('restores prior scene state and disposes intermediate/output resources', ()
   });
   const cleanup = installStudioEnvironment(scene, {} as WebGLRenderer);
   expect(scene.environment).toBe(output);
-  expect(scene.environmentIntensity).toBe(0.65);
+  expect(scene.environmentIntensity).toBe(0.14);
   expect(fixtures.instanceDispose).toHaveBeenCalledOnce();
   expect(fixtures.roomDispose).toHaveBeenCalledOnce();
   expect(fixtures.generatorDispose).toHaveBeenCalledOnce();

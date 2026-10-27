@@ -31,7 +31,7 @@ export default function HomePage() {
           href="#main-content"
           aria-label="Guillaume Ammouche, introduction"
         >
-          Guillaume Ammouche<span aria-hidden="true">.</span>
+          Guillaume Ammouche
         </a>
         <nav aria-label="Main navigation">
           <a href="/">Home</a>

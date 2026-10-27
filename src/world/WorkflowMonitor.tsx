@@ -8,11 +8,12 @@ import {
   CanvasTexture,
   LinearFilter,
   Mesh,
-  MeshBasicMaterial,
+  MeshPhysicalMaterial,
   PlaneGeometry,
   SRGBColorSpace,
 } from 'three';
 import type { Object3D } from 'three';
+import { MONITOR_SCREEN } from './personal-model';
 import artworkUrl from '../assets/workflow/workflow-screen.svg?url';
 import apolloUrl from '../assets/apollo/apollo-screen.svg?url';
 import irisUrl from '../assets/iris/iris-screen.svg?url';
@@ -65,12 +66,12 @@ interface MonitorSurface {
   images: Record<MonitorChapter, { image: HTMLImageElement; ready: boolean }>;
   /** GPU texture owned by this effect. */
   texture: CanvasTexture;
-  /** Plane positioned just ahead of the model's measured screen face. */
+  /** Full-height display recessed behind the physical bezel. */
   plane: Mesh;
 }
 
 /**
- * Attach an unlit monitor surface without changing cached model materials or geometry.
+ * Attach an emissive glass display without changing cached model materials or geometry.
  * @param props - Scene clone and shared motion/view policy.
  * @returns No Fiber geometry; the effect owns and disposes its attached surface.
  */
@@ -102,11 +103,13 @@ export default function WorkflowMonitor(props: WorkflowMonitorProps) {
     elapsed: number;
   } | null>(null);
   const timer = useRef<number | undefined>(undefined);
+  const previousPlaybackFrame = useRef<number | null>(null);
   useEffect(() => {
     /** Freeze the first returning frame, even when the demand loop skipped hidden frames. */
     function suspendClock() {
       wasPlaying.current = null;
       previousWindowFrame.current = null;
+      previousPlaybackFrame.current = null;
       window.clearTimeout(timer.current);
     }
     document.addEventListener('visibilitychange', suspendClock);
@@ -122,7 +125,7 @@ export default function WorkflowMonitor(props: WorkflowMonitorProps) {
   useEffect(() => {
     const canvas = document.createElement('canvas');
     canvas.width = 1040;
-    canvas.height = 464;
+    canvas.height = 585;
     const context = canvas.getContext('2d');
     if (!context) return;
     drawDesktopScreen(context);
@@ -131,14 +134,23 @@ export default function WorkflowMonitor(props: WorkflowMonitorProps) {
     texture.minFilter = LinearFilter;
     texture.magFilter = LinearFilter;
     texture.generateMipmaps = false;
-    const geometry = new PlaneGeometry(0.99, 0.441);
+    const geometry = new PlaneGeometry(
+      MONITOR_SCREEN.width,
+      MONITOR_SCREEN.height,
+    );
     // Desktop and app windows share this one opaque surface, including stationary 3D.
-    const material = new MeshBasicMaterial({
-      map: texture,
+    const material = new MeshPhysicalMaterial({
+      color: '#000000',
+      emissive: '#ffffff',
+      emissiveMap: texture,
+      emissiveIntensity: 1,
+      roughness: 0.45,
+      clearcoat: 1,
+      clearcoatRoughness: 0.2,
       toneMapped: false,
     });
     const plane = new Mesh(geometry, material);
-    plane.position.set(0.26, 1.2235, -0.444);
+    plane.position.set(MONITOR_SCREEN.x, MONITOR_SCREEN.y, MONITOR_SCREEN.z);
     plane.visible = true;
     props.scene.add(plane);
     const owned: MonitorSurface = {
@@ -166,6 +178,7 @@ export default function WorkflowMonitor(props: WorkflowMonitorProps) {
     wasBusy.current = false;
     windowAction.current = null;
     previousWindowFrame.current = null;
+    previousPlaybackFrame.current = null;
     for (const chapter of MONITOR_CHAPTERS) {
       const item = owned.images[chapter];
       item.image.onload = () => {
@@ -221,10 +234,11 @@ export default function WorkflowMonitor(props: WorkflowMonitorProps) {
   }, [props.scene, gl, invalidate]);
   useEffect(() => {
     previousWindowFrame.current = null;
+    previousPlaybackFrame.current = null;
     invalidate();
     return () => window.clearTimeout(timer.current);
   }, [props.animate, props.cameraTravel, invalidate]);
-  useFrame((_, delta) => {
+  useFrame(() => {
     window.clearTimeout(timer.current);
     const owned = surface.current;
     if (!owned) return;
@@ -352,18 +366,25 @@ export default function WorkflowMonitor(props: WorkflowMonitorProps) {
       };
     const current = action.current;
     if (!current) return;
+    const now = performance.now();
+    const previous =
+      wasPlaying.current === chapter ? previousPlaybackFrame.current : null;
     if (playing && !opening && wasPlaying.current === chapter)
-      current.elapsed = Math.min(
-        TAB_ACTION_SECONDS,
-        current.elapsed + Math.min(delta, 0.1),
-      );
+      current.elapsed = advanceWorkspaceClock(
+        { elapsed: current.elapsed, previous },
+        now,
+        true,
+      ).elapsed;
     if (!playing) wasPlaying.current = null;
     // The first resume frame must not add time spent paused or offscreen.
     if (playing && windowAmount === 1 && wasPlaying.current === chapter)
-      time.current[chapter] = Math.min(
+      time.current[chapter] = advanceWorkspaceClock(
+        { elapsed: time.current[chapter], previous },
+        now,
+        true,
         1.8,
-        time.current[chapter] + Math.min(delta, 0.1),
-      );
+      ).elapsed;
+    previousPlaybackFrame.current = playing ? now : null;
     if (playing) wasPlaying.current = chapter;
     const selected = workspaceTab(current.from, current.to, current.elapsed);
     const busy =
@@ -391,13 +412,12 @@ export default function WorkflowMonitor(props: WorkflowMonitorProps) {
       return;
     }
     if (!busy && !artChanged && !wasBusy.current) return;
-    const now = performance.now();
     if (shouldPaintWorkflow(now, previousPaint.current)) {
       const paintArtwork =
         visible && windowAmount > 0 && owned.images[selected].ready;
       drawDesktopScreen(owned.context);
       if (paintArtwork) {
-        const frame = workspaceFrame(windowAmount);
+        const frame = workspaceFrame(windowAmount, owned.context.canvas.height);
         owned.context.save();
         owned.context.translate(frame.left, frame.top);
         owned.context.scale(frame.scale, frame.scale);

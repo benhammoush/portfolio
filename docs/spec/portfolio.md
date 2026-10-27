@@ -6,6 +6,12 @@ are bounded units; later slices, remote configuration and deployment require
 separate authorization. Verification evidence belongs in delivery records,
 not inferred from these requirements.
 
+Current route scope is `/` for the portfolio, `/about` for the retained profile,
+and `/world` as a portfolio alias. The earlier `/design`, `/hero-study`,
+`/scene-study` and `/screen-study` routes and their variants have been retired;
+checkpoint descriptions below are historical, not routes to retain or rebuild.
+Accepted monitor illustrations remain standalone sources under `src/artwork/`.
+
 ## Purpose and outcomes
 
 An English portfolio for job applications and developer-community credibility.
@@ -26,8 +32,10 @@ traceable and recoverable delivery.
   nonanimated browser-rendered content/posters, not pre-rendered route HTML.
 - Include a useful static `noscript` notice when JavaScript is disabled; do not
   promise readable case studies or working application navigation without it.
-- White/soft-gray surfaces, dark typography, restrained accents, soft shadows
-  and minimal futuristic installations. Real UI imagery retains its colors.
+- The main portfolio uses a softly lit evening workspace: charcoal surfaces,
+  warm off-white typography, a matte wall and a small warm desk lamp, with quiet
+  cool fill and gentle shadows. Real UI imagery retains its colors; the retained
+  profile and independent design studies keep their own art direction.
 - Native section snapping drives transitions, with anchors at the top, profile,
   workflow, each project and contact. Vertical wheel gestures select adjacent anchors
   rather than skipping sections; touch and keyboard scrolling remain browser-owned.
@@ -280,7 +288,7 @@ deployment is authorized by this slice.
 The local `/design` route presents the proposed hub/Iris architectural gallery as
 original static vector artwork, not live 3D. It is a review-only addition to the
 0.2.0 local candidate, not a launch route or another shipped version. Its retained
-[static study](../../src/design/DesignPage.tsx) is not the current desk-scene direction.
+static study was not the current desk-scene direction and has since been removed.
 Stop for owner visual feedback before
 installing world dependencies or treating this proposal as the accepted prototype.
 Actual WebGL fallback/lifecycle behavior and measured performance remain unverified.
@@ -494,6 +502,92 @@ Narrower layouts stay stacked with independent still artwork; no scene behind te
 
 The owner also requested removing the bottom controls ribbon. Keep motion/still
 controls accessible in the header area instead, with no fixed bottom strip.
+The owner later selected one compact, initially closed Scene options disclosure
+instead of separate visible buttons. Retain inspection, pause/resume and still-view
+actions inside it, with keyboard access and visible graphics-failure notices.
+The owner subsequently approved all proposed workflow, technology and outcome
+highlights as phrases across About, Workflow and project copy, including Read more.
+This supersedes the single-word-only emphasis rule without changing approved wording.
+The owner subsequently accepted the actual 3D evening-room preview and authorized
+local integration: a matte wall behind the desk, the small lamp at the far-right
+corner, warm lighting with soft shadows and faint cool fill. Preserve the model,
+camera path, monitor artwork, copy and motion/accessibility policies. Apply matching
+dark reading surfaces and regenerate the static alternative from the same scene.
+The 25% feathered sheet remains; local backing must protect light text even over
+bright geometry. Retained profile/study pages stay independent. Complete local
+checks, browser verification and read-only review without publication or deployment.
+The owner next requested personal scene details: geometric wood panels on the left
+wall inspired by the supplied slatted-panel photo; staggered shelves on the right
+holding the relocated Vietnamese flag and a small full-planche sculpture inspired
+by the supplied calisthenics photo; a bonsai replacing the plant; a centered,
+approximately 27-inch monitor; and an original VS Code-inspired coding IDE as its
+default screen. Preserve the existing project-window interactions and artwork.
+Contact now reuses the opening camera eye/target instead of the separate rear
+three-quarter conclusion. These newer requests supersede the original plant,
+desktop flag placement, oversized display, portfolio desktop and Contact pose
+requirements below. Keep the source asset/cache intact through mounted-clone
+customization and regenerate the still alternative with the upper shelves in frame.
+The latest wall reference supersedes the chevron geometry: use straight vertical
+wood slats across the left section, extending the entire wall height. Reduce the
+flag modestly (80% scale) and reposition both shelves into a new staggered layout,
+with the smaller flag higher/right and the statue lower/left, clear of reading copy.
+The owner then requested returning the smaller flag to the desk and moving the
+wood section farther left. Preserve the 80% flag scale, its original desktop foot,
+and the two shelf positions (leaving the upper shelf empty); shift the slat section
+0.3 scene units left without changing its height or pattern.
+The subsequent owner request removes the empty upper shelf entirely, retaining
+only the statue shelf and the desktop flag.
+The owner next selected removing only the dark patches behind individual desktop
+text blocks, retaining the subtle frosted left-side reading backdrop. Remove those
+local backgrounds and backing shadows; do not remove the shared 25% sheet or change
+the mobile and no-blur fallback surfaces.
+The owner initially increased scene smoothing to a 1px finishing blur, then rejected
+the blur approach. The current approved pass removes canvas blur, uses actual 2×
+desktop backing resolution (including 1× displays), and adds curved geometry to the
+character, bonsai, planche statue, chair and monitor. Narrow stationary opt-ins keep
+their previous 1–1.5× cap. Preserve the model's style, animation, monitor artwork and
+camera path; leave intentional wood/desk edges crisp. Show matching before/after
+close-ups from two angles per requested element. Verify local functionality and
+refresh the static alternative; physical-device performance remains separate.
+The owner subsequently requested a 0.5px finishing-blur trial on the live 3D
+canvas only. Keep the 2× desktop resolution and geometry improvements; do not
+filter HTML copy, navigation, the loader or still/project artwork containers.
+Repair the main character's uneven neck joins in clone-local geometry: replace
+only the disconnected neck surface with a smooth skinned loft whose ends tuck
+inside the existing head and shirt. Remove the raised former hood-opening collar
+ring from the rib batch, retaining all wrist/ankle cuffs. Keep the original GLB,
+face, hands, materials and animation rig untouched, and restore/dispose only owned
+resources on scene toggles.
+The next local revision adds a dedicated initial loading screen with a progress
+bar driven by real model-transfer bytes, explicit engine/preparation stages and
+an immediately available “Continue without 3D” action (also Escape). Static-policy
+visitors do not wait for or download the optional scene. Completion follows the
+first fully prepared rendered frame, not merely the model response.
+The owner-selected loader design is option A, inspired by Dripperz: the existing
+charcoal background, centered “Loading experience” label, a fine warm-neutral
+progress line and one small measured percentage/status below it. Remove the name,
+illustration, large heading and extra explanatory copy. Keep an immediately
+available, keyboard-accessible “Continue without 3D” text action near the bottom.
+Place the section-anchor rail in the reading layout beside the text column, not
+against the viewport's far-left edge. Use sticky positioning within the post-hero
+content, hide it while Introduction is active, and preserve the eight native links,
+active-section indication, keyboard access and direct-fragment behavior. Reserve a
+small gutter on narrow layouts so the rail does not overlap the copy.
+The display now fills the 27-inch panel at 1040×585, with a recessed aperture and
+an emissive/glass finish rather than a floating inset rectangle. Reflow the IDE
+and workspace footer to the taller canvas without stretching the project artwork.
+Retarget only the local keyboard clip for a lifted, supported wrist and gentler
+finger motion, retaining the loop, mouse gesture, pause and visibility policies.
+Widen the opening view modestly (viewHeight 4.4) and make Contact reuse its exact
+eye, target, lens and projection offsets, superseding the former right-shifted
+Contact framing. Lower that shared camera by 0.1 scene units: eye
+`[0.1, 0.74, 7.14]`, target `[0.1, 0.7, 0]`, preserving its viewing angle.
+The owner approved a revision based on the existing website's
+full-planche statue: reduce the original torso height and depth by 25%, tuck the
+waist with a gentle upper-back curve, and round both shoulder joints. Keep its
+head, neck, hips, limbs, aligned hands, bronze finish, shelf placement and scale.
+Retain static material batching and resource cleanup. Other anatomical replacement
+studies remain unapproved and are not imported. No publication is authorized.
 
 The owner next requested less upfront text and smooth movement between scene
 columns. Keep the first two approved paragraphs visible, with remaining approved
@@ -581,6 +675,9 @@ viewport) instead of individual rounded panels. Keep all desktop reading content
 within that half and remove its card borders/corners. Hide the sheet in the hero;
 its visibility must not depend on the 3D engine. Narrower layouts retain a readable
 full-width text surface, not a cramped half-screen column.
+The owner subsequently selected a 25% desktop sheet with a feathered right edge
+and stronger local backing behind text. Preserve AA contrast with sharp, opaque
+lettering; keep mobile surfaces and the more opaque no-blur fallback unchanged.
 The owner then replaced the individual project waypoints with one fixed monitor
 top-right camera from Workflow through Dripperz: share Workflow's eye, focal point
 and framing span across all five sections, so forward/reverse project scrolling

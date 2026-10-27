@@ -33,7 +33,7 @@ export function installStudioEnvironment(
     }
   })();
   scene.environment = target.texture;
-  scene.environmentIntensity = 0.65;
+  scene.environmentIntensity = 0.14;
   return () => {
     scene.environment = previous;
     scene.environmentIntensity = previousIntensity;

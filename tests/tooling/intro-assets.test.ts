@@ -279,9 +279,9 @@ test('intro poster has an alpha channel and responsive intrinsic dimensions', ()
   expect(manifest.poster_bytes).toBe(poster.length);
 });
 
-test('the OS desktop fallback preserves transparent 1200×900 framing', () => {
+test('the evening desktop fallback includes an opaque room in 1200×900 RGB framing', () => {
   const poster = readFileSync('src/assets/intro/desktop-poster.png');
   expect(poster.readUInt32BE(16)).toBe(1200);
   expect(poster.readUInt32BE(20)).toBe(900);
-  expect(poster[25]).toBe(6);
+  expect(poster[25]).toBe(2);
 });

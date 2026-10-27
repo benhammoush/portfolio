@@ -3,10 +3,71 @@
  * @packageDocumentation
  */
 import { expect, test } from '@playwright/test';
+import { collectEngineRequests } from './support/engineRequests';
+
+test('evening still includes the lit lamp and wall without baked navigation or engine downloads', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const engines = collectEngineRequests(page);
+  await page.goto('/');
+  await expect(page.locator('canvas')).toHaveCount(0);
+  expect(engines).toEqual([]);
+  const poster = page.locator('.world-intro-poster');
+  await expect
+    .poll(() =>
+      poster.evaluate(
+        (image: HTMLImageElement) =>
+          image.complete && image.naturalWidth === 1200,
+      ),
+    )
+    .toBe(true);
+  const pixels = await poster.evaluate((image: HTMLImageElement) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = image.naturalWidth;
+    canvas.height = image.naturalHeight;
+    const context = canvas.getContext('2d')!;
+    context.drawImage(image, 0, 0);
+    const background = [...context.getImageData(600, 30, 1, 1).data];
+    const edge = context.getImageData(0, 180, 24, 540).data;
+    const light = context.getImageData(740, 250, 360, 270).data;
+    const shelf = context.getImageData(800, 130, 300, 260).data;
+    const desk = context.getImageData(420, 450, 100, 85).data;
+    let bakedControls = 0;
+    let lampPixels = 0;
+    let shelfFlagPixels = 0;
+    let deskFlagPixels = 0;
+    for (let i = 0; i < edge.length; i += 4)
+      if (edge[i] > 150 && edge[i + 1] > 150 && edge[i + 2] > 150)
+        bakedControls++;
+    for (let i = 0; i < light.length; i += 4)
+      if (light[i] > 180 && light[i + 1] > 180 && light[i + 2] > 180)
+        lampPixels++;
+    for (let i = 0; i < shelf.length; i += 4)
+      if (shelf[i] > 100 && shelf[i] > shelf[i + 1] * 3) shelfFlagPixels++;
+    for (let i = 0; i < desk.length; i += 4)
+      if (desk[i] > 100 && desk[i] > desk[i + 1] * 3) deskFlagPixels++;
+    return {
+      background,
+      bakedControls,
+      lampPixels,
+      shelfFlagPixels,
+      deskFlagPixels,
+    };
+  });
+  expect(pixels.background[3]).toBe(255);
+  expect(Math.max(...pixels.background.slice(0, 3))).toBeLessThan(80);
+  expect(pixels.bakedControls).toBe(0);
+  expect(pixels.lampPixels).toBeGreaterThan(100);
+  expect(pixels.shelfFlagPixels).toBe(0);
+  expect(pixels.deskFlagPixels).toBeGreaterThan(100);
+  await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark');
+});
 
 for (const viewport of [
   { width: 320, height: 740 },
   { width: 390, height: 844 },
+  { width: 600, height: 900 },
   { width: 768, height: 1024 },
   { width: 1024, height: 768 },
   { width: 1440, height: 900 },
@@ -20,8 +81,34 @@ for (const viewport of [
     const hero = page.locator('.world-intro');
     const title = hero.getByRole('heading', { level: 1 });
     await expect(title).toHaveText('Hi, I’m Guillaume, a full-stack developer');
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth > innerWidth,
+      ),
+    ).toBe(false);
     const titleBox = await title.boundingBox();
     const headerBox = await page.locator('.world-header').boundingBox();
+    await expect(page.locator('.world-brand')).toHaveText('Guillaume Ammouche');
+    expect(headerBox!.height).toBeLessThanOrEqual(
+      viewport.width < 768 ? 73 : 66,
+    );
+    const optionsBox = await page
+      .locator('.world-scene-options summary')
+      .boundingBox();
+    expect(optionsBox!.y).toBeGreaterThanOrEqual(headerBox!.y);
+    expect(optionsBox!.y + optionsBox!.height).toBeLessThanOrEqual(
+      headerBox!.y + headerBox!.height,
+    );
+    for (const link of await page.locator('.world-header nav a').all()) {
+      const box = await link.boundingBox();
+      expect(box!.height).toBeGreaterThanOrEqual(24);
+      const overlapsOptions =
+        box!.x < optionsBox!.x + optionsBox!.width &&
+        box!.x + box!.width > optionsBox!.x &&
+        box!.y < optionsBox!.y + optionsBox!.height &&
+        box!.y + box!.height > optionsBox!.y;
+      expect(overlapsOptions).toBe(false);
+    }
     expect(titleBox!.y).toBeGreaterThan(headerBox!.y + headerBox!.height);
     expect(
       await title.evaluate(
@@ -183,13 +270,13 @@ test('chapter clearance overrides generic section styles', async ({ page }) => {
     await page
       .locator('#world-iris')
       .evaluate((element) => getComputedStyle(element).scrollMarginTop),
-  ).toBe('120px');
+  ).toBe('80px');
   await page.setViewportSize({ width: 390, height: 844 });
   expect(
     await page
       .locator('#world-iris')
       .evaluate((element) => getComputedStyle(element).scrollMarginTop),
-  ).toBe('96px');
+  ).toBe('88px');
 });
 
 test('approved text sections have native project links and direct-entry anchors', async ({

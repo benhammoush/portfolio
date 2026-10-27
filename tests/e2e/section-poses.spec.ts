@@ -2,21 +2,29 @@
  * Real canvas framing follows native scroll, reverses without a queue and respects pause.
  * @packageDocumentation
  */
-import { expect, test } from '@playwright/test';
+import { expect as baseExpect, test } from '@playwright/test';
+import { clickSceneControl } from './support/sceneControls';
+
+// These assertions observe completed 2x software-rendered frames, not a frame-rate budget.
+const expect = baseExpect.configure({ timeout: 45_000 });
 
 test('the full-screen tour reaches physical landmarks behind the reading surface', async ({
   page,
 }) => {
-  test.setTimeout(90_000);
+  test.setTimeout(180_000);
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
   const canvas = page.locator('canvas[data-world-ready="true"]');
   await expect(canvas).toHaveAttribute('data-camera-mode', 'intro', {
-    timeout: 25_000,
+    timeout: 45_000,
   });
   await expect(canvas).toHaveAttribute('data-scene-side', 'full');
   await expect(canvas).toHaveCSS('mask-image', 'none');
-  await page.getByRole('button', { name: 'Pause motion', exact: true }).click();
+  const openingOffset = Number(
+    await canvas.getAttribute('data-camera-offset-x'),
+  );
+  const openingFov = Number(await canvas.getAttribute('data-camera-fov'));
+  await clickSceneControl(page, 'Pause motion');
   const stops = [
     ['world-profile', '-0.38,1.45,1.25', '0.1,1.22,-0.444'],
     ['world-workflow', '-0.38,1.45,1.25', '0.1,1.22,-0.444'],
@@ -24,7 +32,7 @@ test('the full-screen tour reaches physical landmarks behind the reading surface
     ['world-iris', '-0.38,1.45,1.25', '0.1,1.22,-0.444'],
     ['world-gateway', '-0.38,1.45,1.25', '0.1,1.22,-0.444'],
     ['world-dripperz', '-0.38,1.45,1.25', '0.1,1.22,-0.444'],
-    ['world-contact', '1.8,1.45,2.6', '0.18,0.97,0.06'],
+    ['world-contact', '0.1,0.74,7.14', '0.1,0.7,0'],
   ];
   for (const [id, eye, target] of stops) {
     await page
@@ -52,7 +60,12 @@ test('the full-screen tour reaches physical landmarks behind the reading surface
       .poll(async () =>
         Number(await canvas.getAttribute('data-camera-offset-x')),
       )
-      .toBeCloseTo(-1440 * 0.22, 5);
+      .toBeCloseTo(id === 'world-contact' ? openingOffset : -1440 * 0.22, 5);
+    if (id === 'world-contact')
+      expect(Number(await canvas.getAttribute('data-camera-fov'))).toBeCloseTo(
+        openingFov,
+        5,
+      );
     await expect(canvas).toHaveCSS('mask-image', 'none');
     if (id === 'world-profile') {
       const image = (await page.screenshot()).toString('base64');
@@ -89,12 +102,12 @@ test('the full-screen tour reaches physical landmarks behind the reading surface
 test('the About camera holds through project scrolling, expanded copy and paused jumps', async ({
   page,
 }) => {
-  test.setTimeout(90_000);
+  test.setTimeout(180_000);
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/#world-workflow');
   const canvas = page.locator('canvas[data-world-ready="true"]');
   await expect(canvas).toHaveAttribute('data-route-span', '1.35', {
-    timeout: 25_000,
+    timeout: 45_000,
   });
   const readingBox = await page
     .locator('#world-workflow .world-section-inner')
@@ -147,7 +160,7 @@ test('the About camera holds through project scrolling, expanded copy and paused
   await expect(canvas).toHaveAttribute('data-camera-fov', lens!);
   await scrollBetween(0.5);
   await expect(canvas).toHaveAttribute('data-camera-pose', middle!);
-  await page.getByRole('button', { name: 'Pause motion', exact: true }).click();
+  await clickSceneControl(page, 'Pause motion');
   await expect(canvas).toHaveAttribute('data-route-span', '1.35');
   await scrollBetween(1);
   await expect(canvas).toHaveAttribute('data-reading-section', 'world-apollo');
@@ -162,14 +175,19 @@ test('the About camera holds through project scrolling, expanded copy and paused
     .locator('#world-contact')
     .evaluate((element) => element.scrollIntoView({ behavior: 'instant' }));
   await expect(canvas).toHaveAttribute('data-reading-section', 'world-contact');
-  await expect(canvas).toHaveAttribute('data-camera-target', '0.18,0.97,0.06');
+  await expect(canvas).toHaveAttribute('data-camera-target', '0.1,0.7,0');
   const rest = await canvas.getAttribute('data-camera-pose');
   await page.waitForTimeout(200);
   await expect(canvas).toHaveAttribute('data-camera-pose', rest!);
   await page.setViewportSize({ width: 1200, height: 900 });
+  // Expanded prose reflows on resize; keep Contact, not the old absolute offset, under test.
+  await page
+    .locator('#world-contact')
+    .evaluate((element) => element.scrollIntoView({ behavior: 'instant' }));
+  await expect(canvas).toHaveAttribute('data-reading-section', 'world-contact');
   await expect
     .poll(async () => Number(await canvas.getAttribute('data-camera-offset-x')))
-    .toBeCloseTo(-1200 * 0.22, 5);
+    .toBeCloseTo(0, 5);
   await expect(canvas).toHaveAttribute('data-scene-side', 'full');
   const box = await canvas.boundingBox();
   expect(box!.x).toBe(0);
@@ -179,11 +197,10 @@ test('the About camera holds through project scrolling, expanded copy and paused
 test('reduced-motion stationary opt-in never follows section camera poses', async ({
   page,
 }) => {
+  test.setTimeout(120_000);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
-  await page
-    .getByRole('button', { name: 'View stationary 3D', exact: true })
-    .click();
+  await clickSceneControl(page, 'View stationary 3D');
   const canvas = page.locator('canvas[data-world-ready="true"]');
   await expect(canvas).toHaveAttribute('data-reading-section', 'stationary');
   const pose = await canvas.getAttribute('data-camera-pose');
@@ -196,4 +213,22 @@ test('reduced-motion stationary opt-in never follows section camera poses', asyn
   );
   await expect(canvas).toHaveAttribute('data-route-span', '0');
   await expect(canvas).toHaveAttribute('data-camera-pose', pose!);
+  const horizontalOffset = await canvas.getAttribute('data-camera-offset-x');
+  await expect(canvas).toHaveAttribute('data-camera-offset-y', '0');
+  for (const chapter of ['contact', 'dripperz']) {
+    await page.locator(`#world-${chapter}`).evaluate(async (element) => {
+      element.scrollIntoView({ behavior: 'instant' });
+      // Observe a completed demand frame, not stale diagnostics from the last stop.
+      await new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      );
+    });
+    await expect(canvas).toHaveAttribute('data-reading-section', 'stationary');
+    await expect(canvas).toHaveAttribute('data-camera-pose', pose!);
+    await expect(canvas).toHaveAttribute(
+      'data-camera-offset-x',
+      horizontalOffset!,
+    );
+    await expect(canvas).toHaveAttribute('data-camera-offset-y', '0');
+  }
 });

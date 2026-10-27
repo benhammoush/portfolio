@@ -3,6 +3,7 @@
  * @packageDocumentation
  */
 import { expect, test } from 'vitest';
+import { CHAPTERS } from '../../src/world/chapters';
 import {
   SECTION_POSES,
   sampleReadingPose,
@@ -14,6 +15,18 @@ const anchors = SECTION_POSES.map((pose, index) => ({
   top: (index + 1) * 1000,
   pose,
 }));
+
+test('opening and Contact share the slightly wider default framing without moving the camera', () => {
+  expect(CHAPTERS[0].position).toEqual([0.1, 0.74, 7.14]);
+  expect(CHAPTERS[0].target).toEqual([0.1, 0.7, 0]);
+  expect(CHAPTERS[0].viewHeight).toBe(4.4);
+  expect(SECTION_POSES.at(-1)).toMatchObject({
+    id: 'world-contact',
+    position: CHAPTERS[0].position,
+    target: CHAPTERS[0].target,
+    viewHeight: CHAPTERS[0].viewHeight,
+  });
+});
 
 test('each native stop selects its physical camera waypoint', () => {
   for (const anchor of anchors) {
@@ -30,9 +43,11 @@ test('each native stop selects its physical camera waypoint', () => {
     ).toBeGreaterThan(0.5);
     expect(frame.viewHeight).toBeGreaterThan(0);
   }
-  expect(sampleReadingPose(anchors, 9000, true).position).toEqual([
-    1.8, 1.45, 2.6,
-  ]);
+  expect(sampleReadingPose(anchors, 9000, true)).toMatchObject({
+    position: CHAPTERS[0].position,
+    target: CHAPTERS[0].target,
+    viewHeight: CHAPTERS[0].viewHeight,
+  });
 });
 test('the About view stays fixed from About through Dripperz', () => {
   expect(SECTION_POSES.map((p) => p.id)).toEqual([
@@ -60,13 +75,16 @@ test('the About view stays fixed from About through Dripperz', () => {
 test('scroll blending retraces the same route without queuing missed movements', () => {
   const middle = sampleReadingPose(anchors, 6500, true);
   expect(middle.blend).toBe(0.5);
-  expect(middle.target[0]).toBeCloseTo(0.14, 12);
-  expect(middle.viewHeight).toBeCloseTo(1.8, 12);
-  expect(sampleReadingPose(anchors, 6800, true).target[0]).toBeGreaterThan(
-    middle.target[0],
+  expect(middle.target[1]).toBeCloseTo(0.96, 12);
+  expect(middle.viewHeight).toBeCloseTo(
+    (1.35 + CHAPTERS[0].viewHeight) / 2,
+    12,
   );
-  expect(sampleReadingPose(anchors, 6200, true).target[0]).toBeLessThan(
-    middle.target[0],
+  expect(sampleReadingPose(anchors, 6800, true).target[1]).toBeLessThan(
+    middle.target[1],
+  );
+  expect(sampleReadingPose(anchors, 6200, true).target[1]).toBeGreaterThan(
+    middle.target[1],
   );
   expect(sampleReadingPose(anchors, 6500, true)).toEqual(middle);
 });

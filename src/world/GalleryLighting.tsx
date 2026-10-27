@@ -5,40 +5,39 @@
 import { useEffect } from 'react';
 import { useThree } from '@react-three/fiber';
 import { installStudioEnvironment } from './studio-environment';
+import { installEveningRoom } from './evening-room';
 
 /**
- * Give glass/metal a reflected room instead of increasing flat ambient brightness.
+ * Keep the evening lamp and subtle reflections under the mounted canvas owner.
  * All room geometry, PMREM intermediates and the output target are locally owned.
- * @returns Studio lights plus an effect that restores/disposes its environment on exit.
+ * @returns Quiet fill lights plus the owned room/environment lifecycle.
  */
 export default function GalleryLighting() {
   const get = useThree((state) => state.get);
   useEffect(() => {
     const { scene, gl, invalidate } = get();
-    const cleanup = installStudioEnvironment(scene, gl);
+    const cleanupEnvironment = installStudioEnvironment(scene, gl);
+    let cleanupRoom: () => void;
+    try {
+      cleanupRoom = installEveningRoom(scene);
+    } catch (error) {
+      cleanupEnvironment();
+      throw error;
+    }
+    gl.domElement.setAttribute('data-evening-room', 'ready');
     invalidate();
-    return cleanup;
+    return () => {
+      gl.domElement.removeAttribute('data-evening-room');
+      cleanupRoom();
+      cleanupEnvironment();
+    };
   }, [get]);
 
   return (
     <>
-      <ambientLight intensity={0.18} />
-      <hemisphereLight args={['#fffdf3', '#81927f', 0.65]} />
-      <directionalLight
-        position={[-3.5, 7, 5]}
-        intensity={2.4}
-        color="#fff8e9"
-        castShadow
-        shadow-mapSize={[1024, 1024]}
-        shadow-camera-left={-3}
-        shadow-camera-right={3}
-        shadow-camera-top={3}
-        shadow-camera-bottom={-3}
-        shadow-radius={4}
-        shadow-normalBias={0.003}
-        shadow-bias={-0.0003}
-      />
-      <directionalLight position={[4, 3, -4]} intensity={0.7} color="#d9e9df" />
+      <ambientLight color="#d3b58b" intensity={0.08} />
+      <hemisphereLight args={['#b5c8df', '#24201c', 0.38]} />
+      <directionalLight position={[3, 3, 4]} intensity={0.27} color="#b1cadc" />
     </>
   );
 }

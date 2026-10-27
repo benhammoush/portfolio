@@ -1,6 +1,6 @@
 /**
  * Produce the monitor asset from the trusted, local artwork component.
- * @file Export the trusted review component's SVG as decorative artwork, not route HTML.
+ * @file Export trusted standalone artwork as a decorative SVG.
  */
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { createRequire } from 'node:module';
@@ -16,17 +16,14 @@ const project = ['iris', 'gateway', 'dripperz'].find((name) =>
 );
 const sourceUrl = new URL(
   project
-    ? '../src/design/ProjectScreenArtwork.tsx'
+    ? '../src/artwork/ProjectScreenArtwork.tsx'
     : apollo
-      ? '../src/design/ApolloScreenPage.tsx'
-      : '../src/design/WorkflowScreenPage.tsx',
+      ? '../src/artwork/ApolloScreenArtwork.tsx'
+      : '../src/artwork/WorkflowScreenArtwork.tsx',
   import.meta.url,
 );
 const require = createRequire(sourceUrl);
-const source = (await readFile(sourceUrl, 'utf8')).replace(
-  /^import ['"].*\.css['"];?$/gm,
-  '',
-);
+const source = await readFile(sourceUrl, 'utf8');
 // Resolve only installed React imports in this trusted, local artwork module.
 const compiled = ts
   .transpileModule(source, {
@@ -75,4 +72,4 @@ if (process.argv.includes('--check')) {
   await mkdir(new URL('.', output), { recursive: true });
   await writeFile(output, formatted);
 }
-console.log('Screen artwork matches the review component.');
+console.log('Screen artwork matches its source component.');

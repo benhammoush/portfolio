@@ -1,12 +1,11 @@
 /**
- * Exercise the minimal client route boundary without adding future product routes.
+ * Exercise the public route boundary without loading the optional renderer.
  * @packageDocumentation
  */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { expect, test, vi } from 'vitest';
 import App from '../../src/App';
-import { SECTION_COPY } from '../../src/world/section-copy';
 
 // Routing tests own HTML selection, not GPU or browser media-query capabilities.
 vi.mock('../../src/world/WorldViewport', () => ({
@@ -17,9 +16,9 @@ vi.mock('../../src/world/WorldViewport', () => ({
   default: () => null,
 }));
 
-test('matches the home route', () => {
+test.each(['/', '/world'])('matches the portfolio at %s', (path) => {
   render(
-    <MemoryRouter initialEntries={['/']}>
+    <MemoryRouter initialEntries={[path]}>
       <App />
     </MemoryRouter>,
   );
@@ -47,41 +46,6 @@ test('unknown route offers client navigation back to the foundation', () => {
   ).toBeInTheDocument();
 });
 
-test('selects the independent, original Apollo artwork review', () => {
-  render(
-    <MemoryRouter initialEntries={['/screen-study/apollo']}>
-      <App />
-    </MemoryRouter>,
-  );
-  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-    'Strategy, engine, perspective.',
-  );
-  expect(
-    screen.getByText(/No private source or screenshots are used/),
-  ).toBeInTheDocument();
-  expect(document.querySelectorAll('[data-concept]')).toHaveLength(4);
-});
-
-test('Workflow artwork stays readable and still when browser motion APIs are absent', () => {
-  vi.stubGlobal('matchMedia', undefined);
-  vi.stubGlobal('IntersectionObserver', undefined);
-  try {
-    render(
-      <MemoryRouter initialEntries={['/screen-study/workflow']}>
-        <App />
-      </MemoryRouter>,
-    );
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      'One workspace, from idea to delivery.',
-    );
-    expect(
-      screen.getByText('Still artwork: reduced motion is enabled.'),
-    ).toBeInTheDocument();
-  } finally {
-    vi.unstubAllGlobals();
-  }
-});
-
 test('retains the approved profile at the about route', () => {
   render(
     <MemoryRouter initialEntries={['/about']}>
@@ -93,67 +57,25 @@ test('retains the approved profile at the about route', () => {
   ).toBeInTheDocument();
 });
 
-for (const [path, direction] of [
-  ['/hero-study', '01 / Editorial'],
-  ['/hero-study/immersive', '02 / Immersive'],
-]) {
-  test(`matches the independent static hero study at ${path}`, () => {
-    render(
+test('retired design and study routes use the normal not-found view', () => {
+  for (const path of [
+    '/design',
+    '/hero-study',
+    '/hero-study/immersive',
+    '/scene-study',
+    '/scene-study/workflow',
+    '/scene-study/iris',
+    '/screen-study/workflow',
+    '/screen-study/apollo',
+  ]) {
+    const view = render(
       <MemoryRouter initialEntries={[path]}>
         <App />
       </MemoryRouter>,
     );
-    const introduction = SECTION_COPY[0];
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      introduction.blocks[0].text,
-    );
-    expect(screen.getByText(introduction.blocks[1].text)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: direction })).toHaveAttribute(
-      'aria-current',
-      'page',
-    );
     expect(
-      screen.getByText(/Static artwork · Not live 3D/),
+      screen.getByRole('heading', { name: 'Page not found' }),
     ).toBeInTheDocument();
-    expect(screen.queryByRole('button')).not.toBeInTheDocument();
-  });
-}
-
-for (const [path, sectionId, cueCount] of [
-  ['/scene-study', 'world-hub', 0],
-  ['/scene-study/workflow', 'world-workflow', 1],
-  ['/scene-study/iris', 'world-iris', 1],
-] as const) {
-  test(`matches the quiet section study at ${path}`, () => {
-    render(
-      <MemoryRouter initialEntries={[path]}>
-        <App />
-      </MemoryRouter>,
-    );
-    const section = SECTION_COPY.find(
-      (candidate) => candidate.id === sectionId,
-    )!;
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      section.blocks[0].text,
-    );
-    const paragraphs =
-      sectionId === 'world-hub'
-        ? section.blocks.slice(1, 2)
-        : section.blocks.slice(1);
-    for (const block of paragraphs) {
-      expect(screen.getByText(block.text)).toBeInTheDocument();
-    }
-    expect(document.querySelectorAll('.scene-cue-art image')).toHaveLength(1);
-    expect(document.querySelectorAll('[data-cue]')).toHaveLength(cueCount);
-    expect(document.querySelector('.scene-cue-art')).toHaveAttribute(
-      'aria-hidden',
-      'true',
-    );
-    expect(
-      screen.getByText(/Schematic cues only, not product UI/),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', { name: /Read this section/ }),
-    ).toHaveAttribute('href', `/#${sectionId}`);
-  });
-}
+    view.unmount();
+  }
+});

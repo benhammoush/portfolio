@@ -42,7 +42,7 @@ const callableContexts = [
 
 const config = defineConfig(
   {
-    // Only generated output is excluded; tests and tooling remain documented.
+    // Build output and private visual-review scratch are excluded; project tests/tooling stay gated.
     ignores: [
       'node_modules/**',
       'dist/**',
@@ -51,6 +51,7 @@ const config = defineConfig(
       'coverage/**',
       'playwright-report/**',
       'test-results/**',
+      '.opencode/artifacts/**',
     ],
   },
   js.configs.recommended,

@@ -90,6 +90,21 @@ test('sparse visible frames finish a window action without a frame-count slowdow
   );
 });
 
+test('artwork playback uses active wall time with its own duration', () => {
+  let clock = advanceWorkspaceClock(
+    { elapsed: 0, previous: null },
+    100,
+    true,
+    1.8,
+  );
+  clock = advanceWorkspaceClock(clock, 1300, true, 1.8);
+  expect(clock.elapsed).toBe(1.2);
+  clock = advanceWorkspaceClock(clock, 2000, false, 1.8);
+  clock = advanceWorkspaceClock(clock, 60_000, true, 1.8);
+  expect(clock.elapsed).toBe(1.2);
+  expect(advanceWorkspaceClock(clock, 65_000, true, 1.8).elapsed).toBe(1.8);
+});
+
 test('suspended window time is excluded and resuming or reversing seeds a fresh clock', () => {
   const initial = { elapsed: 0.5, previous: 100 };
   const paused = advanceWorkspaceClock(initial, 200, false);
@@ -120,11 +135,36 @@ test('the default desktop has window chrome and a persistent visible launcher wi
   } as unknown as CanvasRenderingContext2D;
   drawDesktopScreen(context);
   expect(fillRect).toHaveBeenCalledWith(0, 0, 1040, 464);
-  expect(fillText).toHaveBeenCalledWith('Desktop', 24, 20);
-  expect(fillText).toHaveBeenCalledWith('Portfolio', 123, 70);
+  expect(fillText).toHaveBeenCalledWith('EXPLORER', 58, 53);
+  expect(fillText).toHaveBeenCalledWith(
+    'export default function App() {',
+    285,
+    138,
+  );
   expect(fillText).toHaveBeenCalledWith('Workspace', 66, 426);
 });
 
+test('the full-height 16:9 display reflows its footer and launcher instead of letterboxing the desktop', () => {
+  const fillText = vi.fn(),
+    fillRect = vi.fn();
+  const context = {
+    canvas: { height: 585 },
+    fillText,
+    fillRect,
+    beginPath: vi.fn(),
+    roundRect: vi.fn(),
+    fill: vi.fn(),
+    arc: vi.fn(),
+  } as unknown as CanvasRenderingContext2D;
+  drawDesktopScreen(context);
+  expect(fillRect).toHaveBeenCalledWith(0, 0, 1040, 585);
+  expect(fillRect).toHaveBeenCalledWith(0, 563, 1040, 22);
+  expect(fillText).toHaveBeenCalledWith('Workspace', 66, 547);
+  expect(fillText).toHaveBeenCalledWith('TERMINAL', 243, 465);
+  expect(workspaceFrame(1, 585)).toEqual({ scale: 1, left: 0, top: 0 });
+});
+
+// Each artwork check starts TypeScript and Prettier in a separate Node process.
 test('generated monitor SVG matches the approved review component', () => {
   expect(() =>
     execFileSync(
@@ -133,7 +173,7 @@ test('generated monitor SVG matches the approved review component', () => {
       { cwd: process.cwd(), stdio: 'pipe' },
     ),
   ).not.toThrow();
-});
+}, 20_000);
 
 test('Apollo SVG also matches its accepted public-safe review artwork', () => {
   expect(() =>
@@ -143,7 +183,7 @@ test('Apollo SVG also matches its accepted public-safe review artwork', () => {
       { cwd: process.cwd(), stdio: 'pipe' },
     ),
   ).not.toThrow();
-});
+}, 20_000);
 
 test('heading reading position selects the workspace, not the camera', () => {
   const sections = [...MONITOR_CHAPTERS, 'contact'].map((chapter, index) => {

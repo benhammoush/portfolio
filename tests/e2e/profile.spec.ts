@@ -6,6 +6,10 @@ import { expect, test } from '@playwright/test';
 
 test('skip link moves keyboard focus to main content', async ({ page }) => {
   await page.goto('/about');
+  await expect(page.locator('.wordmark')).toHaveText('Guillaume Ammouche');
+  expect(
+    (await page.locator('.site-header').boundingBox())!.height,
+  ).toBeLessThanOrEqual(66);
   await page.keyboard.press('Tab');
   await expect(
     page.getByRole('link', { name: 'Skip to content' }),
