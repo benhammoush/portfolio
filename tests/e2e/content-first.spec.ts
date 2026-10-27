@@ -68,8 +68,8 @@ test('the frosted profile leaves the full-screen scene unclipped', async ({
   await expect
     .poll(() =>
       page
-        .locator('.world-main')
-        .evaluate((e) => getComputedStyle(e, '::before').backdropFilter),
+        .locator('#world-profile .world-section-inner')
+        .evaluate((e) => getComputedStyle(e).backdropFilter),
     )
     .toBe('blur(16px)');
 });

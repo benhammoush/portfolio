@@ -4,6 +4,9 @@
  */
 
 import { expect, test } from '@playwright/test';
+import { prepareHtmlRecovery } from './support/htmlRecovery';
+
+test.beforeEach(async ({ page }) => prepareHtmlRecovery(page));
 
 for (const width of [390, 1440]) {
   test(`preserves profile card presentation at ${width}px`, async ({

@@ -129,6 +129,7 @@ const PAGE_ANCHORS = [
  */
 function SectionAnchorRail() {
   const [active, setActive] = useState(PAGE_ANCHORS[0].id);
+  const [dismissedLabel, setDismissedLabel] = useState<string | null>(null);
   useEffect(() => {
     /** Mark the last chapter whose anchor has entered the upper reading area. */
     function updateActiveAnchor() {
@@ -165,7 +166,13 @@ function SectionAnchorRail() {
           href={`#${id}`}
           aria-label={`Go to ${label}`}
           aria-current={active === id ? 'location' : undefined}
-          title={label}
+          data-label={label}
+          data-label-dismissed={dismissedLabel === id || undefined}
+          onMouseEnter={() => setDismissedLabel(null)}
+          onFocus={() => setDismissedLabel(null)}
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') setDismissedLabel(id);
+          }}
         >
           <span aria-hidden="true" />
         </a>

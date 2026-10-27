@@ -12,7 +12,11 @@ import { readMonitorFocus, WORKFLOW_POSE } from './workflow-focus';
 import GalleryLighting from './GalleryLighting';
 import IntroScene from './IntroScene';
 import { configureIntroLoader } from './intro-loader';
-import { SECTION_POSES, sampleReadingPose } from './section-poses';
+import {
+  SECTION_POSES,
+  sampleReadingPose,
+  advanceOpeningFraction,
+} from './section-poses';
 import type { PoseAnchor } from './section-poses';
 import { finishSceneLoading } from './scene-loading';
 
@@ -68,6 +72,7 @@ function ScrollCamera(props: WorldCanvasProps) {
   const { gl, invalidate, setFrameloop } = useThree();
   const active = useRef(true);
   const inspection = useRef(0);
+  const openingFraction = useRef<number | null>(null);
   const anchors = useRef<PoseAnchor[]>([]);
   useEffect(() => {
     invalidate();
@@ -103,12 +108,14 @@ function ScrollCamera(props: WorldCanvasProps) {
     }
     /** Request one frame for native scroll/resize, never set per-frame React state. */
     function requestFrame() {
+      openingFraction.current = null;
       measureAnchors();
       if (active.current) invalidate();
     }
     /** Track the HTML artwork on scroll even when the world pose stays stationary. */
     function requestScrollFrame() {
-      requestFrame();
+      measureAnchors();
+      if (active.current) invalidate();
     }
     /**
      * Fail to the illustrated alternative rather than attempting repeated recovery.
@@ -155,13 +162,21 @@ function ScrollCamera(props: WorldCanvasProps) {
     // Dock before profile copy enters, not after it is already behind the chair.
     // The opening pose stays exact at scroll zero.
     const heroBottom = hub.getBoundingClientRect().bottom;
-    const introFraction =
+    const requestedIntroFraction =
       1 -
       chapterProgress(
         window.scrollY,
         0,
         Math.max(1, heroBottom + window.scrollY - window.innerHeight * 0.9),
       );
+    openingFraction.current = advanceOpeningFraction(
+      openingFraction.current,
+      requestedIntroFraction,
+      delta,
+      cameraTravel && props.animateIntro,
+    );
+    if (openingFraction.current !== requestedIntroFraction) invalidate();
+    const introFraction = openingFraction.current;
     const introWeight = introFraction * introFraction * (3 - 2 * introFraction);
     // Match CSS/media policy, not the scrollbar-reduced canvas width at 768px.
     const wide = window.matchMedia('(min-width: 768px)').matches;

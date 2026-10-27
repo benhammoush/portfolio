@@ -299,9 +299,10 @@ Owner visual direction acceptance permits the bounded real-3D hub/Iris prototype
 not expansion to the completed world. The local `/world` route pairs native HTML
 chapter anchors with shared camera poses. Independently loaded React Three Fiber
 and Three.js render original procedural geometry, without external assets or data.
-Reduced-motion and narrow-viewport users receive the static illustrated alternative,
-without automatically loading the engine. An explicit stationary-3D option explains
-the fallback and permits real 3D without camera travel under those policies.
+Every viewport automatically loads 3D. Narrow and reduced-motion layouts keep
+stationary camera framing. Reduced motion starts animation paused and permits an
+explicit Resume motion without enabling camera travel. No selectable still-view
+or stationary-3D opt-in controls remain. Loading can still be skipped until reload.
 Module/render failures and context loss preserve HTML
 and a still view; rendering is demand-driven and pauses offscreen/while hidden.
 
@@ -336,7 +337,7 @@ new scene art, final section-copy rollout, publication or deployment is included
 
 Keep the old hub/Iris installation clearly provisional and separate from the
 introduction; the approved scene must not acquire its display platform. Preserve
-the existing native-scroll policy and stationary-3D opt-in, with no idle animation.
+the existing native-scroll policy and stationary framing, with no idle animation.
 The Blender procedural materials require a browser visual checkpoint rather than
 a claim of pixel-identical export. Remain within the ongoing 0.3.0 local prototype.
 
@@ -469,7 +470,7 @@ Workspace launcher, so the cursor selects an existing control. Keep the same sha
 canvas/texture, launch action, camera and text composition; no operating-system
 branding, new scene/model assets or runtime dependencies. Match the static/loading
 hero alternative to the desktop. The model's original screen remains untouched
-under the owned canvas surface; stationary opt-ins show the same still desktop.
+under the owned canvas surface; stationary scenes show the same still desktop.
 
 The owner subsequently approved replacing the post-hero two-column reading layout
 with a centered editorial column and a much smaller, low-contrast continuous desk
@@ -513,7 +514,7 @@ local integration: a matte wall behind the desk, the small lamp at the far-right
 corner, warm lighting with soft shadows and faint cool fill. Preserve the model,
 camera path, monitor artwork, copy and motion/accessibility policies. Apply matching
 dark reading surfaces and regenerate the static alternative from the same scene.
-The 25% feathered sheet remains; local backing must protect light text even over
+The rounded charcoal panels protect light text even over
 bright geometry. Retained profile/study pages stay independent. Complete local
 checks, browser verification and read-only review without publication or deployment.
 The owner next requested personal scene details: geometric wood panels on the left
@@ -537,14 +538,13 @@ and the two shelf positions (leaving the upper shelf empty); shift the slat sect
 0.3 scene units left without changing its height or pattern.
 The subsequent owner request removes the empty upper shelf entirely, retaining
 only the statue shelf and the desktop flag.
-The owner next selected removing only the dark patches behind individual desktop
-text blocks, retaining the subtle frosted left-side reading backdrop. Remove those
-local backgrounds and backing shadows; do not remove the shared 25% sheet or change
-the mobile and no-blur fallback surfaces.
+Remove separate dark patches and backing shadows behind individual paragraphs and
+headings. The shared section-level rounded panels provide contrast; retain the
+mobile and no-blur fallback surfaces.
 The owner initially increased scene smoothing to a 1px finishing blur, then rejected
 the blur approach. The current approved pass removes canvas blur, uses actual 2×
 desktop backing resolution (including 1× displays), and adds curved geometry to the
-character, bonsai, planche statue, chair and monitor. Narrow stationary opt-ins keep
+character, bonsai, planche statue, chair and monitor. Narrow stationary scenes keep
 their previous 1–1.5× cap. Preserve the model's style, animation, monitor artwork and
 camera path; leave intentional wood/desk edges crisp. Show matching before/after
 close-ups from two angles per requested element. Verify local functionality and
@@ -568,11 +568,15 @@ charcoal background, centered “Loading experience” label, a fine warm-neutra
 progress line and one small measured percentage/status below it. Remove the name,
 illustration, large heading and extra explanatory copy. Keep an immediately
 available, keyboard-accessible “Continue without 3D” text action near the bottom.
-Place the section-anchor rail in the reading layout beside the text column, not
-against the viewport's far-left edge. Use sticky positioning within the post-hero
-content, hide it while Introduction is active, and preserve the eight native links,
-active-section indication, keyboard access and direct-fragment behavior. Reserve a
-small gutter on narrow layouts so the rail does not overlap the copy.
+Place a floating section-navigation pill outside the gray reading panels in the
+left gutter. Use round dots rather than small ticks, a warm active marker, and
+chapter labels on hover/focus. Keep sticky positioning within post-hero content,
+hide it while Introduction is active, and preserve eight native links, visible
+keyboard focus and direct-fragment behavior. Leave a visible gap from the panel,
+including on narrow layouts; controls must not overlap its surface or the prose.
+The opening-to-About camera transition should settle gently over roughly two active
+seconds rather than inherit fast scroll-snap timing. Native text scrolling stays
+responsive; initial anchors, resize re-anchoring and paused/stationary views remain immediate.
 The display now fills the 27-inch panel at 1040×585, with a recessed aperture and
 an emissive/glass finish rather than a floating inset rectangle. Reflow the IDE
 and workspace footer to the taller canvas without stretching the project artwork.
@@ -647,7 +651,7 @@ scale and small vertical shifts blend from native section-anchor scroll progress
 with eased endpoints, immediate reverse intent and no queued travel or forced waits.
 Idle camera framing settles; existing character/flag motion remains independent.
 Pause selects the reached pose immediately without interpolated travel. Reduced
-motion and narrow stationary opt-ins keep stationary framing. Re-measure anchors
+motion and narrow scenes keep stationary framing. Re-measure anchors
 after resize or expanded-copy changes. Obtain local checks, browser verification,
 read-only review and owner visual acceptance; no publication/deployment is included.
 
@@ -670,19 +674,17 @@ beside the text through off-axis composition, not a clipped scene area. Apply ba
 blur only behind post-hero text, with a translucent tint strong enough to preserve
 at least WCAG AA text contrast against the darkest scene geometry. Keep lettering
 fully opaque and unblurred, and use a more opaque fallback when blur is unsupported.
-The owner then selected one full-height frosted-white left half (50% of the desktop
-viewport) instead of individual rounded panels. Keep all desktop reading content
-within that half and remove its card borders/corners. Hide the sheet in the hero;
-its visibility must not depend on the 3D engine. Narrower layouts retain a readable
-full-width text surface, not a cramped half-screen column.
-The owner subsequently selected a 25% desktop sheet with a feathered right edge
-and stronger local backing behind text. Preserve AA contrast with sharp, opaque
-lettering; keep mobile surfaces and the more opaque no-blur fallback unchanged.
+Use the responsive rounded gray reading panels at desktop widths as well: an 84%
+charcoal tint, subtle border, rounded corners and 16px backdrop blur, with a 97%
+no-blur fallback. Keep desktop panels in the left half and narrower panels at a
+readable full width. Remove the full-height left-side sheet and its feathered edge.
+The introduction stays unboxed. Preserve sharp, opaque lettering and AA contrast;
+panel readability must not depend on the 3D engine.
 The owner then replaced the individual project waypoints with one fixed monitor
 top-right camera from Workflow through Dripperz: share Workflow's eye, focal point
 and framing span across all five sections, so forward/reverse project scrolling
 and expanded-copy reading do not move the camera. Keep Hero, About and Contact
-views, the full-screen scene, left-half frosted reading surface and explicit screen
+views, the full-screen scene, rounded reading panels and explicit screen
 inspection behavior unchanged.
 
 The owner later changed this camera direction: keep the About view through Workflow
@@ -732,8 +734,10 @@ authorized subtle typing, occasional mouse movement and small posture shifts in
 the introduction only. Preserve the model appearance and current local desk-height
 rear camera with 30% smaller framing. No idle camera movement, new section art,
 publication, PR update or deployment. Include a pause control, stop playback when
-hidden/outside the intro, and keep reduced-motion and narrow stationary-3D opt-ins
-unanimated. Reuse the approved transparent poster on loading/failure/static views.
+hidden/outside the intro, and start reduced-motion visitors paused. Pause / Resume
+motion stays available on every screen size; narrow/reduced-motion camera framing
+remains stationary even after Resume. Reuse the approved transparent poster for
+loading, loading-screen escape and graphics failures, not a selectable viewing mode.
 This supersedes the no-animation boundary of the completed earlier checkpoints,
 not the remaining requirements or unresolved physical-device performance budget.
 

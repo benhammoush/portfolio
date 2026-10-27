@@ -1,5 +1,5 @@
 /**
- * Capture the owned scene's static desktop for loading/reduced-motion alternatives.
+ * Capture the owned scene's static desktop for loading/error recovery.
  * @file This local UI-artwork export never builds, publishes or deploys the site.
  */
 import { fileURLToPath } from 'node:url';
@@ -21,10 +21,6 @@ try {
     reducedMotion: 'reduce',
   });
   await page.goto(url.href);
-  await page.locator('.world-scene-options summary').click();
-  await page
-    .getByRole('button', { name: 'View stationary 3D', exact: true })
-    .click();
   await page.locator('canvas').waitFor({ state: 'visible', timeout: 45_000 });
   await page.waitForFunction(
     () =>

@@ -44,7 +44,11 @@ delivery gates because software rendering makes them disproportionately costly.
 They remain available in Chromium via `npm run test:e2e:gpu` after a build; run the
 relevant journeys when changing scene behavior. This deliberate coverage exception
 does not certify animation, camera or pixel correctness on every commit, nor GPU
-parity across engines. Unit coverage remains in the normal gate.
+parity across engines. Unit coverage remains in the normal gate. HTML journeys
+simulate an engine-download failure to exercise readable recovery without software
+rendering on every test. Motion-policy/control behavior is covered in unit tests;
+the real-scene smoke checks pause/resume, and detailed scene-control journeys stay
+in the opt-in GPU suite.
 Shared artifact/record integrity supplements existing routing
 and configuration smoke. `lockScope: all` preserves stricter cross-target exclusion.
 Neither target uses `DEPLOY_ENABLED` or the legacy repository-level

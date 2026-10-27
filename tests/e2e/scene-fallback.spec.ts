@@ -4,10 +4,11 @@
  */
 import { expect, test } from '@playwright/test';
 
-test('mobile and reduced motion do not request the engine chunk', async ({
+test('mobile and reduced motion attempt 3D and recover from engine failure', async ({
   page,
 }) => {
   const engineRequests: string[] = [];
+  await page.route('**/WorldCanvas-*.js', (route) => route.abort());
   page.on('request', (request) => {
     if (
       /WorldCanvas-.*\.js|intro-scene-.*\.glb|draco_(?:decoder|wasm_wrapper)-/.test(
@@ -18,13 +19,16 @@ test('mobile and reduced motion do not request the engine chunk', async ({
   });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/world');
-  await expect(
-    page.getByText(/Still view: this window is under 768 pixels wide/),
-  ).toBeVisible();
+  await expect(page.locator('.world-visual-status')).toContainText(
+    '3D could not load',
+  );
   await expect(page.locator('canvas')).toHaveCount(0);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.reload();
+  await expect(page.locator('.world-visual-status')).toContainText(
+    '3D could not load',
+  );
   await expect(page.locator('canvas')).toHaveCount(0);
   await expect(
     page.getByRole('heading', {
@@ -32,7 +36,7 @@ test('mobile and reduced motion do not request the engine chunk', async ({
       exact: true,
     }),
   ).toBeVisible();
-  expect(engineRequests).toEqual([]);
+  expect(engineRequests).toHaveLength(2);
 });
 
 test('engine download failure leaves a useful illustration and navigation', async ({

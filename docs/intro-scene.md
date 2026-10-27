@@ -97,11 +97,11 @@ unchanged review-06 authoring script regenerates the accepted scene under
 reviews must remain outside test-report output. Earlier iterations are not claimed
 to be archived. The web manifest records the regenerated source hash.
 
-The optional model is imported only through the lazy world module. Reduced-motion
-and narrow layouts retain the approved PNG without requesting the engine/model.
-Mobile shows the still below the intro copy, not behind it. Desktop reserves the
-left side for HTML; the model has no idle animation. Explicit stationary 3D remains
-available. Loading/errors/context loss retain the poster and readable HTML.
+The model is imported through the lazy world module on every world visit, including
+narrow and reduced-motion layouts. Those layouts keep stationary camera framing;
+reduced motion starts animation paused and permits an explicit Resume motion.
+Loading, loading-screen escape, errors and context loss retain the poster and
+readable HTML. There is no selectable illustrated viewing mode.
 
 The model has 114,056 triangles in 31 material batches (about 2.12 MB raw GLB).
 These are measurements of the local derivative, not accepted device/performance
@@ -433,13 +433,14 @@ warning remain. Faster loading does not imply animation GPU cost is unchanged.
 Each mount clones only the scene/skeleton using SkeletonUtils and shares cached
 geometry/materials. Its own mixer, actions, timer and skeleton bone textures are
 released on exit without disposing the cached mesh. The demand loop requests a
-new frame after 32 ms only while desktop animation is eligible and the intro is
+new frame after 32 ms only while animation is enabled and the intro is
 onscreen. Hidden/unlaid-out/paused/out-of-intro views stop requesting animation
 frames. Slow-frame deltas are bounded at 0.1 seconds, so overloaded software renderers
 may play more slowly; this does not establish physical-device performance acceptance.
 Native scroll may independently request frames but never adds idle camera motion.
-`Pause motion` / `Resume motion` is separate from `Use still view`. Narrow and
-reduced-motion stationary opt-ins never play the clip. The frozen poster is unchanged.
+`Pause motion` / `Resume motion` controls animation without replacing the scene.
+Reduced motion starts paused; resuming does not enable camera travel. Narrow scenes
+also keep stationary framing. The frozen recovery poster is unchanged.
 
 The owner found the first animation too subtle from the rear camera. The follow-up
 increases typing-hand lift from 1.8 to 4.5 mm, mouse travel from 6 to 20 mm nominal
@@ -507,11 +508,11 @@ Measured local artifact sizes:
 - Optional engine JS grows by about 7.4 KB minified; its existing size warning remains.
 
 The decoder is supplied by the already pinned Three.js dependency, uses local
-Vite-hashed URLs and one worker, and is not preloaded. Static/mobile/reduced-motion
-visitors still request neither the model nor the engine/decoder. The loader's
+Vite-hashed URLs and one worker, and is not preloaded. Every world visit requests
+the engine/model/decoder regardless of viewport or motion preference. The loader's
 terminal callbacks dispose the worker even if React unmounted while loading;
 success waits for complete parsing, while a terminal error abandons this unusable
-asset and its remaining tasks. Mode toggles reuse the decoded model cache. Decoder
+asset and its remaining tasks. Viewport/preference changes retain the decoded model cache. Decoder
 download failure and malformed mesh data follow the same sticky poster/HTML fallback.
 The loader serves one asset URL per page session; changed assets require reload.
 

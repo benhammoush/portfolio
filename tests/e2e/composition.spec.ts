@@ -3,16 +3,19 @@
  * @packageDocumentation
  */
 import { expect, test } from '@playwright/test';
+import { prepareHtmlRecovery } from './support/htmlRecovery';
 import { collectEngineRequests } from './support/engineRequests';
 
-test('evening still includes the lit lamp and wall without baked navigation or engine downloads', async ({
+test.beforeEach(async ({ page }) => prepareHtmlRecovery(page));
+
+test('recovery illustration includes the lit lamp and wall without baked navigation', async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   const engines = collectEngineRequests(page);
   await page.goto('/');
   await expect(page.locator('canvas')).toHaveCount(0);
-  expect(engines).toEqual([]);
+  expect(engines).toHaveLength(1);
   const poster = page.locator('.world-intro-poster');
   await expect
     .poll(() =>
@@ -94,22 +97,9 @@ for (const viewport of [
     expect(headerBox!.height).toBeLessThanOrEqual(
       viewport.width < 768 ? 73 : 66,
     );
-    const optionsBox = await page
-      .locator('.world-scene-options summary')
-      .boundingBox();
-    expect(optionsBox!.y).toBeGreaterThanOrEqual(headerBox!.y);
-    expect(optionsBox!.y + optionsBox!.height).toBeLessThanOrEqual(
-      headerBox!.y + headerBox!.height,
-    );
     for (const link of await page.locator('.world-header nav a').all()) {
       const box = await link.boundingBox();
       expect(box!.height).toBeGreaterThanOrEqual(24);
-      const overlapsOptions =
-        box!.x < optionsBox!.x + optionsBox!.width &&
-        box!.x + box!.width > optionsBox!.x &&
-        box!.y < optionsBox!.y + optionsBox!.height &&
-        box!.y + box!.height > optionsBox!.y;
-      expect(overlapsOptions).toBe(false);
     }
     expect(titleBox!.y).toBeGreaterThan(headerBox!.y + headerBox!.height);
     expect(
@@ -203,7 +193,11 @@ test('narrow composition retains keyboard navigation, contact and viewport bound
   await page.setViewportSize({ width: 320, height: 740 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
-  await page.keyboard.press('Tab');
+  await expect(page.locator('.world-visual-status')).toContainText(
+    '3D could not load',
+  );
+  // The startup modal has already owned focus; check the skip link's activation directly.
+  await page.getByRole('link', { name: 'Skip to content' }).focus();
   await expect(
     page.getByRole('link', { name: 'Skip to content' }),
   ).toBeFocused();

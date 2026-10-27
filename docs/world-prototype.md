@@ -17,10 +17,11 @@ This iteration needs owner walkthrough, not public launch or full-world expansio
 The scene spans the viewport edge-to-edge and stays behind native HTML sections:
 introduction/hub, engineering practice, Iris and contact. No canvas border, scene
 card, split-column viewport or separate mobile illustration widget. Camera projection
-reserves the left side for text, while a continuous tonal wash protects readability.
-HTML remains the source of navigation and content. Mobile and reduced-motion use
-the same page-sized illustrated background by default, not a cropped desktop canvas.
-The header, mode controls and skip link remain accessible above the composition.
+reserves the left side for text, while rounded charcoal reading panels protect readability.
+HTML remains the source of navigation and content. 3D loads automatically on every
+screen size. Narrow and reduced-motion layouts retain stationary camera framing;
+reduced motion starts animation paused, with explicit Resume motion available.
+The header, motion controls and skip link remain accessible above the composition.
 
 ## Behavior
 
@@ -32,17 +33,15 @@ The header, mode controls and skip link remain accessible above the composition.
 - Shared `src/world/chapters.ts` connects native HTML IDs and camera poses. Native
   scroll/reload/anchors drive a wide-to-close orthographic view; no scroll handlers
   prevent input, no snapping/free flight and no forced animation wait.
-- Three.js/Fiber are loaded in the separate `WorldCanvas` chunk, only on the world
-  route for viewports at least 768 CSS pixels wide with no reduced-motion preference.
-  This threshold is a prototype policy, not a performance/device capability claim.
-  The caption identifies narrow width versus reduced motion. Either can explicitly
-  request **View stationary 3D**, which loads the engine but never enables camera
-  travel. Widening to the desktop layout permits travel only without reduced motion.
-- Mobile/reduced-motion default to the authored illustration with full HTML;
-  deliberate still mode always remains available. Automatic eligibility changes
-  release the renderer unless explicitly opted into stationary 3D for that policy.
-  No WebGL is needed
-  to navigate, read or use contact links; JavaScript is still required.
+- Three.js/Fiber load in the separate `WorldCanvas` chunk on every world visit,
+  including narrow and reduced-motion layouts. Camera travel requires at least
+  768 CSS pixels and no reduced-motion preference; this is not a device capability
+  or performance claim. Pause / Resume motion is available on every live scene.
+- There is no selectable illustrated viewing mode. The illustration remains for
+  loading, explicit loading-screen escape, graphics failure and context loss.
+  Skipping loading lasts until reload, even if viewport or motion preferences change.
+  Preference/viewport changes retain the renderer. No WebGL is needed to navigate,
+  read or use contact links; JavaScript is still required.
 - Module/renderer errors and lost contexts use a still view. No automatic retry
   loop. Reload deliberately after investigating a graphics failure.
 - Demand rendering has no idle animation. Scroll/resize invalidates frames;
@@ -112,22 +111,22 @@ transitions to the wider rear-three-quarter Contact conclusion, without resettin
 to the hero. Explicit View screen inspection remains optional.
 The material-batched model uses explicit glTF-space landmarks, not batch names.
 
-Native section stops, including fixed-header clearance, drive an eased scroll blend
-without a separate animation timer. Reverse scroll retraces the same route; jumps
-sample the latest position without queuing missed motion. The owner superseded
+Native section stops, including fixed-header clearance, drive the camera route.
+The opening-to-About move follows the latest scroll with a slower damped fraction
+and smooth start/end easing, rather than inheriting the speed of native scroll snap.
+It settles visually over roughly two active seconds; reversing follows the latest
+intent without queuing a journey. Initial deep links, layout remeasurement and
+paused/stationary views resolve immediately. The owner superseded
 the right-side rail and feather: the scene now fills the viewport behind the text,
 with unmasked full-width projection and full-height landmark framing. An off-axis
 composition keeps each focal detail visible to the right of the reading surface,
-without clipping the rest of the scene. On desktop (1200px+), one fixed frosted
-sheet covers the left 50% of the viewport, full height, instead of rounded panels;
-all reading content stays inside that half. Smaller layouts retain readable-width
-surfaces rather than squeezing prose into half a phone/tablet. The backdrop is
-independent of WebGL and disappears on returning to the hero. On desktop it uses
-a 16px backdrop blur and 25% charcoal tint, feathering to transparent across the
-sheet's rightmost 30%. Text uses warm, fully opaque lettering without local
-backing patches. Smaller
-layouts use an 84% dark tint; browsers without backdrop-filter use a 97% dark tint.
-The loading/still/mobile alternative is captured from this same lit room and
+without clipping the rest of the scene. On desktop (1200px+), reading panels stay
+in the left half; smaller layouts retain readable-width panels rather than squeezing
+prose into half a phone/tablet. Every post-hero section uses the same rounded charcoal
+surface, subtle border, 84% tint and 16px backdrop blur. Browsers without backdrop-filter
+use a 97% tint. The full-height left-side sheet is absent; the introduction remains
+unboxed. Text stays fully opaque and sharp, without separate paragraph backing patches.
+The loading/recovery alternative is captured from this same lit room and
 authored monitor desktop, without baking HTML controls into the image. The source
 model and the separate design-study poster remain untouched.
 The personalized local revision adds three geometric wood panels on the left and
@@ -154,13 +153,13 @@ shifts a further 0.3 scene units left, centered at X=-1.32.
 The owner subsequently removed the now-empty upper shelf; retain only the occupied
 planche-statue shelf. The flag remains on the desk.
 The owner removed the individual dark blurred patches behind desktop text blocks.
-Retain the 25% feathered frosted reading sheet, but no local paragraph/heading
+Retain the rounded frosted reading panels, but no local paragraph/heading
 backgrounds or backing shadows. Mobile and no-blur fallback surfaces are unchanged.
 Static contrast checks cover the static reading surface; without local opaque
 backing, live contrast depends on the scene composition and requires visual checks.
 The owner tried a 1px canvas finishing blur, then rejected that approach. The
 current pass removes it and supersamples desktop rendering at 2×, even on 1×
-displays; stationary narrow opt-ins retain their 1–1.5× cap. Keep MSAA and the
+displays; narrow stationary scenes retain their 1–1.5× cap. Keep MSAA and the
 demand-driven lifecycle. One bounded point-normal tessellation pass curves new
 edge points on the character and selected chair surfaces while retaining authored
 vertices, seams and normalized bone influences. This operates on per-mount owned
@@ -213,8 +212,11 @@ The compact header omits the decorative name dot and shares its top row with
 Scene options. It is approximately 65px high on desktop and 72px on narrow screens;
 section anchors reserve 80px and 88px respectively to keep headings clear.
 Text and monitor artwork do not move or change with the scene. Resize and expanded
-copy re-measure stops. The slim left rail links the native section anchors and marks
-the current stop. Owner-selected phrases highlight workflow, technology and
+copy re-measure stops. A floating pill in the left gutter, outside the reading
+panels, links native section anchors with round dots. A warm accent marks the current
+stop; chapter names appear on hover or keyboard focus, remain hoverable, and dismiss
+with Escape without moving focus. Targets remain at least 24px
+high on short screens, with visible focus indicators. Owner-selected phrases highlight workflow, technology and
 delivered capabilities across About, Workflow and projects, including Read more.
 The approved wording remains unchanged; these replace the earlier single-word highlights.
 Pause selects the reached stop; reduced-motion and narrow stationary policies never
@@ -297,7 +299,7 @@ selects the view with a 24px reverse-scroll deadband. Latest intent interrupts t
 action; native scrolling never waits. The original hero screen stays intact through
 the profile in the preceding trial. The current default is an original OS-like
 desktop with an open portfolio window and a persistent Workspace launcher. It is
-painted once into the same opaque canvas/texture, including stationary opt-ins.
+painted once into the same opaque canvas/texture, including stationary scenes.
 At Workflow's actual heading, one deliberate click selects that existing launcher
 and opens the application above the desktop.
 When this native desktop and the section art are ready, independent HTML posters
@@ -323,8 +325,9 @@ independent of camera invalidations. Two
 small decoded SVG images share the same canvas, plane, texture and upload budget;
 screen changes still apply while manually paused, without advancing animation.
 Pause and hidden time never advance the gesture or view clocks. Paused tab changes
-resolve immediately without synthetic input. Narrow/reduced-motion layouts remain
-static by default; stationary opt-ins do not animate or approach the screen.
+resolve immediately without synthetic input. Narrow/reduced-motion layouts keep
+stationary framing and never approach the screen. Reduced motion starts paused;
+explicit Resume motion enables animation without enabling camera travel.
 Visible playback uses active elapsed time rather than a capped increment per frame,
 so sparse rendering does not stretch a short gesture into dozens of seconds.
 Surface resources and timers are disposed;

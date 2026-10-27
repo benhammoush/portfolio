@@ -194,13 +194,12 @@ test('the About camera holds through project scrolling, expanded copy and paused
   expect(box!.width).toBeGreaterThanOrEqual(1180);
 });
 
-test('reduced-motion stationary opt-in never follows section camera poses', async ({
+test('reduced-motion startup never follows section camera poses', async ({
   page,
 }) => {
   test.setTimeout(120_000);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
-  await clickSceneControl(page, 'View stationary 3D');
   const canvas = page.locator('canvas[data-world-ready="true"]');
   await expect(canvas).toHaveAttribute('data-reading-section', 'stationary');
   const pose = await canvas.getAttribute('data-camera-pose');
