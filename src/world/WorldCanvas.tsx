@@ -194,8 +194,9 @@ function ScrollCamera(props: WorldCanvasProps) {
       window.scrollY,
       props.animateIntro,
     );
-    const returnToOpening =
-      reading.from === 'world-contact'
+    const returnToOpening = !cameraTravel
+      ? 0
+      : reading.from === 'world-contact'
         ? 1
         : reading.to === 'world-contact'
           ? reading.blend

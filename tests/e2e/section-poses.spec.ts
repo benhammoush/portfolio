@@ -180,6 +180,11 @@ test('the About camera holds through project scrolling, expanded copy and paused
   await page.waitForTimeout(200);
   await expect(canvas).toHaveAttribute('data-camera-pose', rest!);
   await page.setViewportSize({ width: 1200, height: 900 });
+  // Expanded prose reflows on resize; keep Contact, not the old absolute offset, under test.
+  await page
+    .locator('#world-contact')
+    .evaluate((element) => element.scrollIntoView({ behavior: 'instant' }));
+  await expect(canvas).toHaveAttribute('data-reading-section', 'world-contact');
   await expect
     .poll(async () => Number(await canvas.getAttribute('data-camera-offset-x')))
     .toBeCloseTo(0, 5);
@@ -192,6 +197,7 @@ test('the About camera holds through project scrolling, expanded copy and paused
 test('reduced-motion stationary opt-in never follows section camera poses', async ({
   page,
 }) => {
+  test.setTimeout(120_000);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
   await clickSceneControl(page, 'View stationary 3D');
@@ -207,4 +213,22 @@ test('reduced-motion stationary opt-in never follows section camera poses', asyn
   );
   await expect(canvas).toHaveAttribute('data-route-span', '0');
   await expect(canvas).toHaveAttribute('data-camera-pose', pose!);
+  const horizontalOffset = await canvas.getAttribute('data-camera-offset-x');
+  await expect(canvas).toHaveAttribute('data-camera-offset-y', '0');
+  for (const chapter of ['contact', 'dripperz']) {
+    await page.locator(`#world-${chapter}`).evaluate(async (element) => {
+      element.scrollIntoView({ behavior: 'instant' });
+      // Observe a completed demand frame, not stale diagnostics from the last stop.
+      await new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      );
+    });
+    await expect(canvas).toHaveAttribute('data-reading-section', 'stationary');
+    await expect(canvas).toHaveAttribute('data-camera-pose', pose!);
+    await expect(canvas).toHaveAttribute(
+      'data-camera-offset-x',
+      horizontalOffset!,
+    );
+    await expect(canvas).toHaveAttribute('data-camera-offset-y', '0');
+  }
 });

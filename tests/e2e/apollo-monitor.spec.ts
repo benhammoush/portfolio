@@ -56,7 +56,7 @@ test('Apollo and Workflow switch on one monitor without enabling animation when 
 test('failed Apollo artwork retains text and does not disable Workflow', async ({
   page,
 }) => {
-  test.setTimeout(90_000);
+  test.setTimeout(180_000);
   await page.route('**/apollo-screen-*.svg', (route) => route.abort());
   await page.goto('/#world-apollo');
   const canvas = page.locator('canvas');

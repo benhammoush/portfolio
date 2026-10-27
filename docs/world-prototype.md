@@ -124,8 +124,8 @@ all reading content stays inside that half. Smaller layouts retain readable-widt
 surfaces rather than squeezing prose into half a phone/tablet. The backdrop is
 independent of WebGL and disappears on returning to the hero. On desktop it uses
 a 16px backdrop blur and 25% charcoal tint, feathering to transparent across the
-sheet's rightmost 30%. Text blocks have soft-edged 70% local backing and warm,
-fully opaque lettering to protect contrast even over bright geometry. Smaller
+sheet's rightmost 30%. Text uses warm, fully opaque lettering without local
+backing patches. Smaller
 layouts use an 84% dark tint; browsers without backdrop-filter use a 97% dark tint.
 The loading/still/mobile alternative is captured from this same lit room and
 authored monitor desktop, without baking HTML controls into the image. The source
