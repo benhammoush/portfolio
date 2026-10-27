@@ -24,6 +24,9 @@ export default defineConfig({
   testDir: './tests/e2e',
   forbidOnly: true,
   retries: 0,
+  reporter: 'list',
+  // Finish with diagnostics after the first CI failure, before the shared job expires.
+  maxFailures: process.env.CI ? 1 : 0,
   workers: 1,
   use: { baseURL: 'http://127.0.0.1:3100', trace: 'retain-on-failure' },
   projects: [
