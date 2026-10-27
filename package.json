@@ -32,6 +32,7 @@
     "check:version": "node scripts/check-version.mjs",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "test:e2e:gpu": "playwright test --config playwright.gpu.config.ts",
     "audit:dependencies": "npm audit && npm audit --omit=dev",
     "check": "npm run format:check && npm run lint && npm run audit:dependencies && npm test && npm run build && npm run test:e2e"
   },

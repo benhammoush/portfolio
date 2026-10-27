@@ -33,13 +33,19 @@ Publication does not authorize a merge, deployment or production approval.
 
 The current immutable foundation pin selects v5.0.0, including bounded Ubuntu browser-host
 dependency installation from the official HTTPS archive. Portfolio retains its
-locked Playwright version, browser suites and fail-closed verification gate.
+locked Playwright version and fail-closed verification gate.
 
 All Ubuntu jobs use `ubuntu-24.04`. Built-output browser checks now cover Chromium,
 Firefox and WebKit for core HTML, navigation, accessibility, responsive reading,
-illustrative screens and failure recovery. Specialized WebGL/camera/monitor suites
-retain their complete original Chromium coverage rather than claiming GPU parity
-across engines. Shared artifact/record integrity supplements existing routing
+illustrative screens and loading/failure recovery. Routine verification (`npm run
+test:e2e`, also used by `ci:browser` and `check`) includes one real Chromium scene
+startup smoke test. Detailed WebGL/camera/monitor journeys are excluded from PR and
+delivery gates because software rendering makes them disproportionately costly.
+They remain available in Chromium via `npm run test:e2e:gpu` after a build; run the
+relevant journeys when changing scene behavior. This deliberate coverage exception
+does not certify animation, camera or pixel correctness on every commit, nor GPU
+parity across engines. Unit coverage remains in the normal gate.
+Shared artifact/record integrity supplements existing routing
 and configuration smoke. `lockScope: all` preserves stricter cross-target exclusion.
 Neither target uses `DEPLOY_ENABLED` or the legacy repository-level
 `DELIVERY_ENABLED` fallback; absent/false values do not skip delivery.
