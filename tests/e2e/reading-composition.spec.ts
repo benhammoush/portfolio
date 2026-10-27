@@ -3,7 +3,10 @@
  * @packageDocumentation
  */
 import { expect, test } from '@playwright/test';
+import { prepareHtmlRecovery } from './support/htmlRecovery';
 import { collectEngineRequests } from './support/engineRequests';
+
+test.beforeEach(async ({ page }) => prepareHtmlRecovery(page));
 
 for (const width of [1440, 1920]) {
   test(`post-hero chapters keep one dominant reading column at ${width}px`, async ({
@@ -16,33 +19,11 @@ for (const width of [1440, 1920]) {
       'data-reading',
       '',
     );
-    const sheet = await page.locator('.world-main').evaluate((e) => {
-      const s = getComputedStyle(e, '::before');
-      return {
-        width: parseFloat(s.width),
-        height: parseFloat(s.height),
-        left: s.left,
-        top: s.top,
-        position: s.position,
-      };
-    });
-    expect(sheet).toEqual({
-      width: width / 2,
-      height: 1080,
-      left: '0px',
-      top: '0px',
-      position: 'fixed',
-    });
     expect(
       await page
         .locator('.world-main')
-        .evaluate((e) => getComputedStyle(e, '::before').backgroundColor),
-    ).toBe('rgba(23, 29, 34, 0.25)');
-    expect(
-      await page
-        .locator('.world-main')
-        .evaluate((e) => getComputedStyle(e, '::before').maskImage),
-    ).toContain('70%');
+        .evaluate((e) => getComputedStyle(e, '::before').content),
+    ).toBe('none');
     const composition = await page
       .locator('.world-section:not(.world-intro) .world-section-inner')
       .evaluateAll((cards) =>
@@ -55,6 +36,8 @@ for (const width of [1440, 1920]) {
             right: box.right,
             headingSize: parseFloat(getComputedStyle(heading).fontSize),
             overflow: card.scrollWidth > card.clientWidth,
+            background: getComputedStyle(card).backgroundColor,
+            radius: getComputedStyle(card).borderRadius,
           };
         }),
       );
@@ -66,6 +49,8 @@ for (const width of [1440, 1920]) {
       expect(card.right).toBeLessThanOrEqual(width / 2 + 1);
       expect(card.headingSize).toBeGreaterThanOrEqual(30);
       expect(card.overflow).toBe(false);
+      expect(card.background).toBe('rgba(23, 29, 34, 0.84)');
+      expect(card.radius).toBe('16px');
     }
     const typography = await page
       .locator('#world-workflow .world-section-inner')
@@ -127,9 +112,7 @@ for (const width of [390, 1440]) {
       }));
     expect(metrics.width).toBeGreaterThan(Math.min(320, width - 80));
     expect(metrics.font).toBe(width >= 1200 ? '20px' : '19px');
-    expect(metrics.background).toBe(
-      width >= 1200 ? 'rgba(0, 0, 0, 0)' : 'rgba(23, 29, 34, 0.84)',
-    );
+    expect(metrics.background).toBe('rgba(23, 29, 34, 0.84)');
     await expect(
       section.getByRole('heading', { level: 2, name: 'Apollo', exact: true }),
     ).toBeInViewport();
@@ -138,7 +121,7 @@ for (const width of [390, 1440]) {
     );
     await expect(section.locator('.world-section-inner')).toHaveCSS(
       'border-top-style',
-      width >= 1200 ? 'none' : 'solid',
+      'solid',
     );
     await expect(section.locator('.world-summary-contribution')).toHaveCount(0);
     const typography = await section
@@ -152,13 +135,7 @@ for (const width of [390, 1440]) {
     const contrast = await section
       .locator('.world-section-inner')
       .evaluate((card) => {
-        const backdrop =
-          innerWidth >= 1200
-            ? getComputedStyle(
-                document.querySelector('.world-main')!,
-                '::before',
-              )
-            : getComputedStyle(card);
+        const backdrop = getComputedStyle(card);
         /**
          * Relative luminance after alpha composition, per WCAG.
          * @param rgb - Three sRGB channels in the 0–255 range.
@@ -273,7 +250,7 @@ for (const width of [390, 1440]) {
       expect((await image.boundingBox())!.width).toBeLessThan(385);
     }
     await expect(page.locator('canvas')).toHaveCount(0);
-    expect(engines).toEqual([]);
+    expect(engines).toHaveLength(1);
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth > innerWidth,

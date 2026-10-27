@@ -42,12 +42,6 @@ test('Apollo and Workflow switch on one monitor without enabling animation when 
   await expect(canvas).toHaveAttribute('data-monitor-chapter', 'apollo');
   await expect(canvas).toHaveAttribute('data-workflow-motion', 'paused');
   await expect(canvas).toHaveAttribute('data-monitor-apollo-time', apolloTime!);
-  await clickSceneControl(page, 'Use still view');
-  await expect(
-    page.locator('#world-apollo .world-workflow-poster'),
-  ).toBeVisible();
-  await expect(page.locator('canvas')).toHaveCount(0);
-  await clickSceneControl(page, 'Enable 3D');
   await expect(canvas).toHaveAttribute('data-monitor-chapter', 'apollo', {
     timeout: 45_000,
   });

@@ -3,6 +3,9 @@
  * @packageDocumentation
  */
 import { expect, test } from '@playwright/test';
+import { prepareHtmlRecovery } from './support/htmlRecovery';
+
+test.beforeEach(async ({ page }) => prepareHtmlRecovery(page));
 
 test('skip link moves keyboard focus to main content', async ({ page }) => {
   await page.goto('/about');

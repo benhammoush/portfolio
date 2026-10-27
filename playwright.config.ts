@@ -10,6 +10,7 @@ export const gpuSuites = [
   '**/content-first.spec.ts',
   '**/evening-room.spec.ts',
   '**/scene-polish.spec.ts',
+  '**/scene-options.spec.ts',
   '**/monitor-launch.spec.ts',
   '**/project-monitors.spec.ts',
   '**/section-poses.spec.ts',

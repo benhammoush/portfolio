@@ -5,7 +5,7 @@
 import { expect, test } from '@playwright/test';
 import { clickSceneControl } from './support/sceneControls';
 
-test('evening room returns after a still-view toggle without changing project framing or controls', async ({
+test('evening room retains project framing through pause and resume', async ({
   page,
 }) => {
   test.setTimeout(120_000);
@@ -31,13 +31,7 @@ test('evening room returns after a still-view toggle without changing project fr
   await expect(canvas).toHaveAttribute('data-intro-motion', 'paused', {
     timeout: 45_000,
   });
-  await clickSceneControl(page, 'Use still view');
-  await expect(canvas).toHaveCount(0);
   await expect(page.locator('#world-apollo h2')).toBeInViewport();
-  await expect(
-    page.locator('#world-apollo .world-workflow-poster'),
-  ).toBeVisible();
-  await clickSceneControl(page, 'Enable 3D');
   await expect(canvas).toHaveAttribute('data-evening-room', 'ready', {
     timeout: 45_000,
   });
@@ -51,13 +45,11 @@ test('evening room returns after a still-view toggle without changing project fr
   });
 });
 
-test('narrow stationary opt-in keeps the lighter renderer with the subtle canvas-only blur', async ({
+test('narrow automatic 3D keeps the lighter renderer with the subtle canvas-only blur', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  await expect(page.locator('canvas')).toHaveCount(0);
-  await clickSceneControl(page, 'View stationary 3D');
   const canvas = page.locator('canvas');
   await expect(canvas).toHaveAttribute('data-evening-room', 'ready', {
     timeout: 45_000,

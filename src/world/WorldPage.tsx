@@ -129,7 +129,15 @@ const PAGE_ANCHORS = [
  */
 function SectionAnchorRail() {
   const [active, setActive] = useState(PAGE_ANCHORS[0].id);
+  const [dismissedLabels, setDismissedLabels] = useState<string[]>([]);
   useEffect(() => {
+    /** Dismiss labels even when hover, rather than keyboard focus, revealed them.
+     * @param event - Native document keyboard input.
+     */
+    function dismissLabels(event: KeyboardEvent) {
+      if (event.key === 'Escape')
+        setDismissedLabels(PAGE_ANCHORS.map(({ id }) => id));
+    }
     /** Mark the last chapter whose anchor has entered the upper reading area. */
     function updateActiveAnchor() {
       const threshold = window.scrollY + window.innerHeight * 0.35;
@@ -147,9 +155,11 @@ function SectionAnchorRail() {
     updateActiveAnchor();
     window.addEventListener('scroll', updateActiveAnchor, { passive: true });
     window.addEventListener('resize', updateActiveAnchor);
+    document.addEventListener('keydown', dismissLabels, true);
     return () => {
       window.removeEventListener('scroll', updateActiveAnchor);
       window.removeEventListener('resize', updateActiveAnchor);
+      document.removeEventListener('keydown', dismissLabels, true);
     };
   }, []);
 
@@ -165,7 +175,19 @@ function SectionAnchorRail() {
           href={`#${id}`}
           aria-label={`Go to ${label}`}
           aria-current={active === id ? 'location' : undefined}
-          title={label}
+          data-label={label}
+          data-label-dismissed={dismissedLabels.includes(id) || undefined}
+          onMouseEnter={() =>
+            setDismissedLabels((labels) =>
+              labels.filter((label) => label !== id),
+            )
+          }
+          onFocus={(event) => {
+            if (!event.currentTarget.matches(':hover'))
+              setDismissedLabels((labels) =>
+                labels.filter((label) => label !== id),
+              );
+          }}
         >
           <span aria-hidden="true" />
         </a>

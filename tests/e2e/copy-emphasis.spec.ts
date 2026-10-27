@@ -3,6 +3,9 @@
  * @packageDocumentation
  */
 import { expect, test } from '@playwright/test';
+import { prepareHtmlRecovery } from './support/htmlRecovery';
+
+test.beforeEach(async ({ page }) => prepareHtmlRecovery(page));
 
 for (const width of [390, 1440]) {
   test(`workflow, stack and outcome highlights remain readable at ${width}px`, async ({

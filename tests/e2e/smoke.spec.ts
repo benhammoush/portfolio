@@ -3,7 +3,10 @@
  * @packageDocumentation
  */
 import { expect, test } from '@playwright/test';
+import { prepareHtmlRecovery } from './support/htmlRecovery';
 import { APP_VERSION } from '../../src/appVersion';
+
+test.beforeEach(async ({ page }) => prepareHtmlRecovery(page));
 
 // These checks exercise HTML and routing; real scene startup has its own smoke test.
 test.use({ reducedMotion: 'reduce' });

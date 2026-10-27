@@ -7,6 +7,7 @@ import { CHAPTERS } from '../../src/world/chapters';
 import {
   SECTION_POSES,
   sampleReadingPose,
+  advanceOpeningFraction,
 } from '../../src/world/section-poses';
 
 /** Synthetic native stops keep pose mathematics independent of browser layout. */
@@ -15,6 +16,37 @@ const anchors = SECTION_POSES.map((pose, index) => ({
   top: (index + 1) * 1000,
   pose,
 }));
+
+test('opening travel settles gradually and is independent of frame cadence', () => {
+  let at60 = 1;
+  let at120 = 1;
+  for (let i = 0; i < 60; i++)
+    at60 = advanceOpeningFraction(at60, 0, 1 / 60, true);
+  for (let i = 0; i < 120; i++)
+    at120 = advanceOpeningFraction(at120, 0, 1 / 120, true);
+  expect(at60).toBeCloseTo(at120, 10);
+  expect(at60).toBeGreaterThan(0.2);
+  expect(at60).toBeLessThan(0.25);
+  for (let i = 0; i < 360; i++)
+    at60 = advanceOpeningFraction(at60, 0, 1 / 60, true);
+  expect(at60).toBe(0);
+});
+
+test('opening travel reverses immediately without overshoot or a queued destination', () => {
+  const outgoing = advanceOpeningFraction(1, 0, 0.1, true);
+  const returning = advanceOpeningFraction(outgoing, 1, 0.1, true);
+  expect(outgoing).toBeGreaterThan(0);
+  expect(outgoing).toBeLessThan(1);
+  expect(returning).toBeGreaterThan(outgoing);
+  expect(returning).toBeLessThan(1);
+});
+
+test('opening load, layout changes and paused/stationary views do not drift', () => {
+  expect(advanceOpeningFraction(null, 0, 0.016, true)).toBe(0);
+  expect(advanceOpeningFraction(null, 1, 0.016, true)).toBe(1);
+  expect(advanceOpeningFraction(0.4, 1, 0.016, false)).toBe(1);
+  expect(advanceOpeningFraction(0.4, 0, 0.016, false)).toBe(0);
+});
 
 test('opening and Contact share the slightly wider default framing without moving the camera', () => {
   expect(CHAPTERS[0].position).toEqual([0.1, 0.74, 7.14]);

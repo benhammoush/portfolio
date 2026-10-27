@@ -1,5 +1,5 @@
 /**
- * Accessible HTML boundary for lazy WebGL, user choice and illustrated fallbacks.
+ * Accessible HTML boundary for automatic WebGL, motion controls and recovery.
  * @packageDocumentation
  */
 import {
@@ -22,20 +22,12 @@ const MOTION_MEDIA = '(prefers-reduced-motion: reduce)';
 /** Explain the automatic view policy without treating it as a graphics capability test. */
 type ViewPolicy = 'desktop' | 'narrow' | 'reduced-motion';
 
-/** A deliberate selection applies only to the viewport/motion policy it was made in. */
-interface ViewChoice {
-  /** Policy under which this choice was made. */
-  policy: ViewPolicy;
-  /** Whether to load real 3D or retain the vector illustration. */
-  live: boolean;
-}
-
 /**
- * Subscribe to device/motion preference changes without loading the WebGL module.
+ * Subscribe to viewport/motion preference changes.
  * @param listener - React's snapshot invalidation callback.
  * @returns A cleanup that removes this preference listener.
  */
-function subscribePolicy(listener: () => void) {
+function subscribePolicy(listener: (event: MediaQueryListEvent) => void) {
   const queries = [
     window.matchMedia(WIDTH_MEDIA),
     window.matchMedia(MOTION_MEDIA),
@@ -46,8 +38,8 @@ function subscribePolicy(listener: () => void) {
 }
 
 /**
- * Read whether automatic 3D is appropriate for this viewport and motion preference.
- * @returns The exact reason for stationary/default-static mode or desktop travel.
+ * Read whether camera travel is appropriate for this viewport and motion preference.
+ * @returns The reason for stationary framing or desktop travel.
  */
 function readPolicy(): ViewPolicy {
   if (window.matchMedia(MOTION_MEDIA).matches) return 'reduced-motion';
@@ -146,12 +138,23 @@ class WorldBoundary extends Component<BoundaryProps, BoundaryState> {
 }
 
 /**
- * Default to an illustration on narrow/reduced-motion layouts, but let the user
- * explicitly request real stationary 3D without enabling camera travel.
- * @returns One decorative viewport plus an accessible mode control and status.
+ * Load 3D on every viewport, respecting reduced motion until deliberately resumed.
+ * @returns One decorative viewport plus accessible motion controls and recovery.
  */
 export default function WorldViewport() {
   const [inspect, setInspect] = useState(false);
+  const [motionPaused, setMotionPaused] = useState(
+    () => readPolicy() === 'reduced-motion',
+  );
+  const subscribeViewPolicy = useCallback(
+    (listener: () => void) =>
+      subscribePolicy((event) => {
+        if (event.media === MOTION_MEDIA && event.matches)
+          setMotionPaused(true);
+        listener();
+      }),
+    [],
+  );
   // Reset from the native reading event, not during render or after a stale
   // inspection has already reached the next visit's canvas.
   const subscribeInspection = useCallback(
@@ -168,26 +171,21 @@ export default function WorldViewport() {
     () => false,
   );
   const policy = useSyncExternalStore(
-    subscribePolicy,
+    subscribeViewPolicy,
     readPolicy,
     () => 'narrow' as const,
   );
-  const [choice, setChoice] = useState<ViewChoice | null>(null);
+  const [skipped, setSkipped] = useState(false);
   const [lost, setLost] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [motionPaused, setMotionPaused] = useState(false);
   const onContextLost = useCallback(() => setLost(true), []);
   const onFailure = useCallback(() => setFailed(true), []);
-  const requested =
-    choice?.policy === policy ? choice.live : policy === 'desktop';
-  const live = requested && !lost && !failed;
+  const live = !skipped && !lost && !failed;
   const cameraTravel = policy === 'desktop';
 
   return (
     <figure className="world-viewport" data-live={live}>
-      {live && (
-        <SceneLoadingScreen onSkip={() => setChoice({ policy, live: false })} />
-      )}
+      {live && <SceneLoadingScreen onSkip={() => setSkipped(true)} />}
       <div className="world-stage">
         {live ? (
           <WorldBoundary onFailure={onFailure}>
@@ -205,7 +203,7 @@ export default function WorldViewport() {
                 <LazyCanvas
                   onContextLost={onContextLost}
                   cameraTravel={cameraTravel}
-                  animateIntro={cameraTravel && !motionPaused}
+                  animateIntro={!motionPaused}
                   inspect={cameraTravel && screenContext && inspect}
                 />
               </div>
@@ -223,18 +221,14 @@ export default function WorldViewport() {
           {failed
             ? '3D could not load. The illustrated view and all content remain available. Reload to retry.'
             : lost
-              ? 'Graphics context lost. Still view retained; reload to retry.'
+              ? 'Graphics context lost. The illustration and all content remain available; reload to retry.'
               : live
                 ? cameraTravel
                   ? '3D supports the reading. View screen offers an optional closer look during the project sections.'
                   : 'Stationary 3D view — camera travel is off for this viewport or motion preference.'
-                : policy === 'reduced-motion'
-                  ? 'Still view: reduced motion is enabled. Optional 3D keeps the camera stationary.'
-                  : policy === 'narrow'
-                    ? 'Still view: this window is under 768 pixels wide. Optional 3D is stationary; widen the window for camera travel.'
-                    : 'Still view. The complete story stays in HTML.'}
+                : '3D loading skipped. The illustration and all content remain available. Reload to retry.'}
         </span>
-        {!lost && !failed && (
+        {live && (
           <details
             className="world-scene-options"
             onKeyDown={(event) => {
@@ -246,7 +240,7 @@ export default function WorldViewport() {
           >
             <summary>Scene options</summary>
             <div className="world-scene-actions">
-              {live && cameraTravel && screenContext && (
+              {cameraTravel && screenContext && (
                 <button
                   type="button"
                   aria-pressed={inspect}
@@ -255,23 +249,11 @@ export default function WorldViewport() {
                   {inspect ? 'Return to reading' : 'View screen'}
                 </button>
               )}
-              {live && cameraTravel && (
-                <button
-                  type="button"
-                  onClick={() => setMotionPaused(!motionPaused)}
-                >
-                  {motionPaused ? 'Resume motion' : 'Pause motion'}
-                </button>
-              )}
               <button
                 type="button"
-                onClick={() => setChoice({ policy, live: !live })}
+                onClick={() => setMotionPaused(!motionPaused)}
               >
-                {live
-                  ? 'Use still view'
-                  : cameraTravel
-                    ? 'Enable 3D'
-                    : 'View stationary 3D'}
+                {motionPaused ? 'Resume motion' : 'Pause motion'}
               </button>
             </div>
           </details>

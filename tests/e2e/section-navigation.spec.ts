@@ -3,6 +3,9 @@
  * @packageDocumentation
  */
 import { expect, test } from '@playwright/test';
+import { prepareHtmlRecovery } from './support/htmlRecovery';
+
+test.beforeEach(async ({ page }) => prepareHtmlRecovery(page));
 
 test('directional wheel gestures stop at adjacent desktop section anchors', async ({
   page,
@@ -79,12 +82,63 @@ for (const width of [390, 768, 1024, 1440, 1920]) {
           parseFloat(getComputedStyle(element).paddingLeft),
       );
     const railRight = railBounds!.x + railBounds!.width;
+    const panelEdge = await page
+      .locator('#world-apollo .world-section-inner')
+      .evaluate((element) => element.getBoundingClientRect().left);
+    expect(panelEdge - railRight).toBeGreaterThanOrEqual(8);
+    await expect(
+      rail.getByRole('link', { name: 'Go to Apollo' }).locator('span'),
+    ).toHaveCSS('border-radius', '50%');
     expect(copyEdge - railRight).toBeGreaterThanOrEqual(4);
     expect(copyEdge - railRight).toBeLessThanOrEqual(48);
     const tickBounds = await rail
       .getByRole('link', { name: 'Go to Apollo' })
       .boundingBox();
     expect(tickBounds!.height).toBeGreaterThanOrEqual(24);
+    if (width === 1440) {
+      const apollo = rail.getByRole('link', { name: 'Go to Apollo' });
+      await apollo.focus();
+      await expect
+        .poll(() =>
+          apollo.evaluate(
+            (element) => getComputedStyle(element, '::after').visibility,
+          ),
+        )
+        .toBe('visible');
+      await page.keyboard.press('Escape');
+      await expect(apollo).toBeFocused();
+      await expect
+        .poll(() =>
+          apollo.evaluate(
+            (element) => getComputedStyle(element, '::after').visibility,
+          ),
+        )
+        .toBe('hidden');
+      await page.locator('.world-brand').focus();
+      await page.locator('.world-brand').hover();
+      await apollo.hover();
+      const dot = await apollo.boundingBox();
+      await page.mouse.move(dot!.x + dot!.width + 20, dot!.y + dot!.height / 2);
+      await expect
+        .poll(() => apollo.evaluate((element) => element.matches(':hover')))
+        .toBe(true);
+      await expect
+        .poll(() =>
+          apollo.evaluate(
+            (element) => getComputedStyle(element, '::after').visibility,
+          ),
+        )
+        .toBe('visible');
+      await page.keyboard.press('Escape');
+      await expect(page.locator('.world-brand')).toBeFocused();
+      await expect
+        .poll(() =>
+          apollo.evaluate(
+            (element) => getComputedStyle(element, '::after').visibility,
+          ),
+        )
+        .toBe('hidden');
+    }
     if ([390, 1440].includes(width))
       await page.screenshot({
         path: testInfo.outputPath('rail-near-copy.png'),

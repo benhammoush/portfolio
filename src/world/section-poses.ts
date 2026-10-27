@@ -59,6 +59,26 @@ export interface ReadingFrame extends ReadingPose {
 }
 
 /**
+ * Let the opening camera settle gently instead of following a fast native snap.
+ * @param current - Previous opening fraction, or null on initial load/layout changes.
+ * @param target - Latest scroll-derived fraction, from zero to one.
+ * @param delta - Active frame duration in seconds.
+ * @param animate - Whether camera motion is allowed.
+ * @returns A bounded fraction that follows reversals without queuing a journey.
+ */
+export function advanceOpeningFraction(
+  current: number | null,
+  target: number,
+  delta: number,
+  animate: boolean,
+): number {
+  if (current === null || !animate) return target;
+  const next =
+    current + (target - current) * (1 - Math.exp(-Math.min(delta, 0.1) * 1.5));
+  return Math.abs(next - target) < 0.001 ? target : next;
+}
+
+/**
  * Blend the latest scroll position along the route, retracing exactly on reverse.
  * @param anchors - Ordered native section stops, remeasured after layout changes.
  * @param scroll - Absolute document offset; invalid values select the first stop.

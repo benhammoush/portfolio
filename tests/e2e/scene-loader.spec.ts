@@ -1,5 +1,5 @@
 /**
- * The initial loader has a real escape route and never loads 3D on static policy.
+ * The initial loader has a real escape route on every screen and motion policy.
  * @packageDocumentation
  */
 import { expect, test } from '@playwright/test';
@@ -21,12 +21,6 @@ for (const width of [1440, 390]) {
       try {
         await page.setViewportSize({ width, height: 900 });
         await page.goto('/', { waitUntil: 'domcontentloaded' });
-        if (width < 768) {
-          await page.locator('.world-scene-options summary').click();
-          await page
-            .getByRole('button', { name: 'View stationary 3D', exact: true })
-            .click();
-        }
         const loader = page.getByRole('dialog', {
           name: 'Loading experience',
         });
@@ -64,11 +58,15 @@ for (const width of [1440, 390]) {
   }
 }
 
-test('reduced-motion visitors keep the static portfolio without a loading screen', async ({
+test('reduced-motion visitors also load 3D and can skip a failed download', async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.route('**/WorldCanvas-*.js', (route) => route.abort());
   await page.goto('/');
+  await expect(page.locator('.world-visual-status')).toContainText(
+    '3D could not load',
+  );
   await expect(page.locator('.world-loading-screen')).toHaveCount(0);
   await expect(page.locator('canvas')).toHaveCount(0);
 });

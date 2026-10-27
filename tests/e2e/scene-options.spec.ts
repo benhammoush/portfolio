@@ -8,18 +8,22 @@ for (const width of [320, 390, 1440]) {
   test(`scene options are collapsed, keyboard-operable and bounded at ${width}px`, async ({
     page,
   }) => {
+    test.setTimeout(120_000);
     await page.setViewportSize({ width, height: 900 });
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/#world-apollo');
     const options = page.locator('.world-scene-options');
     const summary = options.locator('summary');
-    const action = page.getByRole('button', { name: 'View stationary 3D' });
+    await expect(page.locator('canvas[data-intro-ready="true"]')).toBeVisible({
+      timeout: 45_000,
+    });
+    const action = page.getByRole('button', { name: 'Resume motion' });
     const reading = page.locator('#world-apollo .world-section-inner');
     await expect(summary).toHaveText('Scene options');
     await expect(summary).toBeInViewport();
     await expect(options).not.toHaveAttribute('open', '');
     await expect(options.locator('button')).toBeHidden();
-    await expect(page.locator('canvas')).toHaveCount(0);
+    await expect(page.locator('canvas')).toHaveCount(1);
     const before = await reading.boundingBox();
 
     await summary.focus();
