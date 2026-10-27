@@ -2,8 +2,16 @@
  * The original hero screen remains until a heading-led, interruptible app launch.
  * @packageDocumentation
  */
-import { expect, test, type Locator, type Page } from '@playwright/test';
+import {
+  expect as baseExpect,
+  test,
+  type Locator,
+  type Page,
+} from '@playwright/test';
 import { clickSceneControl, openSceneOptions } from './support/sceneControls';
+
+// Clock-driven assertions still wait for real software-rendered frames to finish.
+const expect = baseExpect.configure({ timeout: 45_000 });
 
 /**
  * Advance the frozen clock until a native scroll or React update reaches the canvas.
@@ -155,7 +163,7 @@ test('Workflow opens a window over the original screen, with pause and static re
 test('a running launch freezes while hidden and reverses from its partial window on return', async ({
   page,
 }) => {
-  test.setTimeout(90_000);
+  test.setTimeout(180_000);
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
   const canvas = page.locator('canvas');

@@ -5,6 +5,9 @@
 import { expect, test } from '@playwright/test';
 import { APP_VERSION } from '../../src/appVersion';
 
+// These checks exercise HTML and routing; real scene startup has its own smoke test.
+test.use({ reducedMotion: 'reduce' });
+
 test('serves the readable foundation and runtime identity', async ({
   page,
 }) => {

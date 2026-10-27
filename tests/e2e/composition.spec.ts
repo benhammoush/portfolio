@@ -22,7 +22,9 @@ test('evening still includes the lit lamp and wall without baked navigation or e
       ),
     )
     .toBe(true);
-  const pixels = await poster.evaluate((image: HTMLImageElement) => {
+  const pixels = await poster.evaluate(async (image: HTMLImageElement) => {
+    // WebKit may report dimensions before the decoded pixels are drawable.
+    await image.decode();
     const canvas = document.createElement('canvas');
     canvas.width = image.naturalWidth;
     canvas.height = image.naturalHeight;

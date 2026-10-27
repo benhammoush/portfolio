@@ -4,8 +4,8 @@
  */
 import { defineConfig, devices } from '@playwright/test';
 
-// The original full suite retains Chromium GPU/camera coverage; core HTML journeys run in all engines.
-const gpuSuites = [
+// Detailed GPU journeys are opt-in through playwright.gpu.config.ts.
+export const gpuSuites = [
   '**/apollo-monitor.spec.ts',
   '**/content-first.spec.ts',
   '**/evening-room.spec.ts',
@@ -18,7 +18,11 @@ const gpuSuites = [
 ];
 
 // HTTP response contracts use no browser APIs, so running each engine adds no coverage.
-const singleProjectSuites = [...gpuSuites, '**/asset-serving.spec.ts'];
+const singleProjectSuites = [
+  ...gpuSuites,
+  '**/asset-serving.spec.ts',
+  '**/scene-smoke.spec.ts',
+];
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -30,7 +34,11 @@ export default defineConfig({
   workers: 1,
   use: { baseURL: 'http://127.0.0.1:3100', trace: 'retain-on-failure' },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    {
+      name: 'chromium',
+      testIgnore: gpuSuites,
+      use: { ...devices['Desktop Chrome'] },
+    },
     {
       name: 'firefox',
       testIgnore: singleProjectSuites,
