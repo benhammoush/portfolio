@@ -21,7 +21,7 @@ for (const [chapter, label] of [
     await page.goto(`/#world-${chapter}`);
     const canvas = page.locator('canvas');
     await expect(canvas).toHaveAttribute('data-monitor-chapter', chapter, {
-      timeout: 25_000,
+      timeout: 45_000,
     });
     await expect(canvas).toHaveAttribute(`data-${chapter}-ready`, 'true');
     await expect(canvas).toHaveAttribute('data-camera-pose', '-0.38,1.45,1.25');
@@ -30,7 +30,7 @@ for (const [chapter, label] of [
     await page.route(`**/${chapter}-screen-*.svg`, (route) => route.abort());
     await page.reload();
     await expect(canvas).toHaveAttribute(`data-${chapter}-error`, 'true', {
-      timeout: 25_000,
+      timeout: 45_000,
     });
     await expect(page.getByRole('status')).toContainText(
       `${label} artwork could not load`,
@@ -56,7 +56,7 @@ test('five tabs follow project reading while the About camera stays fixed', asyn
   await page.goto('/#world-workflow');
   const canvas = page.locator('canvas');
   await expect(canvas).toHaveAttribute('data-monitor-chapter', 'workflow', {
-    timeout: 25_000,
+    timeout: 45_000,
   });
   await clickSceneControl(page, 'Pause motion');
   const pose = await canvas.getAttribute('data-camera-pose');

@@ -29,7 +29,7 @@ test('evening room returns after a still-view toggle without changing project fr
   await clickSceneControl(page, 'Pause motion');
   // A full-resolution software-rendered frame can exceed the default assertion window.
   await expect(canvas).toHaveAttribute('data-intro-motion', 'paused', {
-    timeout: 20_000,
+    timeout: 45_000,
   });
   await clickSceneControl(page, 'Use still view');
   await expect(canvas).toHaveCount(0);
@@ -43,11 +43,11 @@ test('evening room returns after a still-view toggle without changing project fr
   });
   await expect(canvas).toHaveAttribute('data-monitor-chapter', 'apollo');
   await expect(canvas).toHaveAttribute('data-intro-motion', 'paused', {
-    timeout: 20_000,
+    timeout: 45_000,
   });
   await clickSceneControl(page, 'Resume motion');
   await expect(canvas).toHaveAttribute('data-intro-motion', 'playing', {
-    timeout: 20_000,
+    timeout: 45_000,
   });
 });
 

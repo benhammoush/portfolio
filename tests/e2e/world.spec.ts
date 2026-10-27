@@ -57,7 +57,7 @@ test('first wheel input visibly changes the rendered camera view', async ({
   await page.goto('/world');
   const canvas = page.locator('canvas[data-world-ready="true"]');
   await expect(canvas).toHaveAttribute('data-camera-pose', '0.1,0.74,7.14', {
-    timeout: 15_000,
+    timeout: 45_000,
   });
   const before = await canvas.screenshot();
   const offsetBefore = await canvas.getAttribute('data-camera-offset-y');
@@ -81,7 +81,7 @@ test('desktop loads a real scene, supports native anchors and deliberate still m
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/world');
   const canvas = page.locator('canvas[data-world-ready="true"]');
-  await expect(canvas).toBeVisible({ timeout: 15_000 });
+  await expect(canvas).toBeVisible({ timeout: 45_000 });
   await expect(canvas).toHaveAttribute('data-camera-pose', '0.1,0.74,7.14');
   await expect(canvas).toHaveAttribute('data-intro-ready', 'true');
   // The approved desktop policy supersamples at 2x even on a 1x screen.
@@ -120,7 +120,7 @@ test('desktop loads a real scene, supports native anchors and deliberate still m
   await expect(
     page.getByRole('heading', { name: 'Iris', exact: true }),
   ).toBeInViewport();
-  await expect(canvas).toBeVisible({ timeout: 15_000 });
+  await expect(canvas).toBeVisible({ timeout: 45_000 });
   await expect(canvas).toHaveAttribute('data-reading-section', 'world-iris');
   await expect(canvas).toHaveAttribute('data-route-span', '1.35');
   await page.setViewportSize({ width: 900, height: 900 });
@@ -131,7 +131,7 @@ test('desktop loads a real scene, supports native anchors and deliberate still m
   await expect(page.locator('canvas')).toHaveCount(0);
   await clickSceneControl(page, 'Enable 3D');
   // Frosted copy protects reading while the full-screen scene remains available.
-  await expect(canvas).toHaveCount(1, { timeout: 15_000 });
+  await expect(canvas).toHaveCount(1, { timeout: 45_000 });
   await expect(canvas).toBeVisible();
   expect(errors).toEqual([]);
 });
@@ -524,7 +524,7 @@ test('desk motion continues beyond the hero and pauses while hidden or unlaid-ou
   test.setTimeout(60_000);
   await page.goto('/world');
   await expect(page.locator('canvas[data-world-ready="true"]')).toBeVisible({
-    timeout: 25_000,
+    timeout: 45_000,
   });
   await page.evaluate(() => {
     const canvas = document.querySelector('canvas')!;

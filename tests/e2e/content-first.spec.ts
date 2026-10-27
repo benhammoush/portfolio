@@ -48,7 +48,7 @@ test('the frosted profile leaves the full-screen scene unclipped', async ({
   await expect(page.locator('canvas')).toHaveAttribute(
     'data-world-ready',
     'true',
-    { timeout: 25_000 },
+    { timeout: 45_000 },
   );
   await clickSceneControl(page, 'Pause motion');
   await page.evaluate(() =>
@@ -169,7 +169,7 @@ test('an active tab gesture freezes on pause and hidden time, then accepts rever
   await page.goto('/#world-workflow');
   const canvas = page.locator('canvas');
   await expect(canvas).toHaveAttribute('data-monitor-chapter', 'workflow', {
-    timeout: 25_000,
+    timeout: 45_000,
   });
   // Pause at the first actual gesture frame, avoiding wall-clock/software-render speed assumptions.
   await openSceneOptions(page);

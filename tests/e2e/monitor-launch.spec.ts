@@ -22,7 +22,7 @@ async function expectWindowState(
         await page.clock.runFor(16);
         return canvas.getAttribute('data-monitor-window');
       },
-      { timeout: 25_000 },
+      { timeout: 45_000 },
     )
     .toBe(state);
 }
@@ -41,7 +41,7 @@ test('Workflow opens a window over the original screen, with pause and static re
   await page.goto('/');
   const canvas = page.locator('canvas[data-world-ready="true"]');
   await expect(canvas).toHaveAttribute('data-workflow-ready', 'true', {
-    timeout: 25_000,
+    timeout: 45_000,
   });
   await expect(canvas).toHaveAttribute('data-monitor-window', 'closed');
   await expect(canvas).toHaveAttribute('data-monitor-desktop', 'ready');
@@ -53,7 +53,7 @@ test('Workflow opens a window over the original screen, with pause and static re
   );
   // This test exercises window animation; native smooth-scroll behavior has separate coverage.
   await expect(canvas).toHaveAttribute('data-camera-mode', 'reading', {
-    timeout: 20_000,
+    timeout: 45_000,
   });
   await expect(canvas).toHaveAttribute('data-monitor-window', 'closed');
   await expect(canvas).toHaveAttribute('data-workflow-active', 'false');
@@ -88,7 +88,7 @@ test('Workflow opens a window over the original screen, with pause and static re
   await page.clock.runFor(50);
   await expect(
     page.getByRole('button', { name: 'Resume motion', exact: true }),
-  ).toBeVisible({ timeout: 25_000 });
+  ).toBeVisible({ timeout: 45_000 });
   await expect(canvas).toHaveAttribute('data-monitor-window', 'opening');
   const amount = await canvas.getAttribute('data-monitor-window-amount');
   // Pause freezes the window clock, not an already-requested rate-limited paint.
@@ -122,7 +122,7 @@ test('Workflow opens a window over the original screen, with pause and static re
         await page.clock.runFor(16);
         return canvas.getAttribute('data-workflow-motion');
       },
-      { timeout: 25_000 },
+      { timeout: 45_000 },
     )
     .toBe('playing');
   await page.clock.fastForward(1000);
@@ -160,7 +160,7 @@ test('a running launch freezes while hidden and reverses from its partial window
   await page.goto('/');
   const canvas = page.locator('canvas');
   await expect(canvas).toHaveAttribute('data-workflow-ready', 'true', {
-    timeout: 25_000,
+    timeout: 45_000,
   });
   await openSceneOptions(page);
   await page.clock.pauseAt(await page.evaluate(() => Date.now() + 60_000));

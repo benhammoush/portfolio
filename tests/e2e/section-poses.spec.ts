@@ -6,7 +6,7 @@ import { expect as baseExpect, test } from '@playwright/test';
 import { clickSceneControl } from './support/sceneControls';
 
 // These assertions observe completed 2x software-rendered frames, not a frame-rate budget.
-const expect = baseExpect.configure({ timeout: 20_000 });
+const expect = baseExpect.configure({ timeout: 45_000 });
 
 test('the full-screen tour reaches physical landmarks behind the reading surface', async ({
   page,
@@ -16,7 +16,7 @@ test('the full-screen tour reaches physical landmarks behind the reading surface
   await page.goto('/');
   const canvas = page.locator('canvas[data-world-ready="true"]');
   await expect(canvas).toHaveAttribute('data-camera-mode', 'intro', {
-    timeout: 25_000,
+    timeout: 45_000,
   });
   await expect(canvas).toHaveAttribute('data-scene-side', 'full');
   await expect(canvas).toHaveCSS('mask-image', 'none');
@@ -107,7 +107,7 @@ test('the About camera holds through project scrolling, expanded copy and paused
   await page.goto('/#world-workflow');
   const canvas = page.locator('canvas[data-world-ready="true"]');
   await expect(canvas).toHaveAttribute('data-route-span', '1.35', {
-    timeout: 25_000,
+    timeout: 45_000,
   });
   const readingBox = await page
     .locator('#world-workflow .world-section-inner')

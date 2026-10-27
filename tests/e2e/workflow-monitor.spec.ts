@@ -20,7 +20,7 @@ test('Workflow keeps a quiet reading pose with optional larger-screen inspection
     'data-reading-section',
     'world-workflow',
     {
-      timeout: 20_000,
+      timeout: 45_000,
     },
   );
   await expect(canvas).toHaveAttribute('data-route-span', '1.35');
@@ -31,7 +31,7 @@ test('Workflow keeps a quiet reading pose with optional larger-screen inspection
   await expect
     // The first visible screen frame also compiles shaders on software-rendered CI.
     .poll(async () => Number(await canvas.getAttribute('data-workflow-time')), {
-      timeout: 20_000,
+      timeout: 45_000,
     })
     .toBeGreaterThan(0.05);
   const pose = await canvas.getAttribute('data-camera-pose');
@@ -102,13 +102,13 @@ test('Workflow keeps a quiet reading pose with optional larger-screen inspection
   ).toBeVisible();
   await clickSceneControl(page, 'Enable 3D');
   await expect(canvas).toHaveAttribute('data-workflow-active', 'true', {
-    timeout: 20_000,
+    timeout: 45_000,
   });
   await page.goto('/');
   await expect(page.locator('canvas')).toHaveAttribute(
     'data-camera-pose',
     '0.1,0.74,7.14',
-    { timeout: 20_000 },
+    { timeout: 45_000 },
   );
 });
 
@@ -137,7 +137,7 @@ test('reduced motion keeps Workflow still, with no engine and readable HTML', as
   await clickSceneControl(page, 'View stationary 3D');
   const canvas = page.locator('canvas');
   await expect(canvas).toHaveAttribute('data-workflow-motion', 'paused', {
-    timeout: 20_000,
+    timeout: 45_000,
   });
   await expect(canvas).toHaveAttribute('data-workflow-active', 'false');
   await expect(canvas).toHaveAttribute('data-monitor-desktop', 'ready');
@@ -155,7 +155,7 @@ test('a failed Workflow SVG preserves the original monitor and readable HTML', a
   await page.goto('/#world-workflow');
   const canvas = page.locator('canvas');
   await expect(canvas).toHaveAttribute('data-workflow-error', 'true', {
-    timeout: 20_000,
+    timeout: 45_000,
   });
   await expect(canvas).toHaveAttribute('data-workflow-active', 'false');
   await expect(page.getByRole('status')).toContainText(

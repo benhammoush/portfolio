@@ -16,13 +16,13 @@ test('Apollo and Workflow switch on one monitor without enabling animation when 
   await page.goto('/#world-apollo');
   const canvas = page.locator('canvas');
   await expect(canvas).toHaveAttribute('data-monitor-chapter', 'apollo', {
-    timeout: 20_000,
+    timeout: 45_000,
   });
   await expect(canvas).toHaveAttribute('data-reading-section', 'world-apollo');
   await expect(canvas).toHaveAttribute('data-route-span', '1.35');
   await expect
     .poll(async () => Number(await canvas.getAttribute('data-workflow-time')), {
-      timeout: 20_000,
+      timeout: 45_000,
     })
     .toBeGreaterThan(0.05);
   await clickSceneControl(page, 'Pause motion');
@@ -49,7 +49,7 @@ test('Apollo and Workflow switch on one monitor without enabling animation when 
   await expect(page.locator('canvas')).toHaveCount(0);
   await clickSceneControl(page, 'Enable 3D');
   await expect(canvas).toHaveAttribute('data-monitor-chapter', 'apollo', {
-    timeout: 20_000,
+    timeout: 45_000,
   });
 });
 
@@ -61,14 +61,14 @@ test('failed Apollo artwork retains text and does not disable Workflow', async (
   await page.goto('/#world-apollo');
   const canvas = page.locator('canvas');
   await expect(canvas).toHaveAttribute('data-apollo-error', 'true', {
-    timeout: 20_000,
+    timeout: 45_000,
   });
   await expect(page.getByRole('status')).toContainText(
     'Apollo artwork could not load',
   );
   // Software-rendered shadows can delay smooth-scroll frames well beyond five seconds.
   await expect(canvas).toHaveAttribute('data-workflow-active', 'false', {
-    timeout: 20_000,
+    timeout: 45_000,
   });
   await page
     .getByRole('navigation')
@@ -94,7 +94,7 @@ test('a working monitor survives visiting failed Apollo artwork and returning', 
   await expect(canvas).toHaveAttribute('data-apollo-error', 'true');
   await expect
     .poll(async () => Number(await canvas.getAttribute('data-workflow-time')), {
-      timeout: 20_000,
+      timeout: 45_000,
     })
     .toBeGreaterThan(0.05);
 
