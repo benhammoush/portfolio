@@ -4,15 +4,25 @@
  */
 import {
   DetachedBindMode,
+  DataTexture,
+  Box3,
   ExtrudeGeometry,
   Group,
   Mesh,
   MeshStandardMaterial,
+  NearestFilter,
   Path,
   Shape,
   SkinnedMesh,
+  SRGBColorSpace,
+  Float32BufferAttribute,
 } from 'three';
-import type { BufferGeometry, Material, Object3D } from 'three';
+import type {
+  BufferAttribute,
+  BufferGeometry,
+  Material,
+  Object3D,
+} from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { refineCurvedGeometry } from './curved-geometry';
 import { repairCharacterNeck } from './character-neck';
@@ -64,6 +74,23 @@ function roundedRectangle(
 export function installPersonalModel(scene: Object3D): () => void {
   const restore: (() => void)[] = [];
   const ownedGeometry: BufferGeometry[] = [];
+  const ownedMaterials: Material[] = [];
+  let frenchFlag: DataTexture | undefined;
+  let frenchMaterial: MeshStandardMaterial | undefined;
+  let clothBounds: Box3 | undefined;
+  let clothMaterial: Material | undefined;
+  const sourceCloth = scene.getObjectByName('Web__Flag_review__Vietnam_red');
+  if (sourceCloth instanceof Mesh) {
+    const source = sourceCloth as Mesh<BufferGeometry, Material | Material[]>;
+    const position = source.geometry.getAttribute('position');
+    if (position)
+      clothBounds = new Box3().setFromBufferAttribute(
+        position as BufferAttribute,
+      );
+    clothMaterial = Array.isArray(source.material)
+      ? source.material[0]
+      : source.material;
+  }
   scene.traverse((object) => {
     if (!(object instanceof Mesh)) return;
     const mesh = object as Mesh<BufferGeometry, Material | Material[]>;
@@ -112,6 +139,64 @@ export function installPersonalModel(scene: Object3D): () => void {
       });
     }
     if (name.startsWith('Web Flag review ')) {
+      if (
+        (name.endsWith('Vietnam red') || name.endsWith('Vietnam yellow')) &&
+        mesh.geometry.hasAttribute('position')
+      ) {
+        const originalGeometry = mesh.geometry;
+        const originalMaterial = mesh.material;
+        const geometry = originalGeometry.clone();
+        geometry.computeBoundingBox();
+        // The star fills a hole in the red mesh; both parts need one common UV frame/material.
+        const bounds = clothBounds ?? geometry.boundingBox!;
+        const position = geometry.getAttribute('position');
+        const uv = new Float32Array(position.count * 2);
+        for (let index = 0; index < position.count; index++) {
+          uv[index * 2] =
+            (position.getX(index) - bounds.min.x) /
+            Math.max(bounds.max.x - bounds.min.x, 1e-6);
+          uv[index * 2 + 1] =
+            (position.getY(index) - bounds.min.y) /
+            Math.max(bounds.max.y - bounds.min.y, 1e-6);
+        }
+        geometry.setAttribute('uv', new Float32BufferAttribute(uv, 2));
+        ownedGeometry.push(geometry);
+        mesh.geometry = geometry;
+        frenchFlag ??= new DataTexture(
+          new Uint8Array([
+            0, 35, 149, 255, 255, 255, 255, 255, 237, 41, 57, 255,
+          ]),
+          3,
+          1,
+        );
+        frenchFlag.colorSpace = SRGBColorSpace;
+        frenchFlag.magFilter = NearestFilter;
+        frenchFlag.minFilter = NearestFilter;
+        frenchFlag.generateMipmaps = false;
+        frenchFlag.needsUpdate = true;
+        if (!frenchMaterial) {
+          const source =
+            clothMaterial ??
+            (Array.isArray(originalMaterial)
+              ? originalMaterial[0]
+              : originalMaterial);
+          frenchMaterial =
+            source instanceof MeshStandardMaterial
+              ? source.clone()
+              : new MeshStandardMaterial({ roughness: 0.9 });
+          frenchMaterial.name = 'desk-french-tricolor';
+          frenchMaterial.color.set('#ffffff');
+          frenchMaterial.map = frenchFlag;
+          ownedMaterials.push(frenchMaterial);
+        }
+        mesh.material = Array.isArray(originalMaterial)
+          ? originalMaterial.map(() => frenchMaterial!)
+          : frenchMaterial;
+        restore.push(() => {
+          mesh.geometry = originalGeometry;
+          mesh.material = originalMaterial;
+        });
+      }
       const position = mesh.position.clone();
       const scale = mesh.scale.clone();
       // Detached skinning translates the entire cloth, including its Rest-weighted edge.
@@ -231,6 +316,8 @@ export function installPersonalModel(scene: Object3D): () => void {
     scene.remove(monitor);
     restore.forEach((reset) => reset());
     ownedGeometry.forEach((geometry) => geometry.dispose());
+    ownedMaterials.forEach((material) => material.dispose());
+    frenchFlag?.dispose();
     material.dispose();
   };
 }

@@ -18,6 +18,7 @@ test('the real scene starts, renders frames and supports pause and resume', asyn
   await expect(canvas).toHaveAttribute('data-intro-ready', 'true', {
     timeout: 45_000,
   });
+  await expect(canvas).toHaveAttribute('data-city-window', 'ready');
   await expect
     .poll(async () => Number(await canvas.getAttribute('data-intro-time')), {
       timeout: 45_000,

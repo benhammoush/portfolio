@@ -368,7 +368,7 @@ export default function WorldCanvas(props: WorldCanvasProps) {
       gl={{ antialias: true, alpha: true, toneMappingExposure: 1.05 }}
       fallback={<p>WebGL unavailable. Use the still view below.</p>}
     >
-      <GalleryLighting />
+      <GalleryLighting animate={props.animateIntro} />
       <IntroScene
         scene={model.scene}
         animations={model.animations}

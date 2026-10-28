@@ -3,9 +3,55 @@
  * @packageDocumentation
  */
 import { expect, test, vi } from 'vitest';
-import { Box3, Group, Mesh, PointLight, Scene, SpotLight } from 'three';
+import {
+  Box3,
+  Group,
+  Mesh,
+  PointLight,
+  Raycaster,
+  Scene,
+  SpotLight,
+  Vector3,
+} from 'three';
 import type { BufferGeometry, Material } from 'three';
 import { installEveningRoom } from '../../src/world/evening-room';
+import { CITY_WINDOW } from '../../src/world/city-window';
+
+test('portrait window is a real hole in the back wall with a recessed pane and clear desk props', () => {
+  const scene = new Scene();
+  const cleanup = installEveningRoom(scene);
+  scene.updateMatrixWorld(true);
+  const { left, right, bottom, top, wallZ } = CITY_WINDOW;
+  expect(right - left).toBeCloseTo(0.65);
+  expect(top - bottom).toBeCloseTo(1.4);
+  expect(left).toBe(1.4);
+  expect(top).toBe(2.42);
+  const ray = new Raycaster(
+    new Vector3((left + right) / 2, (bottom + top) / 2, 3),
+    new Vector3(0, 0, -1),
+  );
+  const wall = scene.getObjectByName('evening-wall')!;
+  expect(ray.intersectObject(wall)).toHaveLength(0);
+  const pane = scene.getObjectByName('city-window-view')!;
+  const hit = ray.intersectObject(pane)[0];
+  expect(hit.point.z).toBeLessThan(wallZ);
+  for (const [x, y] of [
+    [left - 0.05, (bottom + top) / 2],
+    [right + 0.05, (bottom + top) / 2],
+    [(left + right) / 2, bottom - 0.1],
+    [(left + right) / 2, top + 0.1],
+  ]) {
+    ray.ray.origin.set(x, y, 3);
+    expect(ray.intersectObject(wall)).toHaveLength(1);
+  }
+  expect(left).toBeGreaterThan(1.1);
+  const sill = new Box3().setFromObject(
+    scene.getObjectByName('city-window-sill')!,
+  );
+  expect(sill.max.y).toBeLessThan(bottom);
+  expect(sill.max.z).toBeGreaterThan(wallZ);
+  cleanup();
+});
 
 test('lamp rests inside the desktop footprint with only one bounded shadow light', () => {
   const scene = new Scene();

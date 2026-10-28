@@ -18,6 +18,7 @@ without WebGL. JavaScript is required.
 
 - Explore project stories and profile information through HTML content.
 - Navigate an optional 3D workspace with project displays.
+- Look through a portrait window onto an animated cartoon riverfront at night.
 - Read the same core content when 3D is disabled, loading or unavailable.
 
 ## Boundaries and integration
@@ -34,3 +35,4 @@ with those products. Static alternatives preserve access to content when the
 3D experience is unavailable.
 
 See [homepage content](docs/homepage-content.md) for the website's section copy.
+The [scene architecture](docs/scene.md) describes the room and live city window.

@@ -17,6 +17,9 @@ import {
   SphereGeometry,
   Uint16BufferAttribute,
   Vector3,
+  DataTexture,
+  NearestFilter,
+  SRGBColorSpace,
 } from 'three';
 import { createPersonalDecor } from '../../src/world/personal-decor';
 import {
@@ -176,7 +179,31 @@ test('sanitized GLB objects are replaced, shared furniture is isolated and the s
   scene.add(cloth);
   scene.updateMatrixWorld(true);
   cloth.bind(new Skeleton([bone, rest]));
+  const star = fixture('Web / Flag review / Vietnam yellow');
+  star.geometry.setAttribute(
+    'position',
+    new Float32BufferAttribute([0.04, 1, 0, 0.06, 1, 0, 0.05, 1.02, 0], 3),
+  );
+  const originalStar = star.geometry;
   const cleanup = installPersonalModel(scene);
+  expect(cloth.geometry).not.toBe(clothGeometry);
+  expect(clothGeometry.hasAttribute('uv')).toBe(false);
+  expect(star.geometry).not.toBe(originalStar);
+  expect(star.visible).toBe(true);
+  expect(star.material).toBe(cloth.material);
+  const frenchMaterial = cloth.material;
+  const frenchTexture = frenchMaterial.map as DataTexture;
+  expect(frenchMaterial).not.toBe(material);
+  expect(frenchTexture).toBeInstanceOf(DataTexture);
+  expect(frenchTexture.colorSpace).toBe(SRGBColorSpace);
+  expect(frenchTexture.magFilter).toBe(NearestFilter);
+  expect(Array.from(frenchTexture.image.data!)).toEqual([
+    0, 35, 149, 255, 255, 255, 255, 255, 237, 41, 57, 255,
+  ]);
+  expect(star.geometry.getAttribute('uv').getX(0)).toBeCloseTo(0.4);
+  expect(star.geometry.getAttribute('uv').getX(1)).toBeCloseTo(0.6);
+  const releaseFlagTexture = vi.spyOn(frenchTexture, 'dispose');
+  const releaseFlagMaterial = vi.spyOn(frenchMaterial, 'dispose');
   expect(oldMonitor.visible).toBe(false);
   expect(plant.visible).toBe(false);
   expect(pot.visible).toBe(false);
@@ -218,6 +245,12 @@ test('sanitized GLB objects are replaced, shared furniture is isolated and the s
   const replacement = furniture.geometry;
   const release = vi.spyOn(replacement, 'dispose');
   cleanup();
+  expect(cloth.geometry).toBe(clothGeometry);
+  expect(star.geometry).toBe(originalStar);
+  expect(cloth.material).toBe(material);
+  expect(star.material).toBe(material);
+  expect(releaseFlagTexture).toHaveBeenCalledOnce();
+  expect(releaseFlagMaterial).toHaveBeenCalledOnce();
   expect(release).toHaveBeenCalledOnce();
   expect(cachedDispose).not.toHaveBeenCalled();
   expect(furniture.geometry).toBe(original);

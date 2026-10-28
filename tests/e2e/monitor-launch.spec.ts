@@ -54,6 +54,11 @@ test('Workflow opens a window over the original screen, with pause and static re
   await expect(canvas).toHaveAttribute('data-monitor-window', 'closed');
   await expect(canvas).toHaveAttribute('data-monitor-desktop', 'ready');
   const desktopFrames = await canvas.getAttribute('data-workflow-frames');
+  // Wait for modal focus restoration before choosing the reading chapter.
+  await expect(page.locator('.world-loading-screen')).not.toBeVisible();
+  // Camera easing has separate coverage; enter the reading pose without spending
+  // the clock-driven window test on software-rendered approach frames.
+  await clickSceneControl(page, 'Pause motion');
   await page.evaluate(() =>
     document
       .querySelector('.world-profile')!
@@ -69,6 +74,7 @@ test('Workflow opens a window over the original screen, with pause and static re
   await expect(
     page.locator('#world-workflow .world-workflow-poster'),
   ).toBeHidden();
+  await clickSceneControl(page, 'Resume motion');
   await openSceneOptions(page);
   await page.clock.pauseAt(await page.evaluate(() => Date.now() + 60_000));
   // Drive a real partial window deterministically, even if software rendering
