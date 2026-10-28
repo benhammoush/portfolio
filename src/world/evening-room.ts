@@ -9,14 +9,18 @@ import {
   Group,
   Mesh,
   MeshStandardMaterial,
+  Path,
   PlaneGeometry,
   PointLight,
+  Shape,
+  ShapeGeometry,
   SphereGeometry,
   SpotLight,
   Vector3,
 } from 'three';
 import type { BufferGeometry, Material, Scene } from 'three';
 import { createPersonalDecor } from './personal-decor';
+import { CITY_WINDOW, createCityWindowFrame } from './city-window';
 
 /**
  * Add a matte room and one warm lamp beside, not on top of, the existing props.
@@ -54,13 +58,27 @@ export function installEveningRoom(scene: Scene): () => void {
     return mesh;
   }
 
+  const outline = new Shape();
+  outline.moveTo(-9, -1.5);
+  outline.lineTo(9, -1.5);
+  outline.lineTo(9, 7.5);
+  outline.lineTo(-9, 7.5);
+  outline.closePath();
+  const opening = new Path();
+  opening.moveTo(CITY_WINDOW.left, CITY_WINDOW.bottom);
+  opening.lineTo(CITY_WINDOW.left, CITY_WINDOW.top);
+  opening.lineTo(CITY_WINDOW.right, CITY_WINDOW.top);
+  opening.lineTo(CITY_WINDOW.right, CITY_WINDOW.bottom);
+  opening.closePath();
+  outline.holes.push(opening);
   const wall = addMesh(
-    new PlaneGeometry(18, 9),
+    new ShapeGeometry(outline),
     new MeshStandardMaterial({ color: '#373c3d', roughness: 1 }),
-    [0, 3, -0.92],
+    [0, 0, CITY_WINDOW.wallZ],
   );
   wall.name = 'evening-wall';
   wall.castShadow = false;
+  room.add(createCityWindowFrame());
   const floor = addMesh(
     new PlaneGeometry(18, 18),
     new MeshStandardMaterial({ color: '#262c2e', roughness: 1 }),

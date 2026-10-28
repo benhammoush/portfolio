@@ -9,6 +9,7 @@ export const gpuSuites = [
   '**/apollo-monitor.spec.ts',
   '**/content-first.spec.ts',
   '**/evening-room.spec.ts',
+  '**/city-window.spec.ts',
   '**/scene-polish.spec.ts',
   '**/scene-options.spec.ts',
   '**/monitor-launch.spec.ts',
