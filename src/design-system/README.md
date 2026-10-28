@@ -1,7 +1,7 @@
 # Portfolio design system
 
-This local module applies Iris's ownership rules to the profile UI, not Iris's
-visual identity or theme runtime.
+This module owns shared tokens, base styles and reusable components for the
+portfolio profile UI.
 
 - `tokens.css` owns shared profile colors, font, type sizes, spacing, radii and
   surface treatment, preserving existing values and token names.
