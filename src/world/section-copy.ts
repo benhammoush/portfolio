@@ -2,7 +2,7 @@
  * Read the approved, deliberately small Markdown subset as plain React text.
  * @packageDocumentation
  */
-import approvedCopy from '../../docs/approved-section-copy.md?raw';
+import approvedCopy from '../../docs/homepage-content.md?raw';
 
 /** A content block; HTML and arbitrary Markdown are never interpreted. */
 export interface CopyBlock {

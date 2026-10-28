@@ -1,10 +1,6 @@
-# Approved section copy
+# Homepage content
 
-The owner approved the Introduction, Engineering workflow, Apollo, Iris, Crypto gateway and Dripperz wording below. Other section drafts remain unapproved.
-Copy approval alone does not authorize website implementation, publication or deployment;
-Apollo media and any additional private-project disclosure remain separately gated.
-The owner subsequently authorized local text-section integration ahead of the other
-3D scenes. Dripperz follows the gateway provisionally; Contact remains unchanged.
+Apollo media and additional private-project disclosures require separate approval.
 
 ## Introduction
 

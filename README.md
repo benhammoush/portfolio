@@ -18,7 +18,6 @@ without WebGL. JavaScript is required.
 
 - Explore project stories and profile information through HTML content.
 - Navigate an optional 3D workspace with project displays.
-- Browse standalone visual and scene studies.
 - Read the same core content when 3D is disabled, loading or unavailable.
 
 ## Boundaries and integration
@@ -34,5 +33,4 @@ Project displays illustrate the work rather than acting as live integrations
 with those products. Static alternatives preserve access to content when the
 3D experience is unavailable.
 
-See [the product specification](docs/spec/portfolio.md) and
-[approved section copy](docs/approved-section-copy.md) for scope and content boundaries.
+See [homepage content](docs/homepage-content.md) for the website's section copy.
