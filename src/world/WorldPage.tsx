@@ -321,6 +321,7 @@ export default function WorldPage() {
   const page = useRef<HTMLDivElement>(null);
   useEffect(() => {
     document.documentElement.classList.add('world-snap');
+    measureHeader();
     const fragment = window.location.hash.slice(1);
     if (
       SECTION_COPY.some((section) => section.id === fragment) ||
@@ -348,7 +349,6 @@ export default function WorldPage() {
         );
       else page.current?.style.removeProperty('--world-anchor-offset');
     }
-    measureHeader();
     window.addEventListener('scroll', updateReadingBackdrop, { passive: true });
     window.addEventListener('resize', updateReadingBackdrop);
     window.addEventListener('resize', measureHeader);

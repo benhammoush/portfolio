@@ -7,6 +7,41 @@ import { prepareHtmlRecovery } from './support/htmlRecovery';
 
 test.beforeEach(async ({ page }) => prepareHtmlRecovery(page));
 
+test('initial fragment scrolling uses the measured fixed-header clearance', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 900, height: 900 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.addInitScript(() => {
+    // eslint-disable-next-line @typescript-eslint/unbound-method -- The wrapper restores the element receiver with .call().
+    const scrollIntoView = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = function (options) {
+      if (
+        this.id === 'world-profile' &&
+        !this.hasAttribute('data-first-scroll-offset')
+      )
+        this.setAttribute(
+          'data-first-scroll-offset',
+          document
+            .querySelector<HTMLElement>('.world-page')
+            ?.style.getPropertyValue('--world-anchor-offset') ?? '',
+        );
+      scrollIntoView.call(this, options);
+    };
+  });
+  await page.goto('/#world-profile');
+  const header = page.locator('.world-header');
+  await expect(header).toHaveCSS('position', 'fixed');
+  const clearance = await header.evaluate(
+    (element) => `${element.getBoundingClientRect().height + 16}px`,
+  );
+  await expect(page.locator('#world-profile')).toHaveAttribute(
+    'data-first-scroll-offset',
+    clearance,
+  );
+  await expect(page.locator('#world-profile h2')).toBeInViewport();
+});
+
 for (const [width, height] of [
   [320, 568],
   [390, 844],
