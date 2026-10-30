@@ -5,6 +5,7 @@
 import { expect, test } from '@playwright/test';
 import { prepareHtmlRecovery } from './support/htmlRecovery';
 import { collectEngineRequests } from './support/engineRequests';
+import { openChapterNavigation } from './support/chapterNavigation';
 
 test.beforeEach(async ({ page }) => prepareHtmlRecovery(page));
 
@@ -95,11 +96,13 @@ for (const viewport of [
     const headerBox = await page.locator('.world-header').boundingBox();
     await expect(page.locator('.world-brand')).toHaveText('Guillaume Ammouche');
     expect(headerBox!.height).toBeLessThanOrEqual(
-      viewport.width < 768 ? 73 : 66,
+      viewport.width < 768 ? 90 : 66,
     );
-    for (const link of await page.locator('.world-header nav a').all()) {
+    for (const link of await page
+      .locator('.world-header nav:visible a')
+      .all()) {
       const box = await link.boundingBox();
-      expect(box!.height).toBeGreaterThanOrEqual(24);
+      expect(box!.height).toBeGreaterThanOrEqual(44);
     }
     expect(titleBox!.y).toBeGreaterThan(headerBox!.y + headerBox!.height);
     expect(
@@ -227,7 +230,7 @@ test('narrow composition retains keyboard navigation, contact and viewport bound
   expect(artworkBox!.y).toBeGreaterThanOrEqual(copyBox!.y + copyBox!.height);
   expect(artworkBox!.x).toBeGreaterThanOrEqual(0);
   expect(artworkBox!.x + artworkBox!.width).toBeLessThanOrEqual(320);
-  expect(posterBox!.width).toBeGreaterThan(artworkBox!.width);
+  expect(posterBox!.width).toBeLessThanOrEqual(artworkBox!.width);
 });
 
 test('lower-page profile navigation opens at the top and history restores its chapter', async ({
@@ -272,7 +275,7 @@ test('chapter clearance overrides generic section styles', async ({ page }) => {
     await page
       .locator('#world-iris')
       .evaluate((element) => getComputedStyle(element).scrollMarginTop),
-  ).toBe('88px');
+  ).toBe('16px');
 });
 
 test('approved text sections have native project links and direct-entry anchors', async ({
@@ -281,9 +284,9 @@ test('approved text sections have native project links and direct-entry anchors'
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
-  await page
-    .getByRole('navigation')
-    .getByRole('link', { name: 'Work', exact: true })
+  const navigation = await openChapterNavigation(page);
+  await navigation
+    .getByRole('link', { name: 'Engineering workflow', exact: true })
     .click();
   await expect(
     page.getByRole('heading', {

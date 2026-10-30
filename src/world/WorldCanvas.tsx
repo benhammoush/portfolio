@@ -24,8 +24,10 @@ import { finishSceneLoading } from './scene-loading';
 interface WorldCanvasProps {
   /** Replace a lost context with a static view; do not loop automatic retries. */
   onContextLost: () => void;
-  /** Only the wide, no-reduced-motion layout permits native-scroll camera travel. */
+  /** Native-scroll camera travel is available on every viewport unless reduced motion is requested. */
   cameraTravel: boolean;
+  /** Keep the compact rendering budget independent of camera movement. */
+  dpr: number | [number, number];
   /** Explicit motion pause is separate from native-scroll camera travel. */
   animateIntro: boolean;
   /** Close-up is an explicit request, not the default scroll composition. */
@@ -67,7 +69,7 @@ function FirstSceneFrame() {
  * @param props - Context-loss notification owned by the outer HTML boundary.
  * @returns No geometry; this component owns only the camera and lifecycle.
  */
-function ScrollCamera(props: WorldCanvasProps) {
+function ScrollCamera(props: Omit<WorldCanvasProps, 'dpr'>) {
   const { onContextLost, cameraTravel } = props;
   const { gl, invalidate, setFrameloop } = useThree();
   const active = useRef(true);
@@ -83,6 +85,11 @@ function ScrollCamera(props: WorldCanvasProps) {
     const canvas = gl.domElement;
     /** Measure layout only on native changes, not on every idle character frame. */
     function measureAnchors() {
+      // A short final card can end before its nominal top reaches the reading line.
+      const maxScroll = Math.max(
+        0,
+        document.documentElement.scrollHeight - window.innerHeight,
+      );
       anchors.current = SECTION_POSES.flatMap((pose) => {
         const section = document.getElementById(pose.id);
         if (!section) return [];
@@ -91,9 +98,12 @@ function ScrollCamera(props: WorldCanvasProps) {
         return [
           {
             id: pose.id,
-            top: Math.max(
-              0,
-              section.getBoundingClientRect().top + window.scrollY - margin,
+            top: Math.min(
+              maxScroll,
+              Math.max(
+                0,
+                section.getBoundingClientRect().top + window.scrollY - margin,
+              ),
             ),
             pose,
           },
@@ -361,8 +371,8 @@ export default function WorldCanvas(props: WorldCanvasProps) {
   return (
     <Canvas
       camera={{ position: CHAPTERS[0].position, fov: 28, near: 0.1, far: 300 }}
-      // Desktop supersamples even 1x screens; stationary narrow opt-ins keep the lighter cap.
-      dpr={props.cameraTravel ? 2 : [1, 1.5]}
+      // Camera travel never opts compact screens into desktop supersampling.
+      dpr={props.dpr}
       frameloop="demand"
       shadows
       gl={{ antialias: true, alpha: true, toneMappingExposure: 1.05 }}

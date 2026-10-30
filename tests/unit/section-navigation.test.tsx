@@ -124,3 +124,12 @@ test('a fresh gesture can read tall content after a previous anchor step', () =>
   expect(wheel()).toBe(true);
   expect(scroll).toHaveBeenLastCalledWith({ top: 1800, behavior: 'instant' });
 });
+
+test('compact layouts keep wheel scrolling native instead of skipping the chapter links', () => {
+  const { scroll, wheel } = navigationFixture();
+  vi.stubGlobal('matchMedia', (query: string) => ({
+    matches: query.includes('max-width: 767px'),
+  }));
+  expect(wheel()).toBe(false);
+  expect(scroll).not.toHaveBeenCalled();
+});

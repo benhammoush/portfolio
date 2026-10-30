@@ -124,6 +124,92 @@ const PAGE_ANCHORS = [
 ];
 
 /**
+ * One native mobile disclosure replaces both the header link row and compact chapter box.
+ * @returns A keyboard-accessible hamburger with direct section and profile links.
+ */
+function MobileNavigation() {
+  const menu = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    /** Close an open disclosure without stealing focus from the outside target.
+     * @param event - Pointer interaction elsewhere on the page.
+     */
+    function closeOutside(event: PointerEvent) {
+      const details = menu.current;
+      if (
+        details?.open &&
+        event.target instanceof Node &&
+        !details.contains(event.target)
+      )
+        details.open = false;
+    }
+    /** Do not retain a hidden, open menu across responsive layout changes. */
+    function closeOnResize() {
+      if (menu.current) menu.current.open = false;
+    }
+    document.addEventListener('pointerdown', closeOutside);
+    window.addEventListener('resize', closeOnResize);
+    return () => {
+      document.removeEventListener('pointerdown', closeOutside);
+      window.removeEventListener('resize', closeOnResize);
+    };
+  }, []);
+
+  /** Keep keyboard focus on a visible control after closing the navigation. */
+  function closeMenu() {
+    if (!menu.current) return;
+    menu.current.open = false;
+    menu.current.querySelector('summary')?.focus({ preventScroll: true });
+  }
+
+  return (
+    <details
+      className="world-mobile-menu"
+      ref={menu}
+      onKeyDown={(event) => {
+        if (event.key !== 'Escape' || !event.currentTarget.open) return;
+        event.preventDefault();
+        event.stopPropagation();
+        closeMenu();
+      }}
+      onBlur={(event) => {
+        // WebKit can report null during a link's pointer activation, before its click.
+        if (
+          event.relatedTarget &&
+          !event.currentTarget.contains(event.relatedTarget)
+        )
+          event.currentTarget.open = false;
+      }}
+    >
+      <summary aria-label="Navigation menu">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </summary>
+      <nav aria-label="Mobile chapters">
+        {PAGE_ANCHORS.map(({ id, label }) => (
+          <a key={id} href={`#${id}`} onClick={closeMenu}>
+            {label}
+          </a>
+        ))}
+        <a href="/about" onClick={closeMenu}>
+          Full profile
+        </a>
+      </nav>
+    </details>
+  );
+}
+
+/**
  * Small direct links show the active stop without replacing native scrolling.
  * @returns An accessible rail of section links with the current anchor marked.
  */
@@ -150,6 +236,11 @@ function SectionAnchorRail() {
         )
           current = anchor.id;
       }
+      if (
+        Math.ceil(window.scrollY + window.innerHeight) >=
+        document.documentElement.scrollHeight
+      )
+        current = PAGE_ANCHORS[PAGE_ANCHORS.length - 1].id;
       setActive(current);
     }
     updateActiveAnchor();
@@ -167,7 +258,7 @@ function SectionAnchorRail() {
     <nav
       className="world-anchor-rail"
       aria-label="Section anchors"
-      hidden={active === PAGE_ANCHORS[0].id}
+      data-intro={active === PAGE_ANCHORS[0].id}
     >
       {PAGE_ANCHORS.map(({ id, label }) => (
         <a
@@ -247,12 +338,25 @@ export default function WorldPage() {
       );
     }
     updateReadingBackdrop();
+    /** Keep native anchors clear of the header when navigation wraps or text grows. */
+    function measureHeader() {
+      const header = page.current?.querySelector('.world-header');
+      if (header && window.innerWidth < 1200)
+        page.current?.style.setProperty(
+          '--world-anchor-offset',
+          `${getComputedStyle(header).position === 'fixed' ? header.getBoundingClientRect().height + 16 : 16}px`,
+        );
+      else page.current?.style.removeProperty('--world-anchor-offset');
+    }
+    measureHeader();
     window.addEventListener('scroll', updateReadingBackdrop, { passive: true });
     window.addEventListener('resize', updateReadingBackdrop);
+    window.addEventListener('resize', measureHeader);
     return () => {
       document.documentElement.classList.remove('world-snap');
       window.removeEventListener('scroll', updateReadingBackdrop);
       window.removeEventListener('resize', updateReadingBackdrop);
+      window.removeEventListener('resize', measureHeader);
     };
   }, []);
   const introduction = SECTION_COPY[0];
@@ -263,7 +367,6 @@ export default function WorldPage() {
       <a className="skip-link" href="#world-main" tabIndex={0}>
         Skip to content
       </a>
-      <WorldViewport />
       <header className="world-header">
         <a className="world-brand" href="#world-hub">
           Guillaume Ammouche
@@ -278,8 +381,15 @@ export default function WorldPage() {
           <a href="/about">About</a>
           <a href="#world-contact">Contact</a>
         </nav>
+        <MobileNavigation />
       </header>
-      <main className="container world-main" id="world-main" tabIndex={-1}>
+      <WorldViewport />
+      <main
+        className="container world-main"
+        id="world-main"
+        tabIndex={-1}
+        data-app-version={APP_VERSION}
+      >
         <section
           id="world-hub"
           className="world-intro world-section"
@@ -410,10 +520,6 @@ export default function WorldPage() {
           </div>
         </div>
         <footer className="world-footer">
-          <p>
-            Local composition study · Not a public launch · Version{' '}
-            <span data-testid="app-version">{APP_VERSION}</span>
-          </p>
           <a href="/about">Return to the profile ↗</a>
         </footer>
       </main>

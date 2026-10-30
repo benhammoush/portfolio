@@ -32,6 +32,13 @@ export function useSectionNavigation() {
      * @param event - Cancelable wheel input; modifier gestures remain browser-owned.
      */
     function onWheel(event: WheelEvent) {
+      // Compact reading stays native for mouse/trackpad input as well as touch.
+      if (
+        window.matchMedia(
+          '(max-width: 767px), (max-width: 1199px) and (max-height: 599px)',
+        ).matches
+      )
+        return;
       if (
         event.ctrlKey ||
         event.metaKey ||

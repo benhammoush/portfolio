@@ -3,6 +3,7 @@
  * @packageDocumentation
  */
 import { expect, test } from '@playwright/test';
+import { openChapterNavigation } from './support/chapterNavigation';
 import { prepareHtmlRecovery } from './support/htmlRecovery';
 
 test.beforeEach(async ({ page }) => prepareHtmlRecovery(page));
@@ -47,7 +48,7 @@ test('directional wheel gestures stop at adjacent desktop section anchors', asyn
   await expect(page.locator('html')).toHaveClass(/world-snap/);
 });
 
-for (const width of [390, 768, 1024, 1440, 1920]) {
+for (const width of [768, 1024, 1440, 1920]) {
   test(`section anchor rail tracks and opens chapters at ${width}px`, async ({
     page,
   }, testInfo) => {
@@ -175,10 +176,10 @@ for (const width of [390, 1440]) {
     await page.keyboard.press('Enter');
     await expect(page.locator('html')).toHaveCSS(
       'scroll-snap-type',
-      'y mandatory',
+      width < 768 ? 'none' : 'y mandatory',
     );
-    await page
-      .getByRole('navigation')
+    const navigation = await openChapterNavigation(page);
+    await navigation
       .getByRole('link', { name: 'Contact', exact: true })
       .click();
     await expect(page.locator('#world-contact-title')).toBeInViewport();

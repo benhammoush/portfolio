@@ -17,6 +17,8 @@ interface CanvasProps {
   animateIntro: boolean;
   /** Whether scroll-driven camera travel is allowed. */
   cameraTravel: boolean;
+  /** Compact rendering resolution remains bounded even with camera travel. */
+  dpr: number | [number, number];
 }
 
 vi.mock('../../src/world/workflow-focus', () => ({
@@ -44,20 +46,27 @@ vi.mock('../../src/world/WorldCanvas', () => ({
       data-testid="scene"
       data-motion={String(props.animateIntro)}
       data-travel={String(props.cameraTravel)}
+      data-dpr={String(props.dpr)}
     />
   ),
 }));
 
 let narrow = false;
+let short = false;
+let wideDesktop = false;
 let reduced = false;
 const listeners = new Set<(event: MediaQueryListEvent) => void>();
 
 beforeEach(() => {
   narrow = false;
+  short = false;
+  wideDesktop = false;
   reduced = false;
   listeners.clear();
   vi.stubGlobal('matchMedia', (query: string) => ({
-    matches: query.includes('reduced-motion') ? reduced : !narrow,
+    matches: query.includes('reduced-motion')
+      ? reduced
+      : wideDesktop || (!narrow && !short),
     /** Observe policy subscriptions for deterministic preference changes.
      * @param _ - Native event name.
      * @param listener - Policy invalidation callback.
@@ -82,7 +91,7 @@ afterEach(() => vi.unstubAllGlobals());
 
 test.each([
   { mobile: false, reduce: false, motion: 'true', travel: 'true' },
-  { mobile: true, reduce: false, motion: 'true', travel: 'false' },
+  { mobile: true, reduce: false, motion: 'true', travel: 'true' },
   { mobile: false, reduce: true, motion: 'false', travel: 'false' },
   { mobile: true, reduce: true, motion: 'false', travel: 'false' },
 ])(
@@ -94,6 +103,10 @@ test.each([
     const scene = await screen.findByTestId('scene');
     expect(scene).toHaveAttribute('data-motion', motion);
     expect(scene).toHaveAttribute('data-travel', travel);
+    expect(scene).toHaveAttribute(
+      'data-dpr',
+      !mobile && !reduce ? '2' : '1,1.5',
+    );
     expect(
       screen.queryByRole('button', {
         name: /Use still view|Enable 3D|View stationary 3D/,
@@ -136,7 +149,8 @@ test('a new reduced-motion preference pauses without unloading the scene', async
     narrow = true;
     listeners.forEach((listener) =>
       listener({
-        media: '(min-width: 768px)',
+        media:
+          '(min-width: 1200px), (min-width: 768px) and (min-height: 600px)',
         matches: false,
       } as MediaQueryListEvent),
     );
@@ -151,4 +165,33 @@ test('loading can still be skipped, without offering a selectable still mode', a
   expect(screen.queryByTestId('scene')).not.toBeInTheDocument();
   expect(screen.queryByText('Scene options')).not.toBeInTheDocument();
   expect(screen.getByText(/3D loading skipped/)).toBeInTheDocument();
+});
+
+test('landscape phones keep camera travel without desktop supersampling', async () => {
+  short = true;
+  render(<WorldViewport />);
+  const scene = await screen.findByTestId('scene');
+  expect(scene).toHaveAttribute('data-travel', 'true');
+  expect(scene).toHaveAttribute('data-dpr', '1,1.5');
+  act(() => {
+    short = false;
+    listeners.forEach((listener) =>
+      listener({
+        media:
+          '(min-width: 1200px), (min-width: 768px) and (min-height: 600px)',
+        matches: true,
+      } as MediaQueryListEvent),
+    );
+  });
+  expect(scene).toHaveAttribute('data-travel', 'true');
+});
+
+test('short desktop windows retain the accepted monitor and camera composition', async () => {
+  short = true;
+  wideDesktop = true;
+  render(<WorldViewport />);
+  expect(await screen.findByTestId('scene')).toHaveAttribute(
+    'data-travel',
+    'true',
+  );
 });
