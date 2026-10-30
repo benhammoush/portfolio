@@ -111,8 +111,10 @@ for (const width of [390, 1440]) {
         ).fontSize,
       }));
     expect(metrics.width).toBeGreaterThan(Math.min(320, width - 80));
-    expect(metrics.font).toBe(width >= 1200 ? '20px' : '19px');
-    expect(metrics.background).toBe('rgba(23, 29, 34, 0.84)');
+    expect(metrics.font).toBe(width >= 1200 ? '20px' : '16px');
+    expect(metrics.background).toBe(
+      width >= 1200 ? 'rgba(23, 29, 34, 0.84)' : 'rgba(23, 29, 34, 0.97)',
+    );
     await expect(
       section.getByRole('heading', { level: 2, name: 'Apollo', exact: true }),
     ).toBeInViewport();
@@ -131,7 +133,7 @@ for (const width of [390, 1440]) {
         size: parseFloat(getComputedStyle(element).fontSize),
       }));
     expect(typography.family).toContain('Georgia');
-    expect(typography.size).toBeGreaterThan(25);
+    expect(typography.size).toBeGreaterThan(width >= 1200 ? 25 : 20);
     const contrast = await section
       .locator('.world-section-inner')
       .evaluate((card) => {
@@ -198,7 +200,7 @@ for (const width of [390, 1440]) {
         };
       });
     expect(contrast.minimum).toBeGreaterThanOrEqual(4.5);
-    expect(contrast.blur).toBe('blur(16px)');
+    expect(contrast.blur).toBe(width >= 1200 ? 'blur(16px)' : 'none');
     expect(contrast.filter).toBe('none');
     expect(contrast.opacity).toBe('1');
     if (width >= 1200) {

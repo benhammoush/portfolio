@@ -123,9 +123,6 @@ test('reduced motion starts Workflow paused with stationary 3D and readable HTML
       exact: true,
     }),
   ).toBeInViewport();
-  await expect(
-    page.locator('#world-workflow .world-workflow-poster'),
-  ).toBeVisible();
   const canvas = page.locator('canvas');
   await expect(canvas).toHaveAttribute('data-workflow-motion', 'paused', {
     timeout: 45_000,
@@ -136,7 +133,7 @@ test('reduced motion starts Workflow paused with stationary 3D and readable HTML
   await expect(canvas).toHaveAttribute('data-camera-pose', '0.1,0.74,7.14');
   await expect(
     page.locator('#world-workflow .world-workflow-poster'),
-  ).toBeVisible();
+  ).toBeHidden();
 });
 
 test('a failed Workflow SVG preserves the original monitor and readable HTML', async ({

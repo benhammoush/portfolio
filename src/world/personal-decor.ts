@@ -135,15 +135,20 @@ export function createPersonalDecor(): Group {
     return group;
   }
 
-  // The existing wall reaches Y=7.5; the slatted section runs from floor to its top.
-  const panels = assembly('vertical-wood-slats', [-1.32, 3.75, -0.875]);
-  mesh(panels, new BoxGeometry(0.88, 7.5, 0.02), darkWood, [0, 0, 0]);
+  // Finish just above the window rather than continuing to the top of the wall.
+  const panelHeight = 2.55;
+  const panels = assembly('vertical-wood-slats', [
+    -1.32,
+    panelHeight / 2,
+    -0.875,
+  ]);
+  mesh(panels, new BoxGeometry(0.88, panelHeight, 0.02), darkWood, [0, 0, 0]);
   const slatWood = new MeshStandardMaterial({
     color: '#ab8056',
     roughness: 0.9,
   });
   for (let slat = 0; slat < 20; slat++)
-    mesh(panels, new BoxGeometry(0.031, 7.5, 0.035), slatWood, [
+    mesh(panels, new BoxGeometry(0.031, panelHeight, 0.035), slatWood, [
       -0.418 + slat * 0.044,
       0,
       0.022,

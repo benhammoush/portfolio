@@ -17,9 +17,9 @@ interface IntroSceneProps {
   scene: Group;
   /** Small working-pose clip exported with the model. */
   animations: AnimationClip[];
-  /** Only desktop no-reduced-motion mode may animate, unless explicitly paused. */
+  /** Motion is allowed on every viewport unless paused or initially reduced. */
   animate: boolean;
-  /** Native-scroll camera approach is disabled by stationary/reduced-motion policy. */
+  /** Native-scroll camera approach is disabled by the reduced-motion policy. */
   cameraTravel: boolean;
 }
 

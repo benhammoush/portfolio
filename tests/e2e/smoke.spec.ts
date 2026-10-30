@@ -24,7 +24,14 @@ test('serves the readable foundation and runtime identity', async ({
       name: 'Hi, I’m Guillaume, a full-stack developer',
     }),
   ).toBeVisible();
-  await expect(page.getByTestId('app-version')).toHaveText(APP_VERSION);
+  await expect(page.getByRole('main')).toHaveAttribute(
+    'data-app-version',
+    APP_VERSION,
+  );
+  await expect(
+    page.getByText(/Local composition study|Not a public launch/),
+  ).toHaveCount(0);
+  await expect(page.getByTestId('app-version')).toHaveCount(0);
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
     'content',
     /noindex/,
@@ -71,7 +78,10 @@ test('direct unknown route recovers through client routing and keyboard navigati
     page.getByRole('link', { name: 'Return to home' }),
   ).toBeFocused();
   await page.keyboard.press('Enter');
-  await expect(page.getByTestId('app-version')).toHaveText(APP_VERSION);
+  await expect(page.getByRole('main')).toHaveAttribute(
+    'data-app-version',
+    APP_VERSION,
+  );
   await expect(page).toHaveURL('http://127.0.0.1:3100/');
   await page.goBack();
   await expect(

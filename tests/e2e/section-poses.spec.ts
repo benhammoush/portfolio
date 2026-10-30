@@ -194,15 +194,17 @@ test('the About camera holds through project scrolling, expanded copy and paused
   expect(box!.width).toBeGreaterThanOrEqual(1180);
 });
 
-for (const width of [390, 1440]) {
+for (const [width, height] of [
+  [390, 900],
+  [844, 390],
+  [1440, 900],
+]) {
   test(`stationary framing keeps its eye, lens and offsets while scrolling at ${width}px`, async ({
     page,
   }) => {
     test.setTimeout(120_000);
-    await page.setViewportSize({ width, height: 900 });
-    await page.emulateMedia({
-      reducedMotion: width === 1440 ? 'reduce' : 'no-preference',
-    });
+    await page.setViewportSize({ width, height });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
     const canvas = page.locator('canvas[data-world-ready="true"]');
     await expect(canvas).toHaveAttribute('data-scene-loaded', 'true', {
@@ -213,10 +215,7 @@ for (const width of [390, 1440]) {
     const x = Number(await canvas.getAttribute('data-camera-offset-x'));
     const y = Number(await canvas.getAttribute('data-camera-offset-y'));
     // Explicit animation changes never opt a stationary camera into scroll travel.
-    await clickSceneControl(
-      page,
-      width === 1440 ? 'Resume motion' : 'Pause motion',
-    );
+    await clickSceneControl(page, 'Resume motion');
     for (const chapter of ['profile', 'dripperz', 'contact', 'dripperz']) {
       await page.locator(`#world-${chapter}`).evaluate(async (element) => {
         element.scrollIntoView({ behavior: 'instant' });
@@ -246,5 +245,82 @@ for (const width of [390, 1440]) {
         Number(await canvas.getAttribute('data-camera-offset-y')),
       ).toBeCloseTo(y, 2);
     }
+  });
+}
+
+test('live mobile graphics replace standalone project pictures and restore them after context loss', async ({
+  page,
+}) => {
+  test.setTimeout(120_000);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/#world-iris');
+  const canvas = page.locator('canvas[data-scene-loaded="true"]');
+  await expect(canvas).toBeVisible();
+  await expect(page.locator('.world-loading-screen')).not.toBeVisible();
+  for (const chapter of ['workflow', 'apollo', 'iris', 'gateway', 'dripperz']) {
+    await expect(canvas).toHaveAttribute(`data-${chapter}-ready`, 'true');
+    await expect(
+      page.locator(`#world-${chapter} img.world-workflow-poster`),
+    ).toHaveCSS('display', 'none');
+  }
+  await expect(page.locator('#world-iris-title')).toBeInViewport();
+  await page.screenshot({
+    path: test.info().outputPath('live-projects-without-pictures.png'),
+  });
+  await canvas.dispatchEvent('webglcontextlost');
+  await expect(page.locator('.world-visual-status')).toContainText(
+    'Graphics context lost',
+  );
+  for (const chapter of ['workflow', 'apollo', 'iris', 'gateway', 'dripperz'])
+    await expect(
+      page.locator(`#world-${chapter} img.world-workflow-poster`),
+    ).toBeVisible();
+});
+
+for (const [width, height] of [
+  [390, 844],
+  [844, 390],
+]) {
+  test(`mobile scene follows the desktop chapter poses at ${width}px`, async ({
+    page,
+  }) => {
+    test.setTimeout(180_000);
+    await page.setViewportSize({ width, height });
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await page.goto('/');
+    const canvas = page.locator('canvas[data-scene-loaded="true"]');
+    await expect(canvas).toBeVisible();
+    await clickSceneControl(page, 'Pause motion');
+    for (const [id, pose] of [
+      ['profile', '-0.38,1.45,1.25'],
+      ['iris', '-0.38,1.45,1.25'],
+      ['contact', '0.1,0.74,7.14'],
+    ]) {
+      await page
+        .locator(`#world-${id}`)
+        .evaluate((e) => e.scrollIntoView({ behavior: 'instant' }));
+      await expect(canvas).toHaveAttribute(
+        'data-reading-section',
+        `world-${id}`,
+      );
+      await expect(canvas).toHaveAttribute('data-camera-pose', pose);
+      await expect(canvas).toHaveAttribute(
+        'data-route-span',
+        id === 'contact' ? '4.4' : '1.35',
+      );
+      if (id === 'contact')
+        await expect(
+          page.locator('.world-anchor-rail a[href="#world-contact"]'),
+        ).toHaveAttribute('aria-current', 'location');
+      await page.screenshot({
+        path: test.info().outputPath(`${id}-${width}.png`),
+      });
+    }
+    expect(
+      await canvas.evaluate(
+        (e: HTMLCanvasElement) => e.width / e.getBoundingClientRect().width,
+      ),
+    ).toBeLessThanOrEqual(1.5);
   });
 }

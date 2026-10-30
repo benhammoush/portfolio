@@ -4,6 +4,7 @@
  */
 import { expect, test } from '@playwright/test';
 import { prepareHtmlRecovery } from './support/htmlRecovery';
+import { openChapterNavigation } from './support/chapterNavigation';
 
 test.beforeEach(async ({ page }) => prepareHtmlRecovery(page));
 
@@ -14,7 +15,7 @@ for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
-    // The rail is intentionally absent in Introduction; enter the reading layout first.
+    // Desktop chapter links appear in the reading layout; compact layouts use the hamburger.
     await page.locator('#world-profile').scrollIntoViewIfNeeded();
     for (const [id, label] of [
       ['profile', 'About me'],
@@ -24,9 +25,17 @@ for (const width of [390, 1440]) {
       ['gateway', 'Crypto gateway'],
       ['dripperz', 'Dripperz'],
     ]) {
-      await page
-        .getByRole('link', { name: `Go to ${label}`, exact: true })
-        .click();
+      if (width < 768) {
+        const navigation = await openChapterNavigation(page);
+        await navigation
+          .getByRole('link', { name: label, exact: true })
+          .click();
+        await expect(page).toHaveURL(new RegExp(`#world-${id}$`));
+      } else {
+        await page
+          .getByRole('link', { name: `Go to ${label}`, exact: true })
+          .click();
+      }
       const section = page.locator(`#world-${id}`);
       await expect(section.locator('h2')).toBeInViewport();
       await section.locator('summary').focus();

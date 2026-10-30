@@ -16,10 +16,11 @@ import { readMonitorFocus } from './workflow-focus';
 import SceneLoadingScreen from './SceneLoadingScreen';
 
 const LazyCanvas = lazy(() => import('./WorldCanvas'));
-const WIDTH_MEDIA = '(min-width: 768px)';
+const WIDTH_MEDIA =
+  '(min-width: 1200px), (min-width: 768px) and (min-height: 600px)';
 const MOTION_MEDIA = '(prefers-reduced-motion: reduce)';
 
-/** Explain the automatic view policy without treating it as a graphics capability test. */
+/** Select rendering resolution and initial motion without treating viewport size as a capability test. */
 type ViewPolicy = 'desktop' | 'narrow' | 'reduced-motion';
 
 /**
@@ -38,8 +39,8 @@ function subscribePolicy(listener: (event: MediaQueryListEvent) => void) {
 }
 
 /**
- * Read whether camera travel is appropriate for this viewport and motion preference.
- * @returns The reason for stationary framing or desktop travel.
+ * Read the rendering budget and reduced-motion preference independently of camera travel.
+ * @returns Desktop resolution, a compact rendering budget, or reduced motion.
  */
 function readPolicy(): ViewPolicy {
   if (window.matchMedia(MOTION_MEDIA).matches) return 'reduced-motion';
@@ -181,7 +182,8 @@ export default function WorldViewport() {
   const onContextLost = useCallback(() => setLost(true), []);
   const onFailure = useCallback(() => setFailed(true), []);
   const live = !skipped && !lost && !failed;
-  const cameraTravel = policy === 'desktop';
+  const cameraTravel = policy !== 'reduced-motion';
+  const canInspect = policy === 'desktop' && screenContext;
 
   return (
     <figure className="world-viewport" data-live={live}>
@@ -203,8 +205,9 @@ export default function WorldViewport() {
                 <LazyCanvas
                   onContextLost={onContextLost}
                   cameraTravel={cameraTravel}
+                  dpr={policy === 'desktop' ? 2 : [1, 1.5]}
                   animateIntro={!motionPaused}
-                  inspect={cameraTravel && screenContext && inspect}
+                  inspect={canInspect && inspect}
                 />
               </div>
             </Suspense>
@@ -224,8 +227,10 @@ export default function WorldViewport() {
               ? 'Graphics context lost. The illustration and all content remain available; reload to retry.'
               : live
                 ? cameraTravel
-                  ? '3D supports the reading. View screen offers an optional closer look during the project sections.'
-                  : 'Stationary 3D view — camera travel is off for this viewport or motion preference.'
+                  ? policy === 'desktop'
+                    ? '3D supports the reading. View screen offers an optional closer look during the project sections.'
+                    : '3D follows the reading sections. Pause motion stops animation without removing the scene.'
+                  : 'Stationary 3D view — camera travel is off for the reduced-motion preference.'
                 : '3D loading skipped. The illustration and all content remain available. Reload to retry.'}
         </span>
         {live && (
@@ -240,7 +245,7 @@ export default function WorldViewport() {
           >
             <summary>Scene options</summary>
             <div className="world-scene-actions">
-              {cameraTravel && screenContext && (
+              {canInspect && (
                 <button
                   type="button"
                   aria-pressed={inspect}

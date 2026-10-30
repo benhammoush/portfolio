@@ -22,6 +22,7 @@ import {
   SRGBColorSpace,
 } from 'three';
 import { createPersonalDecor } from '../../src/world/personal-decor';
+import { CITY_WINDOW } from '../../src/world/city-window';
 import {
   installPersonalModel,
   MONITOR_SCREEN,
@@ -39,7 +40,7 @@ test('personal decorations retain only the occupied shelf, a bonsai and bounded 
     decor.getObjectByName('vertical-wood-slats')!,
   );
   expect(slats.min.y).toBeCloseTo(0);
-  expect(slats.max.y).toBeCloseTo(7.5);
+  expect(slats.max.y).toBeCloseTo(CITY_WINDOW.top + 0.13);
   expect(slats.max.x).toBeCloseTo(-0.88);
   expect(
     new Box3().setFromObject(decor.getObjectByName('bonsai')!).min.y,

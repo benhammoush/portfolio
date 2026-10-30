@@ -129,42 +129,38 @@ html.world-snap .world-section:not(.world-intro) {
   height: auto;
   border-radius: 0.5rem;
 }
-@media (min-width: 1200px) and (prefers-reduced-motion: no-preference) {
-  /* A ready native desktop owns the visual rail even before its app opens.
-     Keep each independent alternative available if its own artwork failed. */
-  .world-viewport:has(
-      canvas[data-monitor-desktop='ready'][data-workflow-ready='true']
-    )
-    ~ .world-main
-    #world-workflow
-    img.world-workflow-poster,
-  .world-viewport:has(
-      canvas[data-monitor-desktop='ready'][data-apollo-ready='true']
-    )
-    ~ .world-main
-    #world-apollo
-    img.world-workflow-poster,
-  .world-viewport:has(
-      canvas[data-monitor-desktop='ready'][data-iris-ready='true']
-    )
-    ~ .world-main
-    #world-iris
-    img.world-workflow-poster,
-  .world-viewport:has(
-      canvas[data-monitor-desktop='ready'][data-gateway-ready='true']
-    )
-    ~ .world-main
-    #world-gateway
-    img.world-workflow-poster,
-  .world-viewport:has(
-      canvas[data-monitor-desktop='ready'][data-dripperz-ready='true']
-    )
-    ~ .world-main
-    #world-dripperz
-    img.world-workflow-poster {
-    /* Retain the small artwork footprint so late decoding cannot move anchors. */
-    visibility: hidden;
-  }
+/* A ready 3D screen replaces its standalone artwork at every size and motion preference. */
+.world-viewport:has(
+    canvas[data-scene-loaded='true'][data-monitor-desktop='ready'][data-workflow-ready='true']
+  )
+  ~ .world-main
+  #world-workflow
+  img.world-workflow-poster,
+.world-viewport:has(
+    canvas[data-scene-loaded='true'][data-monitor-desktop='ready'][data-apollo-ready='true']
+  )
+  ~ .world-main
+  #world-apollo
+  img.world-workflow-poster,
+.world-viewport:has(
+    canvas[data-scene-loaded='true'][data-monitor-desktop='ready'][data-iris-ready='true']
+  )
+  ~ .world-main
+  #world-iris
+  img.world-workflow-poster,
+.world-viewport:has(
+    canvas[data-scene-loaded='true'][data-monitor-desktop='ready'][data-gateway-ready='true']
+  )
+  ~ .world-main
+  #world-gateway
+  img.world-workflow-poster,
+.world-viewport:has(
+    canvas[data-scene-loaded='true'][data-monitor-desktop='ready'][data-dripperz-ready='true']
+  )
+  ~ .world-main
+  #world-dripperz
+  img.world-workflow-poster {
+  display: none;
 }
 
 /* Frost only the reading surface, never the lettering or the full-screen scene. */
@@ -267,18 +263,6 @@ html.world-snap .world-section:not(.world-intro) {
     width: min(20vw, 16rem);
     margin: 0;
     opacity: 1;
-  }
-}
-@media (max-width: 767px) {
-  .world-page .world-workflow-section {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .world-workflow-poster {
-    position: static;
-    width: 100%;
-    transform: none;
-    margin-top: 2rem;
   }
 }
 .world-page {
@@ -400,6 +384,9 @@ html.world-snap .world-section:not(.world-intro) {
 .world-header nav a:hover {
   text-decoration: underline;
 }
+.world-mobile-menu {
+  display: none;
+}
 @supports (backdrop-filter: blur(14px)) or (-webkit-backdrop-filter: blur(14px)) {
   @media (min-width: 1200px) {
     .world-header {
@@ -437,7 +424,7 @@ html.world-snap .world-section:not(.world-intro) {
   border-radius: 999px;
   transform: translateY(-50%);
 }
-.world-anchor-rail[hidden] {
+.world-anchor-rail[data-intro='true'] {
   display: none;
 }
 @media (min-width: 1200px) {
@@ -842,7 +829,7 @@ html.world-snap .world-section:not(.world-intro) {
 }
 .world-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   flex-wrap: wrap;
   gap: 1rem;
   padding: 2rem 6vw 7rem;
@@ -877,135 +864,159 @@ html.world-snap .world-section:not(.world-intro) {
     gap: 0.25rem 1rem;
   }
 }
-@media (max-width: 767px) {
+/* Compact layouts own their reading space; the accepted desktop composition stays intact. */
+@media (max-width: 767px), (max-width: 1199px) and (max-height: 599px) {
+  html.world-snap {
+    scroll-snap-type: none;
+  }
   .world-page {
-    --world-anchor-offset: 5.5rem;
+    --world-anchor-offset: 1rem;
   }
   .world-header {
-    gap: 0 1rem;
-    padding: 0 1.5rem;
+    position: relative;
+    inset: auto;
+    z-index: 20;
+    gap: 0;
+    padding: max(0.375rem, env(safe-area-inset-top))
+      max(1rem, env(safe-area-inset-right)) 0.375rem
+      max(1rem, env(safe-area-inset-left));
   }
   .world-header .world-brand {
     display: inline-flex;
     align-items: center;
     min-height: 44px;
-    font-size: 0.78rem;
-    max-width: calc(100% - 7.25rem);
+    max-width: calc(100% - 3rem);
+    font-size: 0.8rem;
+    overflow-wrap: anywhere;
   }
-  .world-header nav {
-    width: 100%;
-    gap: 0.2rem 1.1rem;
-  }
-  .world-header nav a {
-    font-size: 0.7rem;
-    min-height: 28px;
-  }
-  .world-section {
-    min-height: 0;
-    padding: 1.5rem 1.25rem;
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .world-reading-layout {
-    --world-rail-inset: 3.25rem;
-  }
-  .world-page .world-section:not(.world-intro) {
-    padding-inline-start: 3.25rem;
-  }
-  .world-page .world-section:not(.world-intro) .world-section-inner {
-    padding: 1.25rem 1.1rem;
-  }
-  .world-page .world-copy-section:not(.world-intro) .world-section-inner {
-    padding-inline: 0;
-  }
-  .world-page .world-intro[id] {
-    scroll-margin-top: 0;
-  }
-  .world-section-inner,
-  .world-intro .world-section-inner,
-  .world-contact .world-section-inner {
-    width: 100%;
-  }
-  .world-intro h1 {
-    font-size: clamp(2.75rem, 12.5vw, 5.5rem);
-  }
-  .world-section h2 {
-    font-size: clamp(1.9rem, 7.5vw, 2.7rem);
-  }
-  .world-eyebrow {
-    font-size: 1.15rem;
-    margin-bottom: 1.5rem;
-  }
-  .world-lead {
-    max-width: 28ch;
-  }
-  .world-scroll-cue {
-    left: 1.5rem;
-    bottom: 7.5rem;
-    max-width: 75%;
-  }
-  .world-still img {
+  .world-header > nav {
     display: none;
   }
-  .world-intro {
-    flex-direction: column;
-    align-items: stretch;
-    padding-bottom: 7rem;
-  }
-  .world-intro-poster {
+  .world-mobile-menu {
     display: block;
-    width: 100%;
-    height: auto;
-    margin-top: 0.5rem;
+    position: relative;
+    margin-inline-start: auto;
   }
-  .world-viewport:has(canvas[data-intro-ready='true'])
-    ~ .world-main
-    .world-intro-poster {
-    visibility: hidden;
+  .world-mobile-menu summary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    list-style: none;
+    color: var(--world-text);
+    border-radius: 0.35rem;
+    cursor: pointer;
   }
-  .world-intro .world-scroll-cue {
+  .world-mobile-menu summary::-webkit-details-marker {
     display: none;
+  }
+  .world-mobile-menu summary:hover,
+  .world-mobile-menu[open] summary {
+    background: #2b343c;
+  }
+  .world-mobile-menu nav {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 0.25rem;
+    width: min(calc(100vw - 2rem), 22rem);
+    max-height: calc(100svh - 6rem);
+    padding: 0.75rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: rgb(var(--world-surface));
+    border: 1px solid var(--world-line);
+    border-radius: 0.75rem;
+    box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 30%);
+  }
+  .world-mobile-menu nav a {
+    flex-shrink: 0;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    overflow-wrap: anywhere;
   }
   .world-viewport figcaption {
-    align-items: flex-end;
-    gap: 0.4rem;
-    padding: 0;
-    top: 0;
-    right: 1.5rem;
-    bottom: auto;
-    max-width: 7.25rem;
-    font-size: 0.55rem;
+    position: relative;
+    inset: auto;
+    max-width: none;
+    justify-content: flex-end;
+    padding: 0 max(1rem, env(safe-area-inset-right)) 0
+      max(1rem, env(safe-area-inset-left));
   }
-  .world-viewport figcaption span {
-    max-width: 22rem;
-  }
-  .world-viewport button {
-    font-size: 0.6rem;
-    padding-inline: 0.5rem;
-    background: rgb(var(--world-surface));
-  }
-  .world-scene-options summary {
-    font-size: 0.6rem;
-  }
-  .world-notice {
-    left: 1.5rem;
-    right: 1.5rem;
-    top: 6rem;
-  }
-  .world-footer {
-    padding-inline: 1.5rem;
-  }
-}
-@media (max-width: 767px) {
   .world-page .world-intro {
-    padding: 7rem 1.5rem 0;
+    padding: 1.5rem 1rem 0;
+  }
+  .world-page .world-intro h1 {
+    font-size: clamp(1.9rem, 6vw, 2.6rem);
   }
   .world-intro-art {
-    height: clamp(24rem, 80vw, 38rem);
-    margin-inline: -1.5rem;
+    height: clamp(18rem, 65vw, 26rem);
+    margin-inline: -1rem;
   }
   .world-intro .world-intro-poster {
-    width: min(140%, 74rem);
+    width: 100%;
     transform: translate(50%, -2%);
+  }
+  .world-reading-layout {
+    display: block;
+  }
+  .world-page .world-anchor-rail {
+    display: none;
+  }
+  html.world-snap .world-page .world-section:not(.world-intro) {
+    min-height: 0;
+    padding: 1rem;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .world-page .world-section:not(.world-intro) .world-section-inner {
+    width: 100%;
+    min-width: 0;
+    padding: clamp(1rem, 4vw, 1.5rem);
+    background: rgb(var(--world-surface) / 97%);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .world-page .world-section-inner {
+    overflow-wrap: anywhere;
+  }
+  .world-page .world-section:not(.world-intro) h2:not(.world-copy-subtitle) {
+    font-size: clamp(1.5rem, 5.5vw, 2rem);
+    margin-bottom: 1rem;
+  }
+  .world-page .world-copy-section .world-section-lead {
+    font-size: clamp(1.3rem, 4.5vw, 1.65rem);
+    margin-bottom: 1.25rem;
+  }
+  .world-page .world-copy-section p:not(.world-eyebrow, .world-section-lead),
+  .world-page .world-profile p {
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+  .world-project-links {
+    gap: 0.25rem 0.75rem;
+    margin-top: 1rem;
+  }
+  .world-project-links a {
+    display: inline-flex;
+    align-items: center;
+    min-width: 44px;
+    min-height: 44px;
+    overflow-wrap: anywhere;
+  }
+  .world-page .world-workflow-poster {
+    width: min(100%, 18rem);
+    margin: 1rem auto 0;
+  }
+}
+@media (max-width: 1199px) {
+  .world-page .world-project-links a {
+    color: var(--world-accent);
   }
 }
