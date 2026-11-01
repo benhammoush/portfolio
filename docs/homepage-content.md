@@ -19,7 +19,7 @@ I enjoy building things, taking on technical challenges and learning something n
 
 ### About me
 
-My interest in computers started with hardware. I began my career as a BI developer, building internal tools and automating everyday work, before moving into full-stack development and creating my own web applications.
+I started my career as a BI developer in 2017, building internal tools and automating everyday work. In 2022, I transitioned to full-stack development and began creating my own web applications. I left France in 2023 and traveled across Asia, North America and South America before settling in Vietnam in 2025.
 
 ## Engineering workflow
 

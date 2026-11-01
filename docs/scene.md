@@ -21,9 +21,9 @@ The globe is approximately half cropped beyond the right edge on desktop and bel
 the bottom edge on mobile; mobile copy is centered above it. Coarse continent
 silhouettes are original decorative artwork rather than cartographic data. Its
 colors intentionally belong to the black-and-green canvas artwork, outside shared
-UI tokens. Rotation and the travelling pulse pause in hidden tabs, respect live
-reduced-motion changes and have a keyboard-accessible Pause globe control. Reduced
-motion keeps a static globe and hides that control. Canvas failure never blocks
+UI tokens. Rotation and the travelling pulse settle after 4.5 seconds of visible
+animation, without a pause button. Hidden tabs pause that time and live reduced-motion
+changes stop animation immediately. Reduced motion keeps a static globe. Canvas failure never blocks
 the personal details, entry link or content. Animation frames and observers are
 released on navigation; painting is capped at 30 fps and pixel density at 2.
 
@@ -59,15 +59,15 @@ The standalone profile's native section fragments remain intact at `/profile`;
 old `/about#about`, `/about#expertise` and `/about#contact` links redirect there.
 These are browser-side compatibility redirects, not server-side HTTP redirects.
 
-The black-and-green interface uses a persistent directory-style navigation on
+The black-and-green interface has no terminal header or status footer and uses a persistent directory-style navigation on
 wide screens. Phones and short landscape viewports use a drawer opened by a
 prominent full-width Choose project bar above the content. It shows the current
 selection and stays visible while the description and full-width image scroll.
 The drawer closes on selection, Escape, outside interaction, keyboard focus
 leaving the navigation, viewport changes and route changes through browser history.
 
-Reduced motion disables glitch/cursor animation. The FX control
-can also disable decoration. Glitches occur only on entry or explicit content
+Reduced motion disables glitch/cursor animation, without a separate FX control.
+Glitches occur only on entry or explicit content
 changes: bounded, randomized tear positions, offsets and small disconnected
 fragments, with no repeated full-screen flashing. Timers and fragments are cleared
 on interruption, hidden tabs, preference changes and unmount.

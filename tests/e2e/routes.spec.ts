@@ -26,7 +26,7 @@ for (const [path, heading] of [
       page.locator('.monitor-navigation a[href^="#world-"]'),
     ).toHaveCount(0);
     await expect(
-      page.getByRole('link', { name: 'Return to About me' }),
+      page.getByRole('link', { name: 'About me', exact: true }),
     ).toHaveAttribute('href', '/about');
   });
 

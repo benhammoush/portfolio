@@ -34,6 +34,12 @@ test('About me is embedded in the explorer with navigation visible', async ({
   await page.goto('/about');
   await expect(page.locator('.world-header,.world-intro')).toHaveCount(0);
   await expect(
+    page.locator('.monitor-workspace > header,.monitor-workspace > footer'),
+  ).toHaveCount(0);
+  const body = await page.locator('.monitor-body').boundingBox();
+  expect(body?.y).toBe(0);
+  expect(body?.height).toBe(page.viewportSize()?.height);
+  await expect(
     page.getByRole('heading', { name: 'About me', exact: true }),
   ).toBeFocused();
   await expect(page.locator('.monitor-steps > li')).toHaveCount(5);
@@ -46,6 +52,9 @@ test('About me is embedded in the explorer with navigation visible', async ({
   );
   await expect(page.locator('.monitor-empty,.monitor-ready')).toHaveCount(0);
   await expect(page.locator('canvas')).toHaveCount(0);
+  await expect(
+    page.getByRole('checkbox', { name: 'FX', exact: true }),
+  ).toHaveCount(0);
 });
 
 for (const [width, height] of [
@@ -163,11 +172,11 @@ for (const width of [320, 390, 844, 1440])
       page.getByRole('heading', { name: 'About me', exact: true }),
     ).toBeFocused();
     await expect(
-      page.getByText(/My interest in computers started with hardware/),
+      page.getByText(/I started my career as a BI developer in 2017/),
     ).toBeVisible();
     await expect(page.locator('.monitor-about-intro')).toHaveCount(1);
     await expect(page.locator('.monitor-about-intro')).toHaveText(
-      'My interest in computers started with hardware. I began my career as a BI developer, building internal tools and automating everyday work, before moving into full-stack development and creating my own web applications.',
+      'I started my career as a BI developer in 2017, building internal tools and automating everyday work. In 2022, I transitioned to full-stack development and began creating my own web applications. I left France in 2023 and traveled across Asia, North America and South America before settling in Vietnam in 2025.',
     );
     await expect(
       page.locator('.monitor-about').getByRole('link', { name: 'GitHub ↗' }),
@@ -369,7 +378,7 @@ test('a failed illustration does not hide product copy or prevent switching proj
     .evaluate((element: HTMLImageElement) => element.decode());
 });
 
-test('glitches are bounded and interruptible; FX and reduced motion disable them', async ({
+test('glitches are bounded and live reduced motion disables them without an FX control', async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
@@ -387,22 +396,25 @@ test('glitches are bounded and interruptible; FX and reduced motion disable them
   await expect(
     page.getByRole('heading', { name: 'Iris', exact: true }),
   ).toBeFocused();
-  await page.getByRole('checkbox', { name: 'FX', exact: true }).uncheck();
-  await expect(page.locator('.monitor-workspace')).not.toHaveAttribute(
-    'data-glitch',
-  );
-  await expect(page.locator('.monitor-fragments > span')).toHaveCount(0);
-  await page.getByRole('checkbox', { name: 'FX', exact: true }).check();
   await expect(page.locator('.monitor-workspace')).not.toHaveAttribute(
     'data-glitch',
     { timeout: 2000 },
   );
-  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(page.locator('.monitor-fragments > span')).toHaveCount(0);
   await (
     await navigation(page)
   )
     .getByRole('link', { name: 'About me', exact: true })
     .click();
+  await expect(page.locator('.monitor-workspace')).toHaveAttribute(
+    'data-glitch',
+    'active',
+  );
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(page.locator('.monitor-workspace')).not.toHaveAttribute(
+    'data-glitch',
+  );
+  await expect(page.locator('.monitor-fragments > span')).toHaveCount(0);
   expect(
     await page
       .locator('.monitor-workspace')

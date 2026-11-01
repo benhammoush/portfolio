@@ -5,20 +5,17 @@
 import { useEffect, useRef } from 'react';
 import { drawTravelGlobe } from './travel-globe';
 
-/** Animate only while visible, with explicit pause and live reduced-motion support.
- * @returns Half-cropped artwork and an accessible motion toggle.
+/** Briefly animate while visible, then settle without adding a motion control.
+ * @returns Half-cropped artwork with live reduced-motion support.
  */
 export default function TravelGlobe() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const toggleRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     const canvas = canvasRef.current;
-    const toggle = toggleRef.current;
-    if (!canvas || !toggle) return;
+    if (!canvas) return;
     const context = canvas.getContext('2d');
     if (!context) return;
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    let paused = false;
     let elapsed = 0;
     let previous: number | undefined;
     let frame = 0;
@@ -36,21 +33,24 @@ export default function TravelGlobe() {
       if (previous === undefined) previous = now;
       const delta = now - previous;
       if (delta >= 1000 / 30) {
-        elapsed += Math.min(delta, 100);
+        elapsed = Math.min(elapsed + delta, 4500);
         previous = now;
         draw();
       }
-      frame = requestAnimationFrame(tick);
+      if (elapsed < 4500) frame = requestAnimationFrame(tick);
     }
-    /** Reconcile motion settings without replaying hidden or paused time. */
+    /** Reconcile motion settings without replaying hidden time or restarting settled artwork. */
     function sync() {
       cancelAnimationFrame(frame);
       previous = undefined;
-      toggle!.hidden = motion.matches;
-      toggle!.textContent = paused ? 'Resume globe' : 'Pause globe';
-      toggle!.setAttribute('aria-pressed', String(paused));
       draw();
-      if (!paused && !motion.matches && !document.hidden && width && height)
+      if (
+        elapsed < 4500 &&
+        !motion.matches &&
+        !document.hidden &&
+        width &&
+        height
+      )
         frame = requestAnimationFrame(tick);
     }
     /** Keep the backing canvas sharp without allocating an unbounded high-DPI surface. */
@@ -64,14 +64,8 @@ export default function TravelGlobe() {
       context!.setTransform(density, 0, 0, density, 0, 0);
       sync();
     }
-    /** Pause all globe motion independently of the typing animation. */
-    function toggleMotion() {
-      paused = !paused;
-      sync();
-    }
     const observer = new ResizeObserver(resize);
     observer.observe(canvas);
-    toggle.addEventListener('click', toggleMotion);
     motion.addEventListener('change', sync);
     document.addEventListener('visibilitychange', sync);
     window.addEventListener('resize', resize);
@@ -79,25 +73,14 @@ export default function TravelGlobe() {
     return () => {
       cancelAnimationFrame(frame);
       observer.disconnect();
-      toggle.removeEventListener('click', toggleMotion);
       motion.removeEventListener('change', sync);
       document.removeEventListener('visibilitychange', sync);
       window.removeEventListener('resize', resize);
     };
   }, []);
   return (
-    <>
-      <div className="landing-globe-art" aria-hidden="true">
-        <canvas className="landing-globe" ref={canvasRef} aria-hidden="true" />
-      </div>
-      <button
-        className="landing-globe-motion"
-        ref={toggleRef}
-        type="button"
-        hidden
-      >
-        Pause globe
-      </button>
-    </>
+    <div className="landing-globe-art" aria-hidden="true">
+      <canvas className="landing-globe" ref={canvasRef} aria-hidden="true" />
+    </div>
   );
 }

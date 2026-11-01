@@ -20,7 +20,7 @@ JavaScript is required.
 - Browse concise project descriptions and visual previews through native HTML.
 - Navigate through a desktop sidebar or a prominent mobile project drawer.
 - Open About me at `/about` or individual projects at `/projects/apollo`, `/projects/iris`, `/projects/gateway` and `/projects/dripperz`.
-- Disable the bounded decorative glitches through FX or reduced-motion preferences.
+- Respect reduced-motion preferences for decorative glitches and animation.
 
 ## Boundaries and integration
 
