@@ -1,25 +1,26 @@
 # Portfolio
 
-A personal portfolio presenting projects through readable stories and an animated
-3D desk scene. The experience is a work in progress; its content remains available
-without WebGL. JavaScript is required.
+A personal portfolio presenting projects through a black-and-green, shell-inspired
+HTML workspace. A minimal landing page opens About me through an explicit Enter
+portfolio action, with no automatic redirect, loading intro or 3D scene.
+JavaScript is required.
 
 ## Tech stack
 
 | Layer                 | Technology                           |
 | --------------------- | ------------------------------------ |
 | Interface and routing | React, TypeScript, React Router      |
-| 3D rendering          | Three.js, React Three Fiber          |
-| Models                | Local GLB assets and Draco decoding  |
 | Build                 | Vite, with static output for hosting |
 | Testing               | Vitest, Testing Library, Playwright  |
 
 ## Features
 
-- Explore project stories and profile information through HTML content.
-- Navigate an optional 3D workspace with project displays.
-- Look through a portrait window onto an animated cartoon riverfront at night.
-- Read the same core content when 3D is disabled, loading or unavailable.
+- See a dotted travel globe, name and typed personal details on the landing page, with one Enter portfolio action.
+- Find workflow steps and direct GitHub, résumé and email links on About me.
+- Browse concise project descriptions and visual previews through native HTML.
+- Navigate through a desktop sidebar or a prominent mobile project drawer.
+- Open About me at `/about` or individual projects at `/projects/apollo`, `/projects/iris`, `/projects/gateway` and `/projects/dripperz`.
+- Disable the bounded decorative glitches through FX or reduced-motion preferences.
 
 ## Boundaries and integration
 
@@ -27,12 +28,12 @@ Shared profile styling and reusable UI are documented in the
 [portfolio design system](src/design-system/README.md).
 
 The application runs entirely in the browser, with no application backend or
-database. React handles content and navigation; the optional 3D renderer loads
-separately. Models, artwork and decoders are served locally with the site.
+database. React handles content and navigation. No graphics engine, model, decoder
+or room poster is downloaded by the website. Earlier scene source and assets remain
+on disk for reuse; their tooling dependencies are development-only.
 
 Project displays illustrate the work rather than acting as live integrations
-with those products. Static alternatives preserve access to content when the
-3D experience is unavailable.
+with those products. Current visuals are labelled illustrations, not product screenshots.
 
 See [homepage content](docs/homepage-content.md) for the website's section copy.
-The [scene architecture](docs/scene.md) describes the room and live city window.
+The [workspace architecture](docs/scene.md) describes navigation, effects and the retained scene source.

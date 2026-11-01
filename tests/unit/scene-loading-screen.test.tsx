@@ -55,9 +55,7 @@ test.each<{
     );
     expect(container.querySelectorAll('svg, h1, h2')).toHaveLength(0);
     expect(container.querySelectorAll('button')).toHaveLength(1);
-    expect(container.querySelector('button')?.textContent).toBe(
-      'Continue without 3D',
-    );
+    expect(container.querySelector('button')?.textContent).toBe('Skip intro');
   },
 );
 

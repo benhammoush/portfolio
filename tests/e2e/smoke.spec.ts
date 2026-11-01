@@ -3,13 +3,7 @@
  * @packageDocumentation
  */
 import { expect, test } from '@playwright/test';
-import { prepareHtmlRecovery } from './support/htmlRecovery';
 import { APP_VERSION } from '../../src/appVersion';
-
-test.beforeEach(async ({ page }) => prepareHtmlRecovery(page));
-
-// These checks exercise HTML and routing; real scene startup has its own smoke test.
-test.use({ reducedMotion: 'reduce' });
 
 test('serves the readable foundation and runtime identity', async ({
   page,
@@ -21,7 +15,7 @@ test('serves the readable foundation and runtime identity', async ({
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(
     page.getByRole('heading', {
-      name: 'Hi, I’m Guillaume, a full-stack developer',
+      name: 'Guillaume Ammouche',
     }),
   ).toBeVisible();
   await expect(page.getByRole('main')).toHaveAttribute(
@@ -53,7 +47,7 @@ test('shows a useful notice, not application content, without JavaScript', async
   ).toBeVisible();
   await expect(
     page.getByRole('heading', {
-      name: 'Hi, I’m Guillaume, a full-stack developer',
+      name: 'Guillaume Ammouche',
     }),
   ).toHaveCount(0);
   await expect(page.getByTestId('app-version')).toHaveCount(0);
@@ -90,7 +84,7 @@ test('direct unknown route recovers through client routing and keyboard navigati
   await page.goForward();
   await expect(
     page.getByRole('heading', {
-      name: 'Hi, I’m Guillaume, a full-stack developer',
+      name: 'Guillaume Ammouche',
     }),
   ).toBeVisible();
 });

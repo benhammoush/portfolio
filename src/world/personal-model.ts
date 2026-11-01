@@ -26,15 +26,8 @@ import type {
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { refineCurvedGeometry } from './curved-geometry';
 import { repairCharacterNeck } from './character-neck';
-
-/** A 27-inch 16:9 active display in metre-scaled model coordinates. */
-export const MONITOR_SCREEN = {
-  width: 0.598,
-  height: 0.336,
-  x: 0,
-  y: 1.18,
-  z: -0.458,
-};
+import { MONITOR_SCREEN } from './monitor-landmarks';
+export { MONITOR_SCREEN } from './monitor-landmarks';
 
 /** Keep the smaller flag grounded at its original desktop foot. */
 const FLAG_SCALE = 0.8;
@@ -96,6 +89,19 @@ export function installPersonalModel(scene: Object3D): () => void {
     const mesh = object as Mesh<BufferGeometry, Material | Material[]>;
     // GLTFLoader sanitizes spaces/slashes for animation binding names.
     const name = mesh.name.replace(/[ _/]+/g, ' ').trim();
+    if (name === 'Web Input review black desk mat') {
+      const position = mesh.position.clone();
+      const scale = mesh.scale.clone();
+      // Keep the rear edge at -0.12 and the front 5 mm inside the desktop.
+      const depthScale = 0.365 / 0.46;
+      mesh.scale.z *= depthScale;
+      mesh.position.z -= 0.12 * (1 - depthScale);
+      mesh.position.y -= 0.002;
+      restore.push(() => {
+        mesh.position.copy(position);
+        mesh.scale.copy(scale);
+      });
+    }
     if (name.startsWith('Web Character review ')) {
       const original = mesh.geometry;
       let prepared: BufferGeometry | undefined;
@@ -223,7 +229,8 @@ export function installPersonalModel(scene: Object3D): () => void {
     if (
       /^Web (rubber|Furniture review (fabric|shell|frame|rubber))$/.test(name)
     ) {
-      // Stand parts share furniture batches; remove only triangles above the rear desktop.
+      // The old foot reaches z=-0.345; its cable also has triangles crossing the desktop.
+      // Remove those whole triangles, not just faces whose three vertices sit above it.
       const original = (object as Mesh<BufferGeometry, Material | Material[]>)
         .geometry;
       const position = original.getAttribute('position');
@@ -234,11 +241,10 @@ export function installPersonalModel(scene: Object3D): () => void {
         const triangle = [0, 1, 2].map((j) =>
           indices ? indices.getX(i + j) : i + j,
         );
-        const stand = triangle.every(
-          (index) =>
-            position.getY(index) > 0.827 && position.getZ(index) < -0.35,
-        );
-        if (!stand) kept.push(...triangle);
+        const obsoleteMonitor =
+          triangle.every((index) => position.getZ(index) < -0.33) &&
+          triangle.some((index) => position.getY(index) > 0.827);
+        if (!obsoleteMonitor) kept.push(...triangle);
       }
       let geometry = original.clone();
       geometry.setIndex(kept);

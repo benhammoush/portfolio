@@ -1,6 +1,13 @@
 # Homepage content
 
-Apollo media and additional private-project disclosures require separate approval.
+Project illustrations are conceptual placeholders, not product screenshots.
+Private Apollo screenshots require separate approval.
+
+## Landing
+
+### Guillaume Ammouche
+
+29 · French · Living in Vietnam for 1.5 years · Fluent in English · Coding since 2017
 
 ## Introduction
 
@@ -8,72 +15,56 @@ Apollo media and additional private-project disclosures require separate approva
 
 I enjoy building things, taking on technical challenges and learning something new along the way. I’ve worked in corporate, freelance and startup environments.
 
-My experience spans UI/UX design and frontend development, backend services, APIs, real-time systems, data processing and automation. On the frontend, I work on visual design, responsive layouts, navigation and interactions—not just implementing the code. I also work on the architecture, performance, security and infrastructure that bring the application together.
+## About me
 
-I start by understanding the problem and its constraints, then work through the implementation, testing and deployment. I like being involved across the application and understanding how its different parts interact.
+### About me
 
-#### How I like to work
-
-I’m drawn to less conventional ways of working, with room to take initiative and make decisions. I value autonomy—not just the freedom to organize my work, but the responsibility that comes with it.
-
-#### A little outside of work
-
-I’ve spent part of my life as a digital nomad. After moving between several countries, I decided to settle in Vietnam.
-
-Outside of coding, I’m usually training calisthenics—and my parallettes come with me wherever I travel.
-
-**Explore my work ↓ · Get in touch ↗**
+My interest in computers started with hardware. I began my career as a BI developer, building internal tools and automating everyday work, before moving into full-stack development and creating my own web applications.
 
 ## Engineering workflow
 
-### From the initial idea to a running application.
+### How I build software
 
-My work starts with understanding what needs to be built: the requirements, constraints and expected behavior. From there, I work on the architecture and interface design, thinking about both how the application functions and how people use it. I break the project into manageable parts and move into implementation.
+From the first question to a running application, I like understanding the whole picture—not just the part I’m coding.
 
-Alongside coding, I write tests, document decisions and set up CI/CD pipelines for checking, building and deploying the application.
+#### Understand
 
-The work continues once it runs. I look at performance, resource usage, security and monitoring, and investigate what needs improving—whether that means changing the code, the architecture or the infrastructure.
+Start with the problem, its constraints and the behavior people need.
 
-I enjoy that whole process: figuring out the problem, building a solution and continuing to improve it through use.
+#### Design
+
+Shape the architecture and the interface together, so the parts fit from the start.
+
+#### Build
+
+Connect the frontend, APIs and background processing around real use cases.
+
+#### Verify
+
+Test behavior, document decisions and automate checks before delivery.
+
+#### Improve
+
+Learn from the running application: performance, security, resource use and real feedback.
 
 ## Apollo
 
-### From strategy automation to a full-stack trading platform.
-
-Apollo started with automating and testing a trading strategy. The workflow was spread across several older, poorly optimized tools, so I decided to bring everything into one place.
-
-I created a trading engine that connects components which can also be used and tested individually. Around it, I built a Python/FastAPI backend and a React/TypeScript dashboard for market charts, historical data, backtesting, results and live monitoring.
-
-Handling high volumes of data required optimizing both hardware and software: distributing processing across workers, managing memory and keeping long-running analysis separate from API requests.
-
-The work also covered hosting, security, communication between services and monitoring—alongside the continued development and testing of the strategy.
+A trading lab for testing ideas against history, then following them in live markets.
 
 ## Iris
 
-### From Stacks to Solana.
+A window into Solana: explore tokens, inspect public wallets and follow on-chain activity.
 
-Iris started as a blockchain-analytics dashboard for Stacks, a blockchain connected to Bitcoin. I worked on both the data-aggregation API and the interface for exploring assets and wallets.
+## Solana Payments
 
-After the original project came to an end, I decided to rebuild it on Solana and improve it using what I’d learned since the first version.
-
-The current project brings together market information, public-wallet holdings and transaction activity, without requiring a wallet connection. The rebuild covers the interface, API and data integration: combining several providers, organizing their responses, caching data and handling external-service failures.
-
-## Crypto gateway
-
-### A portable crypto payment gateway.
-
-I built a standalone gateway that integrates through an API, without depending on a particular commerce platform. The focus was straightforward integration and a fast, responsive checkout.
-
-Security and trust depend on clear boundaries: signing stays in the customer’s wallet, merchant credentials stay server-side, and the backend verifies transactions independently of browser messages.
-
-That also means accounting for edge cases—repeated requests, interrupted checkouts and uncertain transaction outcomes—without bypassing verification or presenting an unresolved payment as successful.
+Verify Solana payments against on-chain transactions—not browser claims or wallet messages.
 
 ## Dripperz
 
-### Smart contracts, minting and an interactive web experience.
+A cyberpunk NFT collection: discover, mint, explore rarity and shape its governance.
 
-Dripperz was an Ethereum NFT project where I worked across the smart contracts, frontend and deployment.
+## Contact
 
-I developed the Solidity contracts for minting, supply limits, reservations and sale controls, alongside a React/TypeScript application for wallet connection and whitelist/public-sale flows.
+### Let’s build something useful.
 
-The website had a cyberpunk visual identity, combining animation, interactive 3D scenes and dedicated desktop and mobile layouts. My work also covered hosting the metadata and images, deploying the application on AWS and configuring the services around it.
+For full-stack development opportunities, reach me by email. I’m based in Da Nang, Vietnam, and work in French and English.

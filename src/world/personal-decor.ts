@@ -234,7 +234,7 @@ export function createPersonalDecor(): Group {
       64,
     ),
     pot,
-    [0, 0.004, 0],
+    [0, 0, 0],
     [1, 1, 0.72],
   );
   mesh(

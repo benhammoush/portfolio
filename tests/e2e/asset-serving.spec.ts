@@ -3,6 +3,27 @@
  * @packageDocumentation
  */
 import { expect, test } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+
+test('the public résumé link serves the supplied PDF instead of the application shell', async ({
+  request,
+}) => {
+  const response = await request.get('/resume/Guillaume_Ammouche_CV_ATS.pdf');
+  expect(response.status()).toBe(200);
+  expect(response.headers()['content-type']).toContain('application/pdf');
+  const body = await response.body();
+  expect(body.subarray(0, 5).toString()).toBe('%PDF-');
+  expect(
+    body.equals(
+      readFileSync(
+        new URL(
+          '../../public/resume/Guillaume_Ammouche_CV_ATS.pdf',
+          import.meta.url,
+        ),
+      ),
+    ),
+  ).toBe(true);
+});
 
 for (const assetPath of [
   '/assets/not-a-real-bundle.js',

@@ -5,6 +5,7 @@
 import { expect, test, vi } from 'vitest';
 import {
   Bone,
+  BoxGeometry,
   Box3,
   BufferGeometry,
   Float32BufferAttribute,
@@ -28,6 +29,72 @@ import {
   MONITOR_SCREEN,
 } from '../../src/world/personal-model';
 
+test('the desk mat is grounded and inset from the front edge without changing cached geometry', () => {
+  const scene = new Group();
+  const geometry = new BoxGeometry(1.05, 0.003, 0.46);
+  geometry.translate(0.23, 0.831, 0.11);
+  const mat = new Mesh(geometry, new MeshStandardMaterial());
+  mat.name = PropertyBinding.sanitizeNodeName(
+    'Web / Input review / black desk mat',
+  );
+  scene.add(mat);
+  const original = new Box3().setFromObject(mat);
+  const cleanup = installPersonalModel(scene);
+  const bounds = new Box3().setFromObject(mat);
+  expect(bounds.min.y).toBeCloseTo(0.8275, 6);
+  expect(bounds.min.z).toBeCloseTo(-0.12, 6);
+  expect(bounds.max.z).toBeCloseTo(0.245, 6);
+  expect(bounds.max.z).toBeLessThan(0.25);
+  expect(bounds.min.x).toBeCloseTo(original.min.x, 6);
+  expect(bounds.max.x).toBeCloseTo(original.max.x, 6);
+  expect(mat.geometry).toBe(geometry);
+  cleanup();
+  expect(new Box3().setFromObject(mat)).toEqual(original);
+  geometry.dispose();
+  mat.material.dispose();
+});
+
+test.each([false, true])(
+  'legacy monitor foot and cable remnants are removed from shared batches; indexed=%s',
+  (indexed) => {
+    const scene = new Group();
+    const geometry = new BufferGeometry();
+    geometry.setAttribute(
+      'position',
+      new Float32BufferAttribute(
+        [
+          // Front lip of the old monitor foot, just beyond the former -0.35 cutoff.
+          0.12,
+          0.835, -0.345, 0.4, 0.835, -0.345, 0.4, 0.84, -0.35,
+          // Cable segment crossing the desktop; its low vertex used to preserve the whole face.
+          0.3,
+          0.94, -0.59, 0.35, 0.8, -0.62, 0.354, 0.8, -0.62,
+          // Rear frame below the desktop and a foreground flask detail must remain.
+          0.94,
+          0.78, -0.54, 0.9, 0.78, -0.54, 0.9, 0.7, -0.54, 0.83, 1, 0.12, 0.84,
+          1, 0.12, 0.84, 1.02, 0.12,
+        ],
+        3,
+      ),
+    );
+    if (indexed)
+      geometry.setIndex(Array.from({ length: 12 }, (_, index) => index));
+    const material = new MeshStandardMaterial();
+    const mesh = new Mesh(geometry, material);
+    mesh.name = PropertyBinding.sanitizeNodeName('Web / rubber');
+    scene.add(mesh);
+    const cleanup = installPersonalModel(scene);
+    expect(Array.from(mesh.geometry.index!.array)).toEqual([
+      6, 7, 8, 9, 10, 11,
+    ]);
+    expect(mesh.geometry).not.toBe(geometry);
+    cleanup();
+    expect(mesh.geometry).toBe(geometry);
+    geometry.dispose();
+    material.dispose();
+  },
+);
+
 test('personal decorations retain only the occupied shelf, a bonsai and bounded static batches', () => {
   const decor = createPersonalDecor();
   expect(decor.getObjectByName('upper-wall-shelf')).toBeUndefined();
@@ -44,7 +111,7 @@ test('personal decorations retain only the occupied shelf, a bonsai and bounded 
   expect(slats.max.x).toBeCloseTo(-0.88);
   expect(
     new Box3().setFromObject(decor.getObjectByName('bonsai')!).min.y,
-  ).toBeGreaterThanOrEqual(0.8275);
+  ).toBeCloseTo(0.8275, 6);
   const statue = new Box3().setFromObject(
     decor.getObjectByName('calisthenics-planche-statue')!,
   );

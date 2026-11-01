@@ -4,27 +4,8 @@
  */
 import { defineConfig, devices } from '@playwright/test';
 
-// Detailed GPU journeys are opt-in through playwright.gpu.config.ts.
-export const gpuSuites = [
-  '**/apollo-monitor.spec.ts',
-  '**/content-first.spec.ts',
-  '**/evening-room.spec.ts',
-  '**/city-window.spec.ts',
-  '**/scene-polish.spec.ts',
-  '**/scene-options.spec.ts',
-  '**/monitor-launch.spec.ts',
-  '**/project-monitors.spec.ts',
-  '**/section-poses.spec.ts',
-  '**/workflow-monitor.spec.ts',
-  '**/world.spec.ts',
-];
-
 // HTTP response contracts use no browser APIs, so running each engine adds no coverage.
-const singleProjectSuites = [
-  ...gpuSuites,
-  '**/asset-serving.spec.ts',
-  '**/scene-smoke.spec.ts',
-];
+const singleProjectSuites = ['**/asset-serving.spec.ts'];
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -38,7 +19,6 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      testIgnore: gpuSuites,
       use: { ...devices['Desktop Chrome'] },
     },
     {

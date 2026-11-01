@@ -102,12 +102,7 @@ export default function IntroScene(props: IntroSceneProps) {
   return (
     <>
       <primitive object={scene} dispose={null} />
-      <WorkflowMonitor
-        scene={scene}
-        animate={props.animate}
-        cameraTravel={props.cameraTravel}
-        onGesture={(elapsed) => mixer.setTime(6.4 + Math.min(elapsed, 0.75))}
-      />
+      <WorkflowMonitor scene={scene} />
     </>
   );
 }
