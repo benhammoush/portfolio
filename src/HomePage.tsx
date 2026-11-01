@@ -5,6 +5,7 @@
 import { useEffect } from 'react';
 import { APP_VERSION } from './appVersion';
 import { Card } from './design-system';
+import { PROFILE } from './profile-content';
 
 /**
  * Present the approved profile with native section navigation and email contact.
@@ -70,15 +71,11 @@ export default function HomePage() {
             <h2 id="about-title">Across the stack.</h2>
           </div>
           <div className="section-copy">
-            <p>
-              I’m a full-stack developer working across interfaces, APIs and
-              background processing, with experience in data-heavy dashboards,
-              third-party integrations and resilient job orchestration.
-            </p>
+            <p>{PROFILE.biography}</p>
             <p className="muted">
-              French: native · English: fluent
+              {PROFILE.languages}
               <br />
-              Available for UTC+1 working hours.
+              {PROFILE.availability}
             </p>
           </div>
         </section>
@@ -90,30 +87,13 @@ export default function HomePage() {
           <p className="eyebrow">02 / Expertise</p>
           <h2 id="expertise-title">From interface to infrastructure.</h2>
           <div className="capability-grid">
-            <Card>
-              <h3>Interfaces</h3>
-              <p>
-                React and TypeScript interfaces, data-heavy dashboards and
-                real-time integrations.
-              </p>
-              <p className="card-detail">React / TypeScript / WebSockets</p>
-            </Card>
-            <Card>
-              <h3>APIs & processing</h3>
-              <p>
-                REST APIs, background workers, third-party integrations and job
-                orchestration.
-              </p>
-              <p className="card-detail">Python / FastAPI / REST APIs</p>
-            </Card>
-            <Card>
-              <h3>Delivery foundations</h3>
-              <p>
-                Application infrastructure and source control across Linux and
-                Windows environments.
-              </p>
-              <p className="card-detail">AWS EC2 / Nginx / IIS / Git</p>
-            </Card>
+            {PROFILE.capabilities.map((capability) => (
+              <Card key={capability.title}>
+                <h3>{capability.title}</h3>
+                <p>{capability.description}</p>
+                <p className="card-detail">{capability.stack}</p>
+              </Card>
+            ))}
           </div>
         </section>
         <section

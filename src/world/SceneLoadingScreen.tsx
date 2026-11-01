@@ -30,11 +30,6 @@ export default function SceneLoadingScreen(props: SceneLoadingScreenProps) {
     element.showModal();
     return () => {
       if (element.open) element.close();
-      // The completed 3D scene removes fallback artwork above deep-linked chapters.
-      if (readSceneLoading().stage === 'ready')
-        document
-          .getElementById(window.location.hash.slice(1))
-          ?.scrollIntoView({ behavior: 'instant' });
     };
   }, [pending]);
   if (!pending) return null;
@@ -70,7 +65,7 @@ export default function SceneLoadingScreen(props: SceneLoadingScreenProps) {
               : 'Loading 3D…'}
         </p>
         <button type="button" onClick={props.onSkip}>
-          Continue without 3D
+          Skip intro
         </button>
       </div>
     </dialog>

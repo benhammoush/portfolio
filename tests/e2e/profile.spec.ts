@@ -3,12 +3,9 @@
  * @packageDocumentation
  */
 import { expect, test } from '@playwright/test';
-import { prepareHtmlRecovery } from './support/htmlRecovery';
-
-test.beforeEach(async ({ page }) => prepareHtmlRecovery(page));
 
 test('skip link moves keyboard focus to main content', async ({ page }) => {
-  await page.goto('/about');
+  await page.goto('/profile');
   await expect(page.locator('.wordmark')).toHaveText('Guillaume Ammouche');
   expect(
     (await page.locator('.site-header').boundingBox())!.height,
@@ -24,7 +21,7 @@ test('skip link moves keyboard focus to main content', async ({ page }) => {
 test('native section links survive direct entry, reload and history', async ({
   page,
 }) => {
-  await page.goto('/about#contact');
+  await page.goto('/profile#contact');
   await expect(
     page.getByRole('heading', { name: 'Let’s talk.' }),
   ).toBeInViewport();
@@ -51,7 +48,7 @@ test('narrow reduced-motion layout keeps real actions usable', async ({
 }) => {
   await page.setViewportSize({ width: 320, height: 740 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/about');
+  await page.goto('/profile');
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   await expect(
     page.getByRole('link', { name: /Get in touch/ }),

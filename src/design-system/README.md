@@ -11,7 +11,7 @@ portfolio profile UI.
   export; the owner supplies content, native attributes and grid placement.
 
 Profile content, card-detail styling, navigation, buttons and layouts remain
-product-owned. The 3D world, SVG artwork under `src/artwork/` and canvas textures
+product-owned. The shell workspace, SVG artwork under `src/artwork/` and retained scene textures
 deliberately keep their own scoped art direction.
 Their palettes are not competing definitions of the profile tokens. Shared UI
 must not import those features. A light-only profile needs neither a theme
@@ -21,5 +21,5 @@ Add shared components for actual presentation reuse, not every native element.
 Keep their CSS colocated and feature overrides scoped. Run the existing quality
 gates and affected browser suites, including profile keyboard/navigation and
 narrow/wide layouts. Component tests cover native attributes and content;
-browser checks verify rendered profile values and responsive layouts. GPU checks
-retain their existing separate scope; this is not real-device certification.
+browser checks verify rendered profile values and responsive layouts. This is
+not real-device certification.

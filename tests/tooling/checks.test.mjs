@@ -5,8 +5,7 @@
  */
 import { readFileSync } from 'node:fs';
 import { expect, test } from 'vitest';
-import browserConfig, { gpuSuites } from '../../playwright.config';
-import gpuConfig from '../../playwright.gpu.config';
+import browserConfig from '../../playwright.config';
 
 const { scripts, engines, packageManager } = JSON.parse(
   readFileSync(new URL('../../package.json', import.meta.url)),
@@ -17,27 +16,20 @@ test('preserves the selected exact npm toolchain', () => {
   expect(packageManager).toBe(`npm@${engines.npm}`);
 });
 
-test('routine browser gates retain three engines and keep detailed GPU journeys opt-in', () => {
+test('routine browser gates retain three engines without a graphics-only workflow', () => {
   expect(scripts['ci:browser']).toBe('npm run test:e2e');
   expect(scripts['test:e2e']).toBe('playwright test');
-  expect(scripts['test:e2e:gpu']).toBe(
-    'playwright test --config playwright.gpu.config.ts',
-  );
+  expect(scripts['test:e2e:gpu']).toBeUndefined();
   expect(browserConfig.projects.map(({ name }) => name)).toEqual([
     'chromium',
     'firefox',
     'webkit',
   ]);
   for (const project of browserConfig.projects) {
-    expect(project.testIgnore).toEqual(expect.arrayContaining(gpuSuites));
-    expect(project.testIgnore.includes('**/scene-smoke.spec.ts')).toBe(
-      project.name !== 'chromium',
+    expect(project.testIgnore ?? []).not.toContain(
+      '**/workspace-entry.spec.ts',
     );
-    expect(project.testIgnore).not.toContain('**/scene-fallback.spec.ts');
-    expect(project.testIgnore).not.toContain('**/scene-loader.spec.ts');
   }
-  expect(gpuConfig.projects).toHaveLength(1);
-  expect(gpuConfig.projects[0].testMatch).toEqual(gpuSuites);
 });
 
 test('the full gate builds once and retains every quality/browser stage', () => {

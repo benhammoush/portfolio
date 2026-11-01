@@ -23,12 +23,15 @@ export interface CopySection {
 }
 
 const identities: Record<string, string> = {
+  Landing: 'world-landing',
   Introduction: 'world-hub',
+  'About me': 'world-about',
   'Engineering workflow': 'world-workflow',
   Apollo: 'world-apollo',
   Iris: 'world-iris',
-  'Crypto gateway': 'world-gateway',
+  'Solana Payments': 'world-gateway',
   Dripperz: 'world-dripperz',
+  Contact: 'world-contact',
 };
 
 export const SECTION_COPY: CopySection[] = approvedCopy

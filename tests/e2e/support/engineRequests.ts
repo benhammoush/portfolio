@@ -12,7 +12,7 @@ import type { Page } from '@playwright/test';
 export function collectEngineRequests(page: Page): string[] {
   const requests: string[] = [];
   page.on('request', (request) => {
-    if (/WorldCanvas|\.glb|draco_/.test(request.url()))
+    if (/WorldCanvas|\.glb|draco_|desktop-poster/.test(request.url()))
       requests.push(request.url());
   });
   return requests;

@@ -3,18 +3,66 @@
  * @packageDocumentation
  */
 import { fireEvent, render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import { expect, test, vi } from 'vitest';
+import { MemoryRouter, useLocation } from 'react-router-dom';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import App from '../../src/App';
 
-// Routing tests own HTML selection, not GPU or browser media-query capabilities.
-vi.mock('../../src/world/WorldViewport', () => ({
-  /**
-   * Exclude the browser-only renderer from route-selection unit fixtures.
-   * @returns No canvas; route HTML remains under test.
-   */
-  default: () => null,
-}));
+beforeEach(() => {
+  vi.stubGlobal('matchMedia', () => ({
+    matches: true,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  }));
+});
+afterEach(() => vi.unstubAllGlobals());
+
+/** Observe the actual router location after declarative redirects.
+ * @returns The pathname, search and hash used by the router.
+ */
+function RouteLocation() {
+  const { pathname, search, hash } = useLocation();
+  return (
+    <output data-testid="route-location">
+      {pathname}
+      {search}
+      {hash}
+    </output>
+  );
+}
+
+test.each([
+  ['/about', 'About me'],
+  ['/projects/apollo', 'Apollo'],
+  ['/projects/iris', 'Iris'],
+  ['/projects/gateway', 'Solana Payments'],
+  ['/projects/dripperz', 'Dripperz'],
+])('clean route %s opens its selected content', (path, heading) => {
+  render(
+    <MemoryRouter initialEntries={[path]}>
+      <App />
+    </MemoryRouter>,
+  );
+  expect(screen.getByRole('heading', { name: heading })).toHaveFocus();
+});
+
+test.each([
+  ['/#world-about', '/about'],
+  ['/#world-projects', '/about'],
+  ['/#world-hub', '/'],
+  ['/#world-apollo', '/projects/apollo'],
+  ['/world?from=bookmark#world-iris', '/projects/iris?from=bookmark'],
+  ['/world', '/'],
+  ['/projects', '/about'],
+  ['/about#expertise', '/profile#expertise'],
+])('legacy location %s resolves to %s', (from, to) => {
+  render(
+    <MemoryRouter initialEntries={[from]}>
+      <App />
+      <RouteLocation />
+    </MemoryRouter>,
+  );
+  expect(screen.getByTestId('route-location').textContent).toBe(to);
+});
 
 test.each(['/', '/world'])('matches the portfolio at %s', (path) => {
   render(
@@ -24,7 +72,7 @@ test.each(['/', '/world'])('matches the portfolio at %s', (path) => {
   );
   expect(
     screen.getByRole('heading', {
-      name: 'Hi, I’m Guillaume, a full-stack developer',
+      name: 'Guillaume Ammouche',
     }),
   ).toBeInTheDocument();
 });
@@ -41,14 +89,14 @@ test('unknown route offers client navigation back to the foundation', () => {
   fireEvent.click(screen.getByRole('link', { name: 'Return to home' }));
   expect(
     screen.getByRole('heading', {
-      name: 'Hi, I’m Guillaume, a full-stack developer',
+      name: 'Guillaume Ammouche',
     }),
   ).toBeInTheDocument();
 });
 
-test('retains the approved profile at the about route', () => {
+test('retains the approved profile at the profile route', () => {
   render(
-    <MemoryRouter initialEntries={['/about']}>
+    <MemoryRouter initialEntries={['/profile']}>
       <App />
     </MemoryRouter>,
   );
@@ -67,6 +115,8 @@ test('retired design and study routes use the normal not-found view', () => {
     '/scene-study/iris',
     '/screen-study/workflow',
     '/screen-study/apollo',
+    '/projects/unknown',
+    '/projects/apollo/unknown',
   ]) {
     const view = render(
       <MemoryRouter initialEntries={[path]}>
