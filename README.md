@@ -15,7 +15,8 @@ JavaScript is required.
 
 ## Features
 
-- Enter About me from a minimal landing page, with workflow and direct contact links.
+- See a dotted travel globe, name and typed personal details on the landing page, with one Enter portfolio action.
+- Find workflow steps and direct GitHub, résumé and email links on About me.
 - Browse concise project descriptions and visual previews through native HTML.
 - Navigate through a desktop sidebar or a prominent mobile project drawer.
 - Open About me at `/about` or individual projects at `/projects/apollo`, `/projects/iris`, `/projects/gateway` and `/projects/dripperz`.

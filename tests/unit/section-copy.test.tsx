@@ -170,10 +170,8 @@ test('legacy room history stays in content and unmount releases document styles'
   fireEvent.click(screen.getByRole('link', { name: 'Iris' }));
   expect(screen.getByRole('heading', { name: 'Iris' })).toBeInTheDocument();
   unmount();
-  expect(document.documentElement).not.toHaveClass(
-    'monitor-route',
-    'workspace-open',
-  );
+  expect(document.documentElement).not.toHaveClass('monitor-route');
+  expect(document.documentElement).not.toHaveClass('workspace-open');
 });
 
 test('the project picker opens the drawer and Escape restores focus to its trigger', () => {
