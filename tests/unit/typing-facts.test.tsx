@@ -94,3 +94,21 @@ test('leaving during typing cancels the pending interval', () => {
   unmount();
   expect(vi.getTimerCount()).toBe(0);
 });
+
+test('a delayed timer catches up to elapsed time instead of extending the entry delay', () => {
+  const now = vi.spyOn(performance, 'now').mockReturnValue(0);
+  const { container, unmount } = render(<TypingFacts text={text} />);
+  now.mockReturnValue(text.length * 40);
+  act(() => {
+    vi.advanceTimersByTime(40);
+  });
+  expect(container.querySelector('.landing-facts-text')).toHaveTextContent(
+    text,
+  );
+  expect(container.querySelector('.landing-facts')).toHaveAttribute(
+    'data-typing',
+    'complete',
+  );
+  expect(vi.getTimerCount()).toBe(0);
+  unmount();
+});

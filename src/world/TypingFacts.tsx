@@ -23,7 +23,7 @@ export default function TypingFacts(props: TypingFactsProps) {
     if (!container || !output) return;
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
     let timer: number | undefined;
-    let index = 0;
+    const started = performance.now();
     output.textContent = '';
     container.scrollLeft = 0;
     container.dataset.typing = 'active';
@@ -46,7 +46,12 @@ export default function TypingFacts(props: TypingFactsProps) {
     if (motion.matches || document.hidden) finish();
     else
       timer = window.setInterval(() => {
-        output.textContent = props.text.slice(0, ++index);
+        // Late callbacks catch up rather than extending the entry delay under load.
+        const index = Math.min(
+          props.text.length,
+          Math.floor((performance.now() - started) / 40),
+        );
+        output.textContent = props.text.slice(0, index);
         // Follow the cursor only when the desktop line overflows its container.
         container.scrollLeft = container.scrollWidth;
         if (index >= props.text.length) {
