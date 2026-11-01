@@ -102,7 +102,6 @@ export default function MonitorWorkspace(props: WorkspaceProps) {
   const [menuView, setMenuView] = useState<WorkspaceView | null>(null);
   const menuOpen = menuView === props.view;
   if (menuView !== null && menuView !== props.view) setMenuView(null);
-  const [effects, setEffects] = useState(true);
   const project = PROJECTS.find((item) => item.id === props.view);
   const welcome = !project;
   const about = copySection('world-about');
@@ -111,9 +110,9 @@ export default function MonitorWorkspace(props: WorkspaceProps) {
     if (content.current) content.current.scrollTop = 0;
   }, [props.view]);
   useEffect(() => {
-    if (!effects || !root.current) return;
+    if (!root.current) return;
     return playMonitorGlitch(root.current, welcome);
-  }, [props.view, effects, welcome]);
+  }, [props.view, welcome]);
   useEffect(() => {
     /** A drawer opened on a phone must not survive a layout change. */
     function resize() {
@@ -153,33 +152,10 @@ export default function MonitorWorkspace(props: WorkspaceProps) {
       ref={root}
       className="monitor-workspace"
       data-view={props.view}
-      data-effects={effects}
+      data-effects="true"
       data-menu-open={menuOpen}
       aria-label="Portfolio workspace"
     >
-      <header className="monitor-bar">
-        <Link
-          to="/about"
-          replace={welcome}
-          onClick={() => select('about')}
-          aria-label="Return to About me"
-        >
-          <span>guillaume</span>@portfolio:
-          <span className="monitor-current-path">
-            ~/{project?.id ?? 'about'}
-          </span>
-        </Link>
-        <div className="monitor-bar-actions">
-          <label className="monitor-effects">
-            <input
-              type="checkbox"
-              checked={effects}
-              onChange={(event) => setEffects(event.target.checked)}
-            />
-            FX
-          </label>
-        </div>
-      </header>
       <button
         className="monitor-project-picker"
         type="button"
@@ -313,12 +289,6 @@ export default function MonitorWorkspace(props: WorkspaceProps) {
         </div>
         <div className="monitor-fragments" aria-hidden="true" />
       </div>
-      <footer className="monitor-status">
-        <span>
-          portfolio <span>{project?.id ?? 'about'}</span>
-        </span>
-        <span>FR / EN · DA NANG, VN</span>
-      </footer>
     </section>
   );
 }

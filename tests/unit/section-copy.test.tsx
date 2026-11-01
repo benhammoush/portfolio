@@ -225,7 +225,7 @@ test('the combined welcome keeps the short bio and all contact links', () => {
   ).not.toBeInTheDocument();
   expect(document.querySelectorAll('.monitor-about-intro')).toHaveLength(1);
   expect(
-    screen.getByText(/My interest in computers started with hardware/),
+    screen.getByText(/I started my career as a BI developer in 2017/),
   ).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'GitHub ↗' })).toHaveAttribute(
     'href',

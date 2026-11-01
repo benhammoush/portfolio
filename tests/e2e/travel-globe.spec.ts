@@ -63,10 +63,11 @@ for (const [width, height] of [
   });
 }
 
-test('rotation and pulse can be paused by keyboard and stop for live reduced motion', async ({
+test('rotation and pulse settle without controls and do not restart on resize', async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.clock.install();
   await page.goto('/');
   const globe = page.locator('.landing-globe');
   await expect
@@ -75,32 +76,35 @@ test('rotation and pulse can be paused by keyboard and stop for live reduced mot
   const image = await globe.evaluate((canvas: HTMLCanvasElement) =>
     canvas.toDataURL(),
   );
-  await expect
-    .poll(() =>
-      globe.evaluate((canvas: HTMLCanvasElement) => canvas.toDataURL()),
-    )
-    .not.toBe(image);
-  const pause = page.getByRole('button', { name: 'Pause globe' });
-  await pause.focus();
-  await page.keyboard.press('Enter');
-  await expect(
-    page.getByRole('button', { name: 'Resume globe' }),
-  ).toHaveAttribute('aria-pressed', 'true');
+  await page.clock.runFor(5000);
+  expect(
+    await globe.evaluate((canvas: HTMLCanvasElement) => canvas.toDataURL()),
+  ).not.toBe(image);
+  await expect(page.getByRole('button', { name: /globe/ })).toHaveCount(0);
   const still = await globe.evaluate((canvas: HTMLCanvasElement) =>
     canvas.toDataURL(),
   );
-  await page.waitForTimeout(150);
+  await page.clock.runFor(1000);
   expect(
     await globe.evaluate((canvas: HTMLCanvasElement) => canvas.toDataURL()),
   ).toBe(still);
-  await page.getByRole('button', { name: 'Resume globe' }).click();
-  await expect
-    .poll(() =>
-      globe.evaluate((canvas: HTMLCanvasElement) => canvas.toDataURL()),
-    )
-    .not.toBe(still);
+  await page.evaluate(() => window.dispatchEvent(new Event('resize')));
+  const resized = await globe.evaluate((canvas: HTMLCanvasElement) =>
+    canvas.toDataURL(),
+  );
+  await page.clock.runFor(1000);
+  expect(
+    await globe.evaluate((canvas: HTMLCanvasElement) => canvas.toDataURL()),
+  ).toBe(resized);
+});
+
+test('live reduced motion stops the brief globe animation immediately', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.goto('/');
+  const globe = page.locator('.landing-globe');
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await expect(pause).toBeHidden();
   const reduced = await globe.evaluate((canvas: HTMLCanvasElement) =>
     canvas.toDataURL(),
   );

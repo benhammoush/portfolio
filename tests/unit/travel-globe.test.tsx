@@ -2,7 +2,7 @@
  * Travel geometry and canvas lifecycle stay independent of portfolio navigation.
  * @packageDocumentation
  */
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import TravelGlobe from '../../src/world/TravelGlobe';
 import {
@@ -69,7 +69,7 @@ test('all six destinations form a closed loop of lifted great-circle arcs', () =
   }
 });
 
-test('animation pauses explicitly, stops in hidden tabs and cleans up on unmount', () => {
+test('animation has no controls, pauses in hidden tabs and cleans up on unmount', () => {
   const { container, unmount } = render(<TravelGlobe />);
   expect(container.querySelector('canvas')).toHaveAttribute(
     'aria-hidden',
@@ -79,22 +79,24 @@ test('animation pauses explicitly, stops in hidden tabs and cleans up on unmount
     vi.advanceTimersByTime(100);
   });
   expect(drawTravelGlobe).toHaveBeenCalled();
-  fireEvent.click(screen.getByRole('button', { name: 'Pause globe' }));
-  vi.mocked(drawTravelGlobe).mockClear();
+  expect(screen.queryByRole('button')).toBeNull();
+  const hidden = vi.spyOn(document, 'hidden', 'get').mockReturnValue(true);
   act(() => {
-    vi.advanceTimersByTime(100);
-  });
-  expect(drawTravelGlobe).not.toHaveBeenCalled();
-  fireEvent.click(screen.getByRole('button', { name: 'Resume globe' }));
-  act(() => {
-    vi.spyOn(document, 'hidden', 'get').mockReturnValue(true);
     document.dispatchEvent(new Event('visibilitychange'));
   });
   vi.mocked(drawTravelGlobe).mockClear();
   act(() => {
-    vi.advanceTimersByTime(100);
+    vi.advanceTimersByTime(60000);
   });
   expect(drawTravelGlobe).not.toHaveBeenCalled();
+  hidden.mockReturnValue(false);
+  act(() => {
+    document.dispatchEvent(new Event('visibilitychange'));
+    vi.advanceTimersByTime(1000);
+  });
+  expect(drawTravelGlobe).toHaveBeenCalled();
+  expect(vi.mocked(drawTravelGlobe).mock.lastCall?.[3]).toBeLessThan(4500);
+  expect(vi.getTimerCount()).toBeGreaterThan(0);
   unmount();
   expect(disconnect).toHaveBeenCalledOnce();
   expect(vi.getTimerCount()).toBe(0);
@@ -102,6 +104,23 @@ test('animation pauses explicitly, stops in hidden tabs and cleans up on unmount
     'change',
     media.addEventListener.mock.calls[0][1],
   );
+});
+
+test('decoration settles within five visible seconds and resize does not restart it', () => {
+  const { unmount } = render(<TravelGlobe />);
+  act(() => {
+    vi.advanceTimersByTime(5000);
+  });
+  expect(vi.getTimerCount()).toBe(0);
+  const last = vi.mocked(drawTravelGlobe).mock.lastCall;
+  expect(last?.[3]).toBe(4500);
+  act(() => {
+    window.dispatchEvent(new Event('resize'));
+    vi.advanceTimersByTime(1000);
+  });
+  expect(vi.getTimerCount()).toBe(0);
+  expect(vi.mocked(drawTravelGlobe).mock.lastCall?.[3]).toBe(4500);
+  unmount();
 });
 
 test('reduced motion paints once and live preference changes stop animation', () => {
@@ -115,7 +134,7 @@ test('reduced motion paints once and live preference changes stop animation', ()
     media.addEventListener.mock.calls[0][1]();
     vi.advanceTimersByTime(100);
   });
-  expect(screen.getByRole('button', { name: 'Pause globe' })).toBeVisible();
+  expect(vi.mocked(drawTravelGlobe).mock.calls.length).toBeGreaterThan(2);
   act(() => {
     media.matches = true;
     media.addEventListener.mock.calls[0][1]();
