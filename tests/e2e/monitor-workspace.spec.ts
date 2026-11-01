@@ -381,6 +381,9 @@ test('a failed illustration does not hide product copy or prevent switching proj
 test('glitches are bounded and live reduced motion disables them without an FX control', async ({
   page,
 }) => {
+  const time = new Date('2026-01-01T00:00:00Z');
+  await page.clock.install({ time });
+  await page.clock.pauseAt(time);
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/projects/apollo');
@@ -396,9 +399,9 @@ test('glitches are bounded and live reduced motion disables them without an FX c
   await expect(
     page.getByRole('heading', { name: 'Iris', exact: true }),
   ).toBeFocused();
+  await page.clock.runFor(2000);
   await expect(page.locator('.monitor-workspace')).not.toHaveAttribute(
     'data-glitch',
-    { timeout: 2000 },
   );
   await expect(page.locator('.monitor-fragments > span')).toHaveCount(0);
   await (

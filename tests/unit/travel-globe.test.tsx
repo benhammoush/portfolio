@@ -80,15 +80,23 @@ test('animation has no controls, pauses in hidden tabs and cleans up on unmount'
   });
   expect(drawTravelGlobe).toHaveBeenCalled();
   expect(screen.queryByRole('button')).toBeNull();
+  const hidden = vi.spyOn(document, 'hidden', 'get').mockReturnValue(true);
   act(() => {
-    vi.spyOn(document, 'hidden', 'get').mockReturnValue(true);
     document.dispatchEvent(new Event('visibilitychange'));
   });
   vi.mocked(drawTravelGlobe).mockClear();
   act(() => {
-    vi.advanceTimersByTime(100);
+    vi.advanceTimersByTime(60000);
   });
   expect(drawTravelGlobe).not.toHaveBeenCalled();
+  hidden.mockReturnValue(false);
+  act(() => {
+    document.dispatchEvent(new Event('visibilitychange'));
+    vi.advanceTimersByTime(1000);
+  });
+  expect(drawTravelGlobe).toHaveBeenCalled();
+  expect(vi.mocked(drawTravelGlobe).mock.lastCall?.[3]).toBeLessThan(4500);
+  expect(vi.getTimerCount()).toBeGreaterThan(0);
   unmount();
   expect(disconnect).toHaveBeenCalledOnce();
   expect(vi.getTimerCount()).toBe(0);
