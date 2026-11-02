@@ -14,6 +14,7 @@ const projects = [
 
 const screenshotSizes = {
   apollo: [1917, 914],
+  iris: [1918, 913],
   gateway: [1919, 909],
   dripperz: [1917, 903],
 };
@@ -152,29 +153,27 @@ for (const [width, height] of [
           .locator('.monitor-content')
           .evaluate((element) => element.scrollWidth <= element.clientWidth),
       ).toBe(true);
-      const production = page.locator('.monitor-asset-note a');
-      await expect(production).toHaveText(`${productionUrls[id]} ↗`);
+      const production = page.getByRole('link', { name: 'Visit project ↗' });
       await expect(production).toHaveAttribute('href', productionUrls[id]);
       await expect(production).toHaveAttribute('target', '_blank');
-      await expect(page.locator('.monitor-asset-note')).not.toContainText(
-        'product screenshot pending',
+      await expect(production).toHaveAttribute('rel', 'noopener noreferrer');
+      await expect(page.locator('.monitor-media-label > a')).toHaveCount(1);
+      await expect(page.locator('.monitor-asset-note,dialog')).toHaveCount(0);
+      await expect(page.getByRole('button', { name: /Expand/ })).toHaveCount(0);
+      await expect(image).toHaveAttribute(
+        'alt',
+        new RegExp(`${label}.*screenshot`),
       );
-      if (id !== 'iris') {
-        await expect(image).toHaveAttribute(
-          'alt',
-          new RegExp(`${label}.*screenshot`),
-        );
-        expect(
-          await image.evaluate((element: HTMLImageElement) => [
-            element.naturalWidth,
-            element.naturalHeight,
-          ]),
-        ).toEqual(screenshotSizes[id]);
-        if (width === 390 || width === 1440)
-          await page.screenshot({
-            path: info.outputPath(`${id}-screenshot-${width}.png`),
-          });
-      }
+      expect(
+        await image.evaluate((element: HTMLImageElement) => [
+          element.naturalWidth,
+          element.naturalHeight,
+        ]),
+      ).toEqual(screenshotSizes[id]);
+      if (width === 390 || width === 1440)
+        await page.screenshot({
+          path: info.outputPath(`${id}-screenshot-${width}.png`),
+        });
     }
     if (width === 390 || width === 1440)
       await page.screenshot({
@@ -193,6 +192,38 @@ for (const [width, height] of [
       page.getByRole('button', { name: 'Back to the room' }),
     ).toHaveCount(0);
     await expect(page.locator('html')).toHaveClass(/workspace-open/);
+  });
+}
+
+for (const width of [390, 1440]) {
+  test(`Visit project opens each production site in a new tab at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    for (const [id] of projects) {
+      // Check native new-tab navigation without relying on third-party availability.
+      await page.context().route(productionUrls[id], (route) =>
+        route.fulfill({
+          contentType: 'text/html',
+          body: '<title>Project destination</title>',
+        }),
+      );
+      await page.goto(`/projects/${id}`);
+      const visit = page.getByRole('link', { name: 'Visit project ↗' });
+      await expect(visit).toHaveCount(1);
+      await expect(visit).toHaveJSProperty('tabIndex', 0);
+      await visit.focus();
+      const [popup] = await Promise.all([
+        page.waitForEvent('popup'),
+        page.keyboard.press('Enter'),
+      ]);
+      try {
+        await expect(popup).toHaveURL(productionUrls[id]);
+        await expect(page).toHaveURL(new RegExp(`/projects/${id}$`));
+      } finally {
+        await popup.close();
+      }
+    }
   });
 }
 
@@ -342,7 +373,7 @@ test('content scrolling stays contained and history returns to the landing', asy
   ).toBeFocused();
 });
 
-test('keyboard entry, image expansion and Escape preserve useful focus', async ({
+test('keyboard navigation focuses content and reaches Visit project', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -365,17 +396,13 @@ test('keyboard entry, image expansion and Escape preserve useful focus', async (
   });
   await link.focus();
   await page.keyboard.press('Enter');
-  const expand = page.getByRole('button', { name: 'Expand ↗' });
-  await expand.focus();
-  await page.keyboard.press('Enter');
   await expect(
-    page.getByRole('dialog', { name: 'Apollo screenshot' }),
-  ).toBeVisible();
-  await page.keyboard.press('Escape');
-  await expect(
-    page.getByRole('dialog', { name: 'Apollo screenshot' }),
-  ).toBeHidden();
-  await expect(expand).toBeFocused();
+    page.getByRole('heading', { name: 'Apollo', exact: true }),
+  ).toBeFocused();
+  const visit = page.getByRole('link', { name: 'Visit project ↗' });
+  await visit.focus();
+  await expect(visit).toBeFocused();
+  await expect(visit).toHaveCSS('outline-color', 'rgb(112, 236, 154)');
 });
 
 for (const [width, height] of [
@@ -419,7 +446,7 @@ for (const [width, height] of [
     await expect(
       page.getByRole('heading', { name: 'Iris', exact: true }),
     ).toBeFocused();
-    await page.locator('.monitor-asset-note').scrollIntoViewIfNeeded();
+    await page.locator('.monitor-image-wrap img').scrollIntoViewIfNeeded();
     expect(await picker.boundingBox()).toEqual(pickerBounds);
     await picker.click();
     await page.setViewportSize({ width: 1440, height: 900 });
@@ -448,6 +475,9 @@ test('a failed screenshot does not hide product copy or prevent switching projec
     'trading lab',
   );
   await expect(page.getByRole('button', { name: 'Expand ↗' })).toHaveCount(0);
+  await expect(
+    page.getByRole('link', { name: 'Visit project ↗' }),
+  ).toHaveAttribute('href', productionUrls.apollo);
   await (
     await navigation(page)
   )
@@ -522,8 +552,9 @@ for (const width of [390, 1440])
         .locator('.monitor-content')
         .evaluate((element) => element.scrollWidth <= element.clientWidth),
     ).toBe(true);
-    await page.locator('.monitor-asset-note').scrollIntoViewIfNeeded();
-    await expect(page.locator('.monitor-asset-note')).toBeInViewport();
+    const visit = page.getByRole('link', { name: 'Visit project ↗' });
+    await visit.scrollIntoViewIfNeeded();
+    await expect(visit).toBeInViewport();
     await expect(
       page.getByRole('button', { name: 'Back to the room' }),
     ).toHaveCount(0);

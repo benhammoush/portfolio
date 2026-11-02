@@ -1,9 +1,8 @@
 # Homepage content
 
-Apollo, Solana Payments and Dripperz use supplied product screenshots; Apollo shows
-example data and Solana Payments shows Devnet. Iris uses a conceptual placeholder,
-not a product screenshot. Additional
-private Apollo material requires separate approval.
+All four projects use supplied product screenshots; Apollo shows example data and
+Solana Payments shows Devnet. Additional private Apollo material requires separate
+approval.
 
 ## Landing
 

@@ -19,6 +19,7 @@ JavaScript is required.
 - Find workflow steps and direct GitHub, résumé and email links on About me.
 - Browse concise project descriptions and visual previews through native HTML.
 - View each project's frontend and backend on GitHub; Dripperz is frontend-only.
+- Open each live project in a new tab using Visit project above its screenshot.
 - Navigate through a desktop sidebar or a prominent mobile project drawer.
 - Open About me at `/about` or individual projects at `/projects/apollo`, `/projects/iris`, `/projects/gateway` and `/projects/dripperz`.
 - Respect reduced-motion preferences for decorative glitches and animation.
@@ -34,9 +35,14 @@ or room poster is downloaded by the website. The globe uses local Canvas 2D artw
 not a 3D engine.
 
 Project displays illustrate the work rather than acting as live integrations
-with those products. Apollo, Solana Payments and Dripperz use product screenshots;
-Apollo shows example data and Solana Payments shows Devnet. Iris remains labelled
-as an illustration, not a product screenshot.
+with those products. All four project previews use supplied product screenshots;
+Apollo shows example data and Solana Payments shows Devnet.
 
 Website copy lives beside its reader in `src/world/homepage-content.md`.
 The downloadable résumé is `public/resume/Guillaume_Ammouche_CV_ATS.pdf`.
+
+Vercel Web Analytics records page views, including client-side navigation. The
+router supplies pathnames only, without query strings or fragments; no custom
+events are collected. Enable Web Analytics for the hosting project in Vercel and
+deploy this integration to begin receiving data. Development uses the SDK's
+debug mode rather than sending production events.

@@ -4,7 +4,7 @@
  */
 import { SECTION_COPY } from './section-copy';
 import apollo from '../assets/apollo/apollo-screenshot.png?url';
-import iris from '../assets/iris/iris-screen.svg?url';
+import iris from '../assets/iris/iris-screenshot.png?url';
 import gateway from '../assets/gateway/gateway-screenshot.png?url';
 import dripperz from '../assets/dripperz/dripperz-screenshot.png?url';
 
@@ -32,7 +32,6 @@ export const PROJECTS = (
       frontendUrl: 'https://github.com/benhammoush/apollo-frontend',
       backendUrl: 'https://github.com/benhammoush/apollo-backend',
       image: apollo,
-      imageType: 'screenshot',
       imageWidth: 1917,
       imageHeight: 914,
       imageAlt:
@@ -45,10 +44,10 @@ export const PROJECTS = (
       frontendUrl: 'https://github.com/benhammoush/iris-frontend',
       backendUrl: 'https://github.com/benhammoush/iris-backend',
       image: iris,
-      imageType: 'illustration',
-      imageWidth: 1040,
-      imageHeight: 640,
-      imageAlt: 'Iris conceptual illustration, not a product screenshot',
+      imageWidth: 1918,
+      imageHeight: 913,
+      imageAlt:
+        'Iris dashboard screenshot showing token discovery, Solana network activity and DeFi protocols',
       stack: 'React / TypeScript / Cloudflare Workers / Firebase',
     },
     {
@@ -57,7 +56,6 @@ export const PROJECTS = (
       frontendUrl: 'https://github.com/benhammoush/crypto_gateway_frontend',
       backendUrl: 'https://github.com/benhammoush/crypto_gateway_backend',
       image: gateway,
-      imageType: 'screenshot',
       imageWidth: 1919,
       imageHeight: 909,
       imageAlt:
@@ -70,7 +68,6 @@ export const PROJECTS = (
       frontendUrl: 'https://github.com/benhammoush/dripperz',
       backendUrl: null,
       image: dripperz,
-      imageType: 'screenshot',
       imageWidth: 1917,
       imageHeight: 903,
       imageAlt:

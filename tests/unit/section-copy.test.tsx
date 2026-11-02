@@ -113,10 +113,7 @@ test('each project is one approved product sentence and consistently ordered sta
     expect(screen.queryByText('Interfaces → infrastructure')).toBeNull();
     expect(
       screen.getByRole('img', {
-        name:
-          project.id === 'iris'
-            ? /Iris conceptual illustration, not/
-            : new RegExp(`${project.label}.*screenshot`),
+        name: new RegExp(`${project.label}.*screenshot`),
       }),
     ).toBeInTheDocument();
   }
@@ -168,22 +165,22 @@ test.each([
   ['iris', 'https://iris-frontend-production.vercel.app/'],
   ['gateway', 'https://crypto-gateway-production.vercel.app/'],
   ['dripperz', 'https://dripperz-production.vercel.app/'],
-])('%s shows its production URL instead of a preview caption', (id, url) => {
+])('%s offers one Visit project link above its screenshot', (id, url) => {
   window.history.replaceState(null, '', `/projects/${id}`);
   render(<Portfolio />);
   const link = screen.getByRole('link', {
-    name: `${url} ↗`,
+    name: 'Visit project ↗',
   });
   expect(link).toHaveAttribute('href', url);
   expect(link).toHaveAttribute('target', '_blank');
   expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  expect(link.closest('.monitor-media-label')).not.toBeNull();
+  expect(document.querySelector('.monitor-asset-note,dialog')).toBeNull();
+  expect(screen.queryByRole('button', { name: /Expand/ })).toBeNull();
   expect(
     screen.queryByText(/Preview illustration · product screenshot pending/),
   ).toBeNull();
-  if (id === 'iris')
-    expect(
-      screen.getByRole('img', { name: /Iris conceptual illustration/ }),
-    ).toBeInTheDocument();
+  expect(screen.getByRole('img', { name: /screenshot/ })).toBeInTheDocument();
 });
 
 test.each(['about', 'projects'])(

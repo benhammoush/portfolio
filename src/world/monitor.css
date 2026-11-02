@@ -372,10 +372,11 @@ html.workspace-open {
   color: #8ab99a;
   margin-bottom: 0.7rem;
 }
-.monitor-media-label button {
-  background: none;
-  border: 0;
+.monitor-media-label > a {
+  display: inline-flex;
+  align-items: center;
   color: var(--monitor-green);
+  text-decoration: underline;
   padding: 0.4rem 0.2rem;
   min-height: 32px;
 }
@@ -393,52 +394,6 @@ html.workspace-open {
   height: 100%;
   object-fit: contain;
   min-height: 0;
-}
-.monitor-asset-note {
-  font-size: 0.5625rem;
-  line-height: 1.6;
-  color: #799584;
-  padding-top: 0.6rem;
-}
-.monitor-asset-note > a {
-  color: var(--monitor-green);
-  text-decoration: underline;
-  text-underline-offset: 0.3em;
-  overflow-wrap: anywhere;
-}
-.monitor-image-dialog {
-  max-width: 95vw;
-  width: 1200px;
-  max-height: 95svh;
-  padding: 1.2rem;
-  border: 1px solid var(--monitor-line);
-  background: var(--monitor-bg);
-  color: var(--monitor-text);
-}
-.monitor-image-dialog::backdrop {
-  background: rgb(3 8 4 / 92%);
-}
-.monitor-image-dialog > div {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-.monitor-image-dialog button {
-  background: none;
-  border: 0;
-  min-height: 44px;
-  padding: 0.5rem;
-  color: var(--monitor-green);
-}
-.monitor-image-dialog > img {
-  display: block;
-  max-width: 100%;
-  width: 100%;
-  height: auto;
-  max-height: 75svh;
-  object-fit: contain;
 }
 .monitor-about-intro {
   max-width: 85ch;

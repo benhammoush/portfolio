@@ -26,14 +26,12 @@ interface ProjectPreviewProps {
   project: (typeof PROJECTS)[number];
 }
 
-/** Distinguish screenshots from illustrations, with a full-size dialog and an image failure path.
+/** Show a project screenshot and direct production link, even when the image fails.
  * @param props - The selected, approved project metadata.
  * @returns A large image pane using the selected project's supplied media.
  */
 function ProjectPreview(props: ProjectPreviewProps) {
-  const dialog = useRef<HTMLDialogElement>(null);
   const [failed, setFailed] = useState(false);
-  const mediaName = props.project.imageType;
   return (
     <section
       className="monitor-preview"
@@ -41,11 +39,14 @@ function ProjectPreview(props: ProjectPreviewProps) {
     >
       <div className="monitor-media-label">
         <span>┌─ preview / {props.project.id}</span>
-        {!failed && (
-          <button type="button" onClick={() => dialog.current?.showModal()}>
-            Expand ↗
-          </button>
-        )}
+        <a
+          href={props.project.productionUrl}
+          tabIndex={0}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Visit project ↗
+        </a>
       </div>
       <div className="monitor-image-wrap">
         {failed ? (
@@ -63,36 +64,6 @@ function ProjectPreview(props: ProjectPreviewProps) {
           />
         )}
       </div>
-      <p className="monitor-asset-note">
-        Production:{' '}
-        <a
-          href={props.project.productionUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {props.project.productionUrl} ↗
-        </a>
-      </p>
-      <dialog
-        className="monitor-image-dialog"
-        ref={dialog}
-        aria-label={`${props.project.label} ${mediaName}`}
-      >
-        <div>
-          <span>
-            {props.project.label} / {mediaName}
-          </span>
-          <button type="button" onClick={() => dialog.current?.close()}>
-            Close ×
-          </button>
-        </div>
-        <img
-          src={props.project.image}
-          alt={props.project.imageAlt}
-          width={props.project.imageWidth}
-          height={props.project.imageHeight}
-        />
-      </dialog>
     </section>
   );
 }

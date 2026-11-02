@@ -45,17 +45,11 @@ test('uses Vite and supported ESLint 10 without the previous lint dependency cha
   }
 });
 
-test('only the active Iris illustration retains generation and provenance commands', () => {
+test('product screenshots need no retired artwork generation commands', () => {
   const artScripts = Object.keys(pkg.scripts).filter((name) =>
     name.endsWith('-art'),
   );
-  expect(artScripts.sort()).toEqual(['check:iris-art', 'generate:iris-art']);
-  expect(pkg.scripts['generate:iris-art']).toBe(
-    'node scripts/export-iris-art.mjs',
-  );
-  expect(pkg.scripts['check:iris-art']).toBe(
-    'node scripts/export-iris-art.mjs --check',
-  );
+  expect(artScripts).toEqual([]);
 });
 
 test('keeps TypeScript violations blocking', async () => {
