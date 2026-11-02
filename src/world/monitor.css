@@ -51,6 +51,7 @@ html.workspace-open {
 }
 .monitor-workspace h1,
 .monitor-workspace h2,
+.monitor-workspace h3,
 .monitor-workspace p {
   margin: 0;
   font-family: inherit;
@@ -261,12 +262,6 @@ html.workspace-open {
   font-size: 0.75rem;
   color: #96b49f;
 }
-.monitor-directory-note {
-  margin: 2rem 0.5rem 0 !important;
-  font-size: 0.625rem;
-  line-height: 1.9;
-  color: #8ba593;
-}
 .monitor-content {
   flex: 1;
   min-width: 0;
@@ -327,9 +322,35 @@ html.workspace-open {
 .monitor-primary:hover {
   background: #1a3824;
 }
+.monitor-workflow {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  margin-top: 2.5rem;
+}
+.monitor-workflow-heading .monitor-workflow-eyebrow {
+  margin-bottom: 0.45rem;
+  color: var(--monitor-green);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.monitor-workflow-heading h2 {
+  color: #dbe6df;
+  font-size: 1.125rem;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: -0.025em;
+}
+.monitor-workflow-heading .monitor-workflow-intro {
+  margin-top: 0.45rem;
+  color: var(--monitor-muted);
+  font-size: 0.75rem;
+  line-height: 1.8;
+}
 .monitor-steps {
   list-style: none;
-  margin: 2.2rem 0 0;
+  margin: 1.25rem 0 0;
   padding: 0;
   flex: 1;
   display: flex;
@@ -348,7 +369,7 @@ html.workspace-open {
   font-size: 0.6875rem;
   color: var(--monitor-green);
 }
-.monitor-steps h2 {
+.monitor-steps h3 {
   font-size: 0.8125rem;
   font-weight: 400;
   color: #d1e1d7;
@@ -379,9 +400,8 @@ html.workspace-open {
   justify-content: space-between;
   gap: 1rem;
 }
-.monitor-project-heading > span {
-  font-size: 0.625rem;
-  color: #7ca18a;
+.monitor-project-heading h1 {
+  max-width: none;
 }
 .monitor-description {
   margin-top: 0.8rem !important;
@@ -440,6 +460,12 @@ html.workspace-open {
   color: #799584;
   padding-top: 0.6rem;
 }
+.monitor-asset-note > a {
+  color: var(--monitor-green);
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+  overflow-wrap: anywhere;
+}
 .monitor-image-dialog {
   max-width: 95vw;
   width: 1200px;
@@ -479,20 +505,27 @@ html.workspace-open {
   color: #b5c9bc;
   line-height: 1.95;
 }
-.monitor-about-links {
+.monitor-about-links,
+.monitor-project-links {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem 1.5rem;
   margin-top: 1.2rem;
   font-size: 0.75rem;
 }
-.monitor-about-links > a {
+.monitor-about-links > a,
+.monitor-project-links > a {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
   color: var(--monitor-green);
   text-decoration: underline;
   text-underline-offset: 0.3em;
+}
+.monitor-project-links {
+  align-items: center;
+  margin-top: 0.6rem;
+  font-size: 0.6875rem;
 }
 /* Randomized tears are one-shot, not a constant background distortion. */
 .monitor-workspace[data-effects='true']::after {
@@ -713,9 +746,6 @@ html.workspace-open {
     padding: 0.65rem 0.75rem;
     gap: 1rem;
   }
-  .monitor-steps {
-    margin-top: 1.7rem;
-  }
   .monitor-steps > li {
     grid-template-columns: 30px minmax(0, 1fr);
     gap: 0.45rem;
@@ -725,7 +755,7 @@ html.workspace-open {
     grid-column: 2;
     font-size: 0.6875rem;
   }
-  .monitor-steps h2 {
+  .monitor-steps h3 {
     font-size: 0.75rem;
   }
   .monitor-steps > li > span {

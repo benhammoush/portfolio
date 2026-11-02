@@ -1,12 +1,12 @@
 /**
- * Workspace identities, approved copy and illustrative media, independent of WebGL.
+ * Workspace identities, approved copy and preview media, independent of WebGL.
  * @packageDocumentation
  */
 import { SECTION_COPY } from './section-copy';
-import apollo from '../assets/apollo/apollo-screen.svg?url';
+import apollo from '../assets/apollo/apollo-screenshot.png?url';
 import iris from '../assets/iris/iris-screen.svg?url';
-import gateway from '../assets/gateway/gateway-screen.svg?url';
-import dripperz from '../assets/dripperz/dripperz-screen.svg?url';
+import gateway from '../assets/gateway/gateway-screenshot.png?url';
+import dripperz from '../assets/dripperz/dripperz-screenshot.png?url';
 
 /** Stable project keys retain existing deep links. */
 export type ProjectId = 'apollo' | 'iris' | 'gateway' | 'dripperz';
@@ -28,22 +28,53 @@ export const PROJECTS = (
   [
     {
       id: 'apollo',
+      productionUrl: 'https://apollo-frontend-lime.vercel.app/',
+      frontendUrl: 'https://github.com/benhammoush/apollo-frontend',
+      backendUrl: 'https://github.com/benhammoush/apollo-backend',
       image: apollo,
+      imageType: 'screenshot',
+      imageWidth: 1917,
+      imageHeight: 914,
+      imageAlt:
+        'Apollo trading workspace screenshot with EUR/USD charts, a data table and example job logs',
       stack: 'React / TypeScript / Python / FastAPI',
     },
     {
       id: 'iris',
+      productionUrl: 'https://iris-frontend-production.vercel.app/',
+      frontendUrl: 'https://github.com/benhammoush/iris-frontend',
+      backendUrl: 'https://github.com/benhammoush/iris-backend',
       image: iris,
+      imageType: 'illustration',
+      imageWidth: 1040,
+      imageHeight: 640,
+      imageAlt: 'Iris conceptual illustration, not a product screenshot',
       stack: 'React / TypeScript / Cloudflare Workers / Firebase',
     },
     {
       id: 'gateway',
+      productionUrl: 'https://crypto-gateway-production.vercel.app/',
+      frontendUrl: 'https://github.com/benhammoush/crypto_gateway_frontend',
+      backendUrl: 'https://github.com/benhammoush/crypto_gateway_backend',
       image: gateway,
+      imageType: 'screenshot',
+      imageWidth: 1919,
+      imageHeight: 909,
+      imageAlt:
+        'Solana Payments checkout screenshot showing payment link creation, wallet approval and on-chain verification on Devnet',
       stack: 'React / TypeScript / Cloudflare Workers / Solana',
     },
     {
       id: 'dripperz',
+      productionUrl: 'https://dripperz-production.vercel.app/',
+      frontendUrl: 'https://github.com/benhammoush/dripperz',
+      backendUrl: null,
       image: dripperz,
+      imageType: 'screenshot',
+      imageWidth: 1917,
+      imageHeight: 903,
+      imageAlt:
+        'Dripperz Cyber Club website screenshot with three cyberpunk characters and the Enter the Cyberclub heading',
       stack: 'React / TypeScript / Python / Solidity',
     },
   ] as const

@@ -12,6 +12,19 @@ const projects = [
   ['dripperz', 'Dripperz'],
 ] as const;
 
+const screenshotSizes = {
+  apollo: [1917, 914],
+  gateway: [1919, 909],
+  dripperz: [1917, 903],
+};
+
+const productionUrls = {
+  apollo: 'https://apollo-frontend-lime.vercel.app/',
+  iris: 'https://iris-frontend-production.vercel.app/',
+  gateway: 'https://crypto-gateway-production.vercel.app/',
+  dripperz: 'https://dripperz-production.vercel.app/',
+};
+
 /** Open compact navigation without changing the selected content.
  * @param page - Isolated browser page.
  * @returns Visible native workspace navigation.
@@ -82,7 +95,18 @@ for (const [width, height] of [
       await expect(
         page.getByRole('heading', { name: label, exact: true }),
       ).toBeFocused();
+      if (id === 'gateway') {
+        const title = page.getByRole('heading', { name: label, exact: true });
+        const metrics = await title.evaluate((element) => ({
+          height: element.getBoundingClientRect().height,
+          lineHeight: parseFloat(getComputedStyle(element).lineHeight),
+        }));
+        expect(metrics.height).toBeLessThanOrEqual(metrics.lineHeight + 1);
+      }
       await expect(page.locator('.monitor-description')).toHaveCount(1);
+      await expect(
+        page.locator('.monitor-project-heading > span,.monitor-directory-note'),
+      ).toHaveCount(0);
       expect(
         (await page.locator('.monitor-description').innerText()).split(/\s+/)
           .length,
@@ -90,6 +114,32 @@ for (const [width, height] of [
       await expect(page.locator('.monitor-stack')).toHaveText(
         /^React \/ TypeScript/,
       );
+      const source = page.getByRole('navigation', {
+        name: 'GitHub repositories',
+      });
+      const frontend = source.getByRole('link', { name: 'Frontend on GitHub' });
+      await expect(frontend).toBeVisible();
+      await expect(frontend).toHaveAttribute(
+        'href',
+        /^https:\/\/github\.com\/benhammoush\//,
+      );
+      await expect(frontend).toHaveAttribute('target', '_blank');
+      await expect(source.getByRole('link')).toHaveCount(
+        id === 'dripperz' ? 1 : 2,
+      );
+      if (id === 'dripperz') {
+        await expect(source.getByText('Backend: not applicable')).toHaveCount(
+          0,
+        );
+      } else {
+        const backend = source.getByRole('link', { name: 'Backend on GitHub' });
+        await expect(backend).toBeVisible();
+        await expect(backend).toHaveAttribute(
+          'href',
+          /^https:\/\/github\.com\/benhammoush\//,
+        );
+        await expect(backend).toHaveAttribute('target', '_blank');
+      }
       const image = page.locator('.monitor-image-wrap img');
       await image.evaluate((element: HTMLImageElement) => element.decode());
       expect(
@@ -102,9 +152,29 @@ for (const [width, height] of [
           .locator('.monitor-content')
           .evaluate((element) => element.scrollWidth <= element.clientWidth),
       ).toBe(true);
-      await expect(page.locator('.monitor-asset-note')).toContainText(
+      const production = page.locator('.monitor-asset-note a');
+      await expect(production).toHaveText(`${productionUrls[id]} ↗`);
+      await expect(production).toHaveAttribute('href', productionUrls[id]);
+      await expect(production).toHaveAttribute('target', '_blank');
+      await expect(page.locator('.monitor-asset-note')).not.toContainText(
         'product screenshot pending',
       );
+      if (id !== 'iris') {
+        await expect(image).toHaveAttribute(
+          'alt',
+          new RegExp(`${label}.*screenshot`),
+        );
+        expect(
+          await image.evaluate((element: HTMLImageElement) => [
+            element.naturalWidth,
+            element.naturalHeight,
+          ]),
+        ).toEqual(screenshotSizes[id]);
+        if (width === 390 || width === 1440)
+          await page.screenshot({
+            path: info.outputPath(`${id}-screenshot-${width}.png`),
+          });
+      }
     }
     if (width === 390 || width === 1440)
       await page.screenshot({
@@ -175,6 +245,16 @@ for (const width of [320, 390, 844, 1440])
       page.getByText(/I started my career as a BI developer in 2017/),
     ).toBeVisible();
     await expect(page.locator('.monitor-about-intro')).toHaveCount(1);
+    await expect(
+      page.getByRole('heading', { name: 'How I build software', level: 2 }),
+    ).toBeVisible();
+    await expect(page.getByText('My approach', { exact: true })).toBeVisible();
+    await expect(
+      page.getByText('From the first question to a running application.', {
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(page.locator('.monitor-steps h3')).toHaveCount(5);
     await expect(page.locator('.monitor-about-intro')).toHaveText(
       'I started my career as a BI developer in 2017, building internal tools and automating everyday work. In 2022, I transitioned to full-stack development and began creating my own web applications. I left France in 2023 and traveled across Asia, North America and South America before settling in Vietnam in 2025.',
     );
@@ -289,11 +369,11 @@ test('keyboard entry, image expansion and Escape preserve useful focus', async (
   await expand.focus();
   await page.keyboard.press('Enter');
   await expect(
-    page.getByRole('dialog', { name: 'Apollo illustration' }),
+    page.getByRole('dialog', { name: 'Apollo screenshot' }),
   ).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(
-    page.getByRole('dialog', { name: 'Apollo illustration' }),
+    page.getByRole('dialog', { name: 'Apollo screenshot' }),
   ).toBeHidden();
   await expect(expand).toBeFocused();
 });
@@ -355,10 +435,10 @@ for (const [width, height] of [
   });
 }
 
-test('a failed illustration does not hide product copy or prevent switching projects', async ({
+test('a failed screenshot does not hide product copy or prevent switching projects', async ({
   page,
 }) => {
-  await page.route('**/apollo-screen*.svg', (route) => route.abort());
+  await page.route('**/apollo-screenshot*.png', (route) => route.abort());
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/projects/apollo');
   await expect(page.locator('.monitor-preview [role="status"]')).toContainText(

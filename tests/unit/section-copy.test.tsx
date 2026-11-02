@@ -69,9 +69,19 @@ test('About me is the default project pane with navigation immediately available
   fireEvent.click(skip);
   expect(screen.getByRole('heading', { name: 'About me' })).toHaveFocus();
   expect(WORKFLOW_STEPS).toHaveLength(5);
+  expect(
+    screen.getByRole('region', { name: 'How I build software' }),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole('heading', { name: 'How I build software', level: 2 }),
+  ).toBeInTheDocument();
+  expect(screen.getByText('My approach')).toBeInTheDocument();
+  expect(
+    screen.getByText('From the first question to a running application.'),
+  ).toBeInTheDocument();
   for (const step of WORKFLOW_STEPS)
     expect(
-      screen.getByRole('heading', { name: step.title }),
+      screen.getByRole('heading', { name: step.title, level: 3 }),
     ).toBeInTheDocument();
   expect(
     screen.getByRole('navigation', { name: 'Workspace navigation' }),
@@ -97,8 +107,16 @@ test('each project is one approved product sentence and consistently ordered sta
     expect(project.description.split(/\s+/).length).toBeLessThanOrEqual(22);
     expect(project.stack).toMatch(/^React \/ TypeScript/);
     expect(
+      document.querySelector('.monitor-project-heading > span'),
+    ).toBeNull();
+    expect(screen.queryByText('04 selected projects')).toBeNull();
+    expect(screen.queryByText('Interfaces → infrastructure')).toBeNull();
+    expect(
       screen.getByRole('img', {
-        name: new RegExp(`${project.label} conceptual illustration, not`),
+        name:
+          project.id === 'iris'
+            ? /Iris conceptual illustration, not/
+            : new RegExp(`${project.label}.*screenshot`),
       }),
     ).toBeInTheDocument();
   }
@@ -108,6 +126,64 @@ test('each project is one approved product sentence and consistently ordered sta
     'A cyberpunk NFT collection: discover, mint, explore rarity and shape its governance.',
   );
   expect(PROJECTS[3].stack).toBe('React / TypeScript / Python / Solidity');
+});
+
+test.each([
+  ['apollo', 'apollo-frontend', 'apollo-backend'],
+  ['iris', 'iris-frontend', 'iris-backend'],
+  ['gateway', 'crypto_gateway_frontend', 'crypto_gateway_backend'],
+  ['dripperz', 'dripperz', null],
+])(
+  'the %s project links to its real GitHub repositories',
+  (id, frontend, backend) => {
+    window.history.replaceState(null, '', `/projects/${id}`);
+    render(<Portfolio />);
+    const front = screen.getByRole('link', { name: 'Frontend on GitHub' });
+    expect(front).toHaveAttribute(
+      'href',
+      `https://github.com/benhammoush/${frontend}`,
+    );
+    expect(front).toHaveAttribute('target', '_blank');
+    expect(front).toHaveAttribute('rel', 'noopener noreferrer');
+    if (backend) {
+      const back = screen.getByRole('link', { name: 'Backend on GitHub' });
+      expect(back).toHaveAttribute(
+        'href',
+        `https://github.com/benhammoush/${backend}`,
+      );
+      expect(back).toHaveAttribute('target', '_blank');
+      expect(back).toHaveAttribute('rel', 'noopener noreferrer');
+      expect(screen.queryByText('Backend: not applicable')).toBeNull();
+    } else {
+      expect(
+        screen.queryByRole('link', { name: 'Backend on GitHub' }),
+      ).toBeNull();
+      expect(screen.queryByText('Backend: not applicable')).toBeNull();
+    }
+  },
+);
+
+test.each([
+  ['apollo', 'https://apollo-frontend-lime.vercel.app/'],
+  ['iris', 'https://iris-frontend-production.vercel.app/'],
+  ['gateway', 'https://crypto-gateway-production.vercel.app/'],
+  ['dripperz', 'https://dripperz-production.vercel.app/'],
+])('%s shows its production URL instead of a preview caption', (id, url) => {
+  window.history.replaceState(null, '', `/projects/${id}`);
+  render(<Portfolio />);
+  const link = screen.getByRole('link', {
+    name: `${url} ↗`,
+  });
+  expect(link).toHaveAttribute('href', url);
+  expect(link).toHaveAttribute('target', '_blank');
+  expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  expect(
+    screen.queryByText(/Preview illustration · product screenshot pending/),
+  ).toBeNull();
+  if (id === 'iris')
+    expect(
+      screen.getByRole('img', { name: /Iris conceptual illustration/ }),
+    ).toBeInTheDocument();
 });
 
 test.each(['about', 'projects'])(
