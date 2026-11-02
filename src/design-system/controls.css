@@ -1,0 +1,39 @@
+/* Native controls shared by landing, explorer and route recovery. */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 1rem;
+  z-index: 30;
+  padding: 0.75rem 1rem;
+  background: var(--monitor-panel);
+  color: var(--monitor-text);
+  transform: translateY(-200%);
+}
+.skip-link:focus {
+  transform: translateY(0);
+}
+.monitor-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  min-height: 45px;
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--color-control-border);
+  border-radius: 0;
+  background: var(--color-control);
+  color: var(--monitor-green);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.monitor-primary:hover {
+  background: var(--color-control-hover);
+}
+@media (max-width: 767px), (max-width: 1199px) and (max-height: 599px) {
+  .monitor-primary {
+    font-size: 0.6875rem;
+    padding: 0.65rem 0.75rem;
+    gap: 1rem;
+  }
+}

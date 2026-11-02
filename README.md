@@ -25,18 +25,18 @@ JavaScript is required.
 
 ## Boundaries and integration
 
-Shared profile styling and reusable UI are documented in the
+Shared terminal tokens, base styles and controls are owned by the
 [portfolio design system](src/design-system/README.md).
 
 The application runs entirely in the browser, with no application backend or
 database. React handles content and navigation. No graphics engine, model, decoder
-or room poster is downloaded by the website. Earlier scene source and assets remain
-on disk for reuse; their tooling dependencies are development-only.
+or room poster is downloaded by the website. The globe uses local Canvas 2D artwork,
+not a 3D engine.
 
 Project displays illustrate the work rather than acting as live integrations
 with those products. Apollo, Solana Payments and Dripperz use product screenshots;
 Apollo shows example data and Solana Payments shows Devnet. Iris remains labelled
 as an illustration, not a product screenshot.
 
-See [homepage content](docs/homepage-content.md) for the website's section copy.
-The [workspace architecture](docs/scene.md) describes navigation, effects and the retained scene source.
+Website copy lives beside its reader in `src/world/homepage-content.md`.
+The downloadable résumé is `public/resume/Guillaume_Ammouche_CV_ATS.pdf`.

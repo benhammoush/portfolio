@@ -1,9 +1,8 @@
 /**
- * Client route boundary for the portfolio, retained profile and recovery view.
+ * Client route boundary for the terminal portfolio and recovery view.
  * @packageDocumentation
  */
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import HomePage from './HomePage';
 import NotFoundPage from './NotFoundPage';
 import WorldPage from './world/WorldPage';
 import {
@@ -34,7 +33,7 @@ export default function App() {
     /^\/about\/?$/.test(pathname) &&
     ['#about', '#expertise', '#contact'].includes(hash)
   )
-    return <Navigate to={{ pathname: '/profile', search, hash }} replace />;
+    return <Navigate to={{ pathname: '/about', search }} replace />;
   return (
     <Routes>
       <Route path="/" element={<WorldPage />} />
@@ -50,7 +49,6 @@ export default function App() {
         path="/projects"
         element={<Navigate to={{ pathname: '/about', search }} replace />}
       />
-      <Route path="/profile" element={<HomePage />} />
       <Route
         path="/world"
         element={<Navigate to={{ pathname: '/', search }} replace />}

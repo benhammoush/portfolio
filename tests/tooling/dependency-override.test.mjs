@@ -1,6 +1,9 @@
 // @vitest-environment node
 /**
  * Guard the temporary matcher override without weakening lint selection or audit gates.
+ * The development-only minimatch override addresses GHSA-g3hv-75wg-m249 without
+ * downgrading ESLint. Remove it when lint consumers support the patched major
+ * directly; recheck file selection, typed/documentation rules and both audits.
  * @file
  */
 import { readFileSync } from 'node:fs';

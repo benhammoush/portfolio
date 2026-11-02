@@ -43,6 +43,7 @@ export default function WorldPage(props: WorldPageProps) {
     <div className="monitor-page" data-app-version={APP_VERSION}>
       <a
         className="skip-link"
+        tabIndex={0}
         href="#main-content"
         onClick={(event) => {
           event.preventDefault();

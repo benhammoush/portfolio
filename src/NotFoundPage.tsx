@@ -10,10 +10,10 @@ import { Link } from 'react-router-dom';
  */
 export default function NotFoundPage() {
   return (
-    <main>
+    <main className="recovery-page">
       <h1>Page not found</h1>
       <p>We couldn’t find that page. You can return to the portfolio home.</p>
-      <Link to="/" tabIndex={0}>
+      <Link to="/" className="monitor-primary" tabIndex={0}>
         Return to home
       </Link>
     </main>

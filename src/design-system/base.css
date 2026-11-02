@@ -1,26 +1,18 @@
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 html {
-  color-scheme: light;
   font-family: var(--font-body);
+  font-size: 100%;
   line-height: 1.6;
-  color: var(--ink);
+  color: var(--monitor-text);
+  background: var(--monitor-bg);
 }
 body {
   margin: 0;
-  background: var(--color-background);
-}
-a {
-  color: var(--accent);
-  text-underline-offset: 0.25em;
-}
-a:hover {
-  text-decoration-thickness: 0.15em;
-}
-:focus-visible {
-  outline: 3px solid var(--accent);
-  outline-offset: 5px;
+  background: var(--monitor-bg);
 }
 h1,
 h2,
@@ -36,13 +28,40 @@ h3 {
 }
 h1 {
   font-size: clamp(2.8rem, 7vw, 5.75rem);
-  max-width: 13ch;
-  margin-bottom: var(--space-sm);
+  margin-bottom: 1rem;
 }
 h2 {
   font-size: clamp(2rem, 4vw, 3rem);
-  margin-bottom: var(--space-md);
+  margin-bottom: 1.5rem;
 }
 h3 {
-  font-size: var(--font-size-heading-sm);
+  font-size: 1.4rem;
+}
+a {
+  color: var(--monitor-green);
+  text-underline-offset: 0.25em;
+}
+a:hover {
+  text-decoration-thickness: 0.15em;
+}
+button,
+input {
+  font: inherit;
+}
+button {
+  color: inherit;
+  cursor: pointer;
+}
+:focus-visible {
+  outline: 2px solid var(--monitor-green);
+  outline-offset: 4px;
+}
+::selection {
+  background: var(--monitor-green);
+  color: var(--monitor-bg);
+}
+.recovery-page {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
 }
