@@ -37,9 +37,25 @@ test('uses Vite and supported ESLint 10 without the previous lint dependency cha
     'fast-glob',
     'micromatch',
     'braces',
+    'three',
+    '@types/three',
+    '@react-three/fiber',
   ]) {
     expect(lock.packages[`node_modules/${name}`], name).toBeUndefined();
   }
+});
+
+test('only the active Iris illustration retains generation and provenance commands', () => {
+  const artScripts = Object.keys(pkg.scripts).filter((name) =>
+    name.endsWith('-art'),
+  );
+  expect(artScripts.sort()).toEqual(['check:iris-art', 'generate:iris-art']);
+  expect(pkg.scripts['generate:iris-art']).toBe(
+    'node scripts/export-iris-art.mjs',
+  );
+  expect(pkg.scripts['check:iris-art']).toBe(
+    'node scripts/export-iris-art.mjs --check',
+  );
 });
 
 test('keeps TypeScript violations blocking', async () => {

@@ -53,7 +53,9 @@ test.each([
   ['/world?from=bookmark#world-iris', '/projects/iris?from=bookmark'],
   ['/world', '/'],
   ['/projects', '/about'],
-  ['/about#expertise', '/profile#expertise'],
+  ['/about#expertise', '/about'],
+  ['/about?from=bookmark#contact', '/about?from=bookmark'],
+  ['/about#about', '/about'],
 ])('legacy location %s resolves to %s', (from, to) => {
   render(
     <MemoryRouter initialEntries={[from]}>
@@ -94,14 +96,14 @@ test('unknown route offers client navigation back to the foundation', () => {
   ).toBeInTheDocument();
 });
 
-test('retains the approved profile at the profile route', () => {
+test('removed profile uses the normal recovery page', () => {
   render(
     <MemoryRouter initialEntries={['/profile']}>
       <App />
     </MemoryRouter>,
   );
   expect(
-    screen.getByRole('heading', { name: 'Guillaume Ammouche' }),
+    screen.getByRole('heading', { name: 'Page not found' }),
   ).toBeInTheDocument();
 });
 

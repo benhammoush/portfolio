@@ -88,17 +88,15 @@ test('legacy redirects replace history and selecting the same view does not add 
   await expect(page).toHaveURL('http://127.0.0.1:3100/projects/apollo');
 });
 
-test('the retained profile keeps old section links working at its new path', async ({
-  page,
-}) => {
+test('old About section links open the terminal overview', async ({ page }) => {
   await page.goto('/about#contact');
-  await expect(page).toHaveURL('http://127.0.0.1:3100/profile#contact');
+  await expect(page).toHaveURL('http://127.0.0.1:3100/about');
   await expect(
-    page.getByRole('heading', { name: 'Let’s talk.' }),
+    page.getByRole('heading', { name: 'About me' }),
   ).toBeInViewport();
   await page.reload();
   await expect(
-    page.getByRole('heading', { name: 'Let’s talk.' }),
+    page.getByRole('heading', { name: 'About me' }),
   ).toBeInViewport();
 });
 

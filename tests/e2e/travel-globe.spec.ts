@@ -102,13 +102,25 @@ test('live reduced motion stops the globe animation immediately', async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.clock.install();
   await page.goto('/');
   const globe = page.locator('.landing-globe');
+  await page.clock.runFor(100);
+  // Emulation can return before WebKit dispatches the native media-change event.
+  const motionChange = await page.evaluateHandle(() => ({
+    received: new Promise<void>((resolve) => {
+      window
+        .matchMedia('(prefers-reduced-motion: reduce)')
+        .addEventListener('change', () => resolve(), { once: true });
+    }),
+  }));
   await page.emulateMedia({ reducedMotion: 'reduce' });
+  await motionChange.evaluate(({ received }) => received);
+  await motionChange.dispose();
   const reduced = await globe.evaluate((canvas: HTMLCanvasElement) =>
     canvas.toDataURL(),
   );
-  await page.waitForTimeout(150);
+  await page.clock.runFor(1000);
   expect(
     await globe.evaluate((canvas: HTMLCanvasElement) => canvas.toDataURL()),
   ).toBe(reduced);

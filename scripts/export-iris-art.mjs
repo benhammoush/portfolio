@@ -1,5 +1,5 @@
 /**
- * Produce the monitor asset from the trusted, local artwork component.
+ * Produce the Iris preview from its trusted, local artwork component.
  * @file Export trusted standalone artwork as a decorative SVG.
  */
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
@@ -10,16 +10,8 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { format } from 'prettier';
 
-const apollo = process.argv.includes('--apollo');
-const project = ['iris', 'gateway', 'dripperz'].find((name) =>
-  process.argv.includes(`--${name}`),
-);
 const sourceUrl = new URL(
-  project
-    ? '../src/artwork/ProjectScreenArtwork.tsx'
-    : apollo
-      ? '../src/artwork/ApolloScreenArtwork.tsx'
-      : '../src/artwork/WorkflowScreenArtwork.tsx',
+  '../src/artwork/IrisScreenArtwork.tsx',
   import.meta.url,
 );
 const require = createRequire(sourceUrl);
@@ -41,27 +33,18 @@ const compiled = ts
 const component = await import(
   `data:text/javascript;base64,${Buffer.from(compiled).toString('base64')}`
 );
-const markup = renderToStaticMarkup(
-  createElement(component.default, project ? { project } : undefined),
-);
+const markup = renderToStaticMarkup(createElement(component.default));
 const start = markup.indexOf('<svg');
 const end = markup.indexOf('</svg>', start);
 if (start < 0 || end < 0) throw new Error('Screen artwork SVG is missing.');
 const svg = markup
   .slice(start, end + 6)
-  // Explicit dimensions give Canvas drawImage crops stable source-pixel coordinates.
+  // Explicit dimensions preserve the preview's intrinsic aspect ratio.
   .replace(
     '<svg ',
     '<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="640" ',
   );
-const output = new URL(
-  project
-    ? `../src/assets/${project}/${project}-screen.svg`
-    : apollo
-      ? '../src/assets/apollo/apollo-screen.svg'
-      : '../src/assets/workflow/workflow-screen.svg',
-  import.meta.url,
-);
+const output = new URL('../src/assets/iris/iris-screen.svg', import.meta.url);
 const formatted = await format(svg, { parser: 'html' });
 if (process.argv.includes('--check')) {
   if ((await readFile(output, 'utf8')) !== formatted)

@@ -1,25 +1,19 @@
 # Portfolio design system
 
-This module owns shared tokens, base styles and reusable components for the
-portfolio profile UI.
+Import `src/design-system/styles.css` once from the browser entry point. It loads
+the terminal tokens, global base styles and shared native controls, in that order.
+There is no JavaScript component API or theme provider: native links and buttons
+already provide the semantics these screens need.
 
-- `tokens.css` owns shared profile colors, font, type sizes, spacing, radii and
-  surface treatment, preserving existing values and token names.
-- `base.css` owns global typography, defaults and focus treatment.
-- `styles.css` loads shared defaults and component CSS before `src/styles.css`.
-- `components/Card.*` owns the repeated article surface. Use the `index.ts`
-  export; the owner supplies content, native attributes and grid placement.
+- `tokens.css` owns the terminal palette and monospace typography. The existing
+  `--monitor-*` names are the public terminal color tokens, used across all routes.
+- `base.css` owns reset, typography, selection, focus and route-recovery layout.
+- `controls.css` owns `.skip-link` and `.monitor-primary`, shared by the landing
+  and recovery pages; preserve native attributes, keyboard behavior and labels.
+- `src/world/monitor.css` owns explorer/landing geometry, navigation states,
+  responsive layouts, dialog layout and decorative effects. It consumes the shared
+  foundations rather than redefining the terminal palette or controls.
 
-Profile content, card-detail styling, navigation, buttons and layouts remain
-product-owned. The shell workspace, SVG artwork under `src/artwork/` and retained scene textures
-deliberately keep their own scoped art direction.
-Their palettes are not competing definitions of the profile tokens. Shared UI
-must not import those features. A light-only profile needs neither a theme
-provider nor a typed token adapter.
-
-Add shared components for actual presentation reuse, not every native element.
-Keep their CSS colocated and feature overrides scoped. Run the existing quality
-gates and affected browser suites, including profile keyboard/navigation and
-narrow/wide layouts. Component tests cover native attributes and content;
-browser checks verify rendered profile values and responsive layouts. This is
-not real-device certification.
+Canvas globe colors and SVG artwork intentionally remain
+local artwork rather than UI themes. Content and route behavior stay outside this
+module. Add reusable components only when real presentation reuse warrants them.
