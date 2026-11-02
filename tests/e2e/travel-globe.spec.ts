@@ -63,7 +63,7 @@ for (const [width, height] of [
   });
 }
 
-test('rotation and pulse settle without controls and do not restart on resize', async ({
+test('rotation and pulse continue beyond five seconds without controls and survive resize', async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
@@ -81,13 +81,13 @@ test('rotation and pulse settle without controls and do not restart on resize', 
     await globe.evaluate((canvas: HTMLCanvasElement) => canvas.toDataURL()),
   ).not.toBe(image);
   await expect(page.getByRole('button', { name: /globe/ })).toHaveCount(0);
-  const still = await globe.evaluate((canvas: HTMLCanvasElement) =>
+  const afterFiveSeconds = await globe.evaluate((canvas: HTMLCanvasElement) =>
     canvas.toDataURL(),
   );
   await page.clock.runFor(1000);
   expect(
     await globe.evaluate((canvas: HTMLCanvasElement) => canvas.toDataURL()),
-  ).toBe(still);
+  ).not.toBe(afterFiveSeconds);
   await page.evaluate(() => window.dispatchEvent(new Event('resize')));
   const resized = await globe.evaluate((canvas: HTMLCanvasElement) =>
     canvas.toDataURL(),
@@ -95,10 +95,10 @@ test('rotation and pulse settle without controls and do not restart on resize', 
   await page.clock.runFor(1000);
   expect(
     await globe.evaluate((canvas: HTMLCanvasElement) => canvas.toDataURL()),
-  ).toBe(resized);
+  ).not.toBe(resized);
 });
 
-test('live reduced motion stops the brief globe animation immediately', async ({
+test('live reduced motion stops the globe animation immediately', async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
