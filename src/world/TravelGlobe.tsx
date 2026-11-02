@@ -5,7 +5,7 @@
 import { useEffect, useRef } from 'react';
 import { drawTravelGlobe } from './travel-globe';
 
-/** Briefly animate while visible, then settle without adding a motion control.
+/** Rotate continuously while visible, without adding a motion control.
  * @returns Half-cropped artwork with live reduced-motion support.
  */
 export default function TravelGlobe() {
@@ -33,24 +33,18 @@ export default function TravelGlobe() {
       if (previous === undefined) previous = now;
       const delta = now - previous;
       if (delta >= 1000 / 30) {
-        elapsed = Math.min(elapsed + delta, 4500);
+        elapsed += delta;
         previous = now;
         draw();
       }
-      if (elapsed < 4500) frame = requestAnimationFrame(tick);
+      frame = requestAnimationFrame(tick);
     }
-    /** Reconcile motion settings without replaying hidden time or restarting settled artwork. */
+    /** Reconcile motion settings without replaying hidden time. */
     function sync() {
       cancelAnimationFrame(frame);
       previous = undefined;
       draw();
-      if (
-        elapsed < 4500 &&
-        !motion.matches &&
-        !document.hidden &&
-        width &&
-        height
-      )
+      if (!motion.matches && !document.hidden && width && height)
         frame = requestAnimationFrame(tick);
     }
     /** Keep the backing canvas sharp without allocating an unbounded high-DPI surface. */

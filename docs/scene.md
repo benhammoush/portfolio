@@ -21,8 +21,8 @@ The globe is approximately half cropped beyond the right edge on desktop and bel
 the bottom edge on mobile; mobile copy is centered above it. Coarse continent
 silhouettes are original decorative artwork rather than cartographic data. Its
 colors intentionally belong to the black-and-green canvas artwork, outside shared
-UI tokens. Rotation and the travelling pulse settle after 4.5 seconds of visible
-animation, without a pause button. Hidden tabs pause that time and live reduced-motion
+UI tokens. Rotation and the travelling pulse run continuously without a pause button.
+Hidden tabs pause animation time and live reduced-motion
 changes stop animation immediately. Reduced motion keeps a static globe. Canvas failure never blocks
 the personal details, entry link or content. Animation frames and observers are
 released on navigation; painting is capped at 30 fps and pixel density at 2.

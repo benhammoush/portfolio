@@ -95,7 +95,7 @@ test('animation has no controls, pauses in hidden tabs and cleans up on unmount'
     vi.advanceTimersByTime(1000);
   });
   expect(drawTravelGlobe).toHaveBeenCalled();
-  expect(vi.mocked(drawTravelGlobe).mock.lastCall?.[3]).toBeLessThan(4500);
+  expect(vi.mocked(drawTravelGlobe).mock.lastCall?.[3]).toBeLessThan(1500);
   expect(vi.getTimerCount()).toBeGreaterThan(0);
   unmount();
   expect(disconnect).toHaveBeenCalledOnce();
@@ -106,21 +106,24 @@ test('animation has no controls, pauses in hidden tabs and cleans up on unmount'
   );
 });
 
-test('decoration settles within five visible seconds and resize does not restart it', () => {
+test('rotation continues beyond five seconds and resize preserves its progress', () => {
   const { unmount } = render(<TravelGlobe />);
   act(() => {
     vi.advanceTimersByTime(5000);
   });
-  expect(vi.getTimerCount()).toBe(0);
-  const last = vi.mocked(drawTravelGlobe).mock.lastCall;
-  expect(last?.[3]).toBe(4500);
+  expect(vi.getTimerCount()).toBeGreaterThan(0);
+  const elapsed = vi.mocked(drawTravelGlobe).mock.lastCall![3];
+  expect(elapsed).toBeGreaterThan(4500);
   act(() => {
     window.dispatchEvent(new Event('resize'));
     vi.advanceTimersByTime(1000);
   });
-  expect(vi.getTimerCount()).toBe(0);
-  expect(vi.mocked(drawTravelGlobe).mock.lastCall?.[3]).toBe(4500);
+  expect(vi.getTimerCount()).toBeGreaterThan(0);
+  expect(vi.mocked(drawTravelGlobe).mock.lastCall?.[3]).toBeGreaterThan(
+    elapsed,
+  );
   unmount();
+  expect(vi.getTimerCount()).toBe(0);
 });
 
 test('reduced motion paints once and live preference changes stop animation', () => {
