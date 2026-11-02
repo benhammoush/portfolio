@@ -18,6 +18,7 @@ JavaScript is required.
 - See a dotted travel globe, name and typed personal details on the landing page, with one Enter portfolio action.
 - Find workflow steps and direct GitHub, résumé and email links on About me.
 - Browse concise project descriptions and visual previews through native HTML.
+- View each project's frontend and backend on GitHub; Dripperz is frontend-only.
 - Navigate through a desktop sidebar or a prominent mobile project drawer.
 - Open About me at `/about` or individual projects at `/projects/apollo`, `/projects/iris`, `/projects/gateway` and `/projects/dripperz`.
 - Respect reduced-motion preferences for decorative glitches and animation.
@@ -33,7 +34,9 @@ or room poster is downloaded by the website. Earlier scene source and assets rem
 on disk for reuse; their tooling dependencies are development-only.
 
 Project displays illustrate the work rather than acting as live integrations
-with those products. Current visuals are labelled illustrations, not product screenshots.
+with those products. Apollo, Solana Payments and Dripperz use product screenshots;
+Apollo shows example data and Solana Payments shows Devnet. Iris remains labelled
+as an illustration, not a product screenshot.
 
 See [homepage content](docs/homepage-content.md) for the website's section copy.
 The [workspace architecture](docs/scene.md) describes navigation, effects and the retained scene source.

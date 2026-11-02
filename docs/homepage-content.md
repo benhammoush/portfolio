@@ -1,7 +1,9 @@
 # Homepage content
 
-Project illustrations are conceptual placeholders, not product screenshots.
-Private Apollo screenshots require separate approval.
+Apollo, Solana Payments and Dripperz use supplied product screenshots; Apollo shows
+example data and Solana Payments shows Devnet. Iris uses a conceptual placeholder,
+not a product screenshot. Additional
+private Apollo material requires separate approval.
 
 ## Landing
 
@@ -25,7 +27,7 @@ I started my career as a BI developer in 2017, building internal tools and autom
 
 ### How I build software
 
-From the first question to a running application, I like understanding the whole picture—not just the part I’m coding.
+From the first question to a running application.
 
 #### Understand
 

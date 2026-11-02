@@ -31,12 +31,28 @@ released on navigation; painting is capped at 30 fps and pixel density at 2.
 
 About me is the default content pane inside the project explorer, combining the
 short introduction, five workflow steps and GitHub, résumé and email links. The
-desktop sidebar and mobile project picker are available immediately, including
+workflow has a “My approach” eyebrow, “How I build software” heading and a short
+introduction, with the five steps nested under that heading.
+The desktop sidebar and mobile project picker are available immediately, including
 on About me. The `/projects` route redirects to this overview, not an empty
 selection placeholder. Selecting a project replaces the content pane. Each project has
 one short product sentence, a consistently ordered stack and a large image pane.
-The current images are explicitly labelled conceptual illustrations, not product
-screenshots. Private Apollo screenshots require separate approval.
+Frontend and backend GitHub links sit beneath the stack and open in a new tab.
+Dripperz links to its frontend repository only, without a backend label or link;
+its public showcase has no application backend.
+Apollo uses the supplied `src/assets/apollo/apollo-screenshot.png` product screenshot,
+with example data and synthetic job logs. The original Desktop image is copied
+unchanged and displayed uncropped at its native 1917 × 914 aspect ratio, including
+in the full-size dialog. Dripperz uses the supplied
+`src/assets/dripperz/dripperz-screenshot.png` website screenshot, copied unchanged
+from the Desktop image and displayed at its native 1917 × 903 aspect ratio.
+Solana Payments uses `src/assets/gateway/gateway-screenshot.png`, copied unchanged
+from the supplied Desktop image at its native 1919 × 909 aspect ratio and labelled
+as a Devnet product screenshot. Iris retains a conceptual illustration identified
+in its alternative text. Every project preview has a clickable production URL in
+place of an image caption; destinations are owned by the project metadata and
+open in a new tab. Additional private Apollo material requires
+separate approval.
 
 React Router owns navigation and history; workspace links are native-capable `Link`
 elements. The public paths are `/`, `/about`, `/projects/apollo`, `/projects/iris`,

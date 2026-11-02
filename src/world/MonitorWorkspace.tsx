@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   PROJECTS,
+  WORKFLOW,
   WORKFLOW_STEPS,
   copySection,
   workspacePath,
@@ -21,17 +22,18 @@ interface WorkspaceProps {
 
 /** Approved media for a selected project. */
 interface ProjectPreviewProps {
-  /** Metadata and illustration, not a live product integration. */
+  /** Metadata and preview media, not a live product integration. */
   project: (typeof PROJECTS)[number];
 }
 
-/** Display original artwork honestly, with a native full-size dialog and an image failure path.
+/** Distinguish screenshots from illustrations, with a full-size dialog and an image failure path.
  * @param props - The selected, approved project metadata.
- * @returns A large image pane; no live product integration or private screenshot.
+ * @returns A large image pane using the selected project's supplied media.
  */
 function ProjectPreview(props: ProjectPreviewProps) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [failed, setFailed] = useState(false);
+  const mediaName = props.project.imageType;
   return (
     <section
       className="monitor-preview"
@@ -48,42 +50,47 @@ function ProjectPreview(props: ProjectPreviewProps) {
       <div className="monitor-image-wrap">
         {failed ? (
           <p role="status">
-            The illustration could not load. The project description remains
+            The preview could not load. The project description remains
             available.
           </p>
         ) : (
           <img
             src={props.project.image}
-            alt={`${props.project.label} conceptual illustration, not a product screenshot`}
-            width="1040"
-            height="640"
+            alt={props.project.imageAlt}
+            width={props.project.imageWidth}
+            height={props.project.imageHeight}
             onError={() => setFailed(true)}
           />
         )}
       </div>
       <p className="monitor-asset-note">
-        Preview illustration · product screenshot pending
-        {props.project.id === 'apollo'
-          ? ' · private material requires approval'
-          : ''}
-        .
+        Production:{' '}
+        <a
+          href={props.project.productionUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {props.project.productionUrl} ↗
+        </a>
       </p>
       <dialog
         className="monitor-image-dialog"
         ref={dialog}
-        aria-label={`${props.project.label} illustration`}
+        aria-label={`${props.project.label} ${mediaName}`}
       >
         <div>
-          <span>{props.project.label} / illustration</span>
+          <span>
+            {props.project.label} / {mediaName}
+          </span>
           <button type="button" onClick={() => dialog.current?.close()}>
             Close ×
           </button>
         </div>
         <img
           src={props.project.image}
-          alt={`${props.project.label} conceptual illustration`}
-          width="1040"
-          height="640"
+          alt={props.project.imageAlt}
+          width={props.project.imageWidth}
+          height={props.project.imageHeight}
         />
       </dialog>
     </section>
@@ -219,11 +226,6 @@ export default function MonitorWorkspace(props: WorkspaceProps) {
               {item.label}
             </Link>
           ))}
-          <p className="monitor-directory-note">
-            04 selected projects
-            <br />
-            Interfaces → infrastructure
-          </p>
         </nav>
         <div className="monitor-content" ref={content}>
           {welcome ? (
@@ -255,17 +257,29 @@ export default function MonitorWorkspace(props: WorkspaceProps) {
                 </a>
                 <a href="mailto:guillaumeammouche@protonmail.com">Email ↗</a>
               </div>
-              <ol className="monitor-steps" aria-label="How I work">
-                {WORKFLOW_STEPS.map((step, index) => (
-                  <li key={step.title}>
-                    <span aria-hidden="true">
-                      {String(index + 1).padStart(2, '0')}
-                    </span>
-                    <h2>{step.title}</h2>
-                    <p>{step.description}</p>
-                  </li>
-                ))}
-              </ol>
+              <section
+                className="monitor-workflow"
+                aria-labelledby="workflow-title"
+              >
+                <div className="monitor-workflow-heading">
+                  <p className="monitor-workflow-eyebrow">My approach</p>
+                  <h2 id="workflow-title">{WORKFLOW.blocks[0].text}</h2>
+                  <p className="monitor-workflow-intro">
+                    {WORKFLOW.blocks[1].text}
+                  </p>
+                </div>
+                <ol className="monitor-steps" aria-label="How I work">
+                  {WORKFLOW_STEPS.map((step, index) => (
+                    <li key={step.title}>
+                      <span aria-hidden="true">
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                      <h3>{step.title}</h3>
+                      <p>{step.description}</p>
+                    </li>
+                  ))}
+                </ol>
+              </section>
             </section>
           ) : (
             <article className="monitor-project">
@@ -275,13 +289,32 @@ export default function MonitorWorkspace(props: WorkspaceProps) {
                   <h1 ref={title} tabIndex={-1}>
                     {project.label}
                   </h1>
-                  <span>
-                    {String(PROJECTS.indexOf(project) + 1).padStart(2, '0')} /
-                    04
-                  </span>
                 </div>
                 <p className="monitor-description">{project.description}</p>
                 <p className="monitor-stack">{project.stack}</p>
+                <nav
+                  className="monitor-project-links"
+                  aria-label="GitHub repositories"
+                >
+                  <a
+                    href={project.frontendUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Frontend on GitHub"
+                  >
+                    Frontend ↗
+                  </a>
+                  {project.backendUrl ? (
+                    <a
+                      href={project.backendUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Backend on GitHub"
+                    >
+                      Backend ↗
+                    </a>
+                  ) : null}
+                </nav>
               </div>
               <ProjectPreview key={project.id} project={project} />
             </article>
