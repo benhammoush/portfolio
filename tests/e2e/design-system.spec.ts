@@ -44,14 +44,18 @@ for (const width of [390, 1440]) {
     ).toBeFocused();
     await page.goto('/about');
     const workspace = page.locator('.monitor-workspace');
-    for (const link of await page.locator('.monitor-about-links > a').all()) {
+    const aboutLinks = page.locator('.monitor-about-links > a');
+    await expect(aboutLinks).toHaveCount(3);
+    for (const link of await aboutLinks.all()) {
       await expect(link).toHaveCSS('color', 'rgb(112, 236, 154)');
       await expect(link).toHaveCSS('text-decoration-line', 'underline');
     }
     await page.goto('/projects/apollo');
-    for (const link of await page
-      .locator('.monitor-project-links > a, .monitor-asset-note > a')
-      .all()) {
+    const projectLinks = page.locator(
+      '.monitor-project-links > a, .monitor-asset-note > a',
+    );
+    await expect(projectLinks).toHaveCount(3);
+    for (const link of await projectLinks.all()) {
       await expect(link).toHaveCSS('color', 'rgb(112, 236, 154)');
       await expect(link).toHaveCSS('text-decoration-line', 'underline');
     }
