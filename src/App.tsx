@@ -3,6 +3,7 @@
  * @packageDocumentation
  */
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import NotFoundPage from './NotFoundPage';
 import WorldPage from './world/WorldPage';
 import {
@@ -34,26 +35,26 @@ export default function App() {
     ['#about', '#expertise', '#contact'].includes(hash)
   )
     return <Navigate to={{ pathname: '/about', search }} replace />;
+  if (/^\/projects\/*$/i.test(pathname))
+    return <Navigate to={{ pathname: '/about', search }} replace />;
+  if (/^\/world\/*$/i.test(pathname))
+    return <Navigate to={{ pathname: '/', search }} replace />;
   return (
-    <Routes>
-      <Route path="/" element={<WorldPage />} />
-      <Route path="/about" element={<WorldPage view="about" />} />
-      {PROJECTS.map((project) => (
-        <Route
-          key={project.id}
-          path={workspacePath(project.id)}
-          element={<WorldPage view={project.id} />}
-        />
-      ))}
-      <Route
-        path="/projects"
-        element={<Navigate to={{ pathname: '/about', search }} replace />}
-      />
-      <Route
-        path="/world"
-        element={<Navigate to={{ pathname: '/', search }} replace />}
-      />
-      <Route path="*" element={<NotFoundPage />} />
-    </Routes>
+    <>
+      {/* Explicit pathname-only pageviews disable the SDK's automatic tracking. */}
+      <Analytics route={pathname} path={pathname} />
+      <Routes>
+        <Route path="/" element={<WorldPage />} />
+        <Route path="/about" element={<WorldPage view="about" />} />
+        {PROJECTS.map((project) => (
+          <Route
+            key={project.id}
+            path={workspacePath(project.id)}
+            element={<WorldPage view={project.id} />}
+          />
+        ))}
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </>
   );
 }

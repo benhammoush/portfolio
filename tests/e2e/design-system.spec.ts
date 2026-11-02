@@ -52,7 +52,7 @@ for (const width of [390, 1440]) {
     }
     await page.goto('/projects/apollo');
     const projectLinks = page.locator(
-      '.monitor-project-links > a, .monitor-asset-note > a',
+      '.monitor-project-links > a, .monitor-media-label > a',
     );
     await expect(projectLinks).toHaveCount(3);
     for (const link of await projectLinks.all()) {

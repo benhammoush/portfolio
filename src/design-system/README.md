@@ -11,9 +11,9 @@ already provide the semantics these screens need.
 - `controls.css` owns `.skip-link` and `.monitor-primary`, shared by the landing
   and recovery pages; preserve native attributes, keyboard behavior and labels.
 - `src/world/monitor.css` owns explorer/landing geometry, navigation states,
-  responsive layouts, dialog layout and decorative effects. It consumes the shared
+  responsive layouts and decorative effects. It consumes the shared
   foundations rather than redefining the terminal palette or controls.
 
-Canvas globe colors and SVG artwork intentionally remain
+Canvas globe colors intentionally remain
 local artwork rather than UI themes. Content and route behavior stay outside this
 module. Add reusable components only when real presentation reuse warrants them.
