@@ -1,4 +1,5 @@
 node_modules/
+/DEV.md
 dist/
 out/
 build/
