@@ -5,6 +5,17 @@
 import { expect, test } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 
+test('the favicon serves the globe SVG instead of the application shell', async ({
+  request,
+}) => {
+  const response = await request.get('/favicon.svg');
+  expect(response.status()).toBe(200);
+  expect(response.headers()['content-type']).toContain('image/svg+xml');
+  expect(await response.text()).toBe(
+    readFileSync(new URL('../../public/favicon.svg', import.meta.url), 'utf8'),
+  );
+});
+
 test('the public résumé link serves the supplied PDF instead of the application shell', async ({
   request,
 }) => {
