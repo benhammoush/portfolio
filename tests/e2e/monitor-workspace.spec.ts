@@ -281,11 +281,20 @@ for (const width of [320, 390, 844, 1440])
     ).toBeVisible();
     await expect(page.getByText('My approach', { exact: true })).toBeVisible();
     await expect(
-      page.getByText('From the first question to a running application.', {
-        exact: true,
-      }),
+      page.getByText(
+        'Solutions shaped around real needs, timelines and budgets.',
+        {
+          exact: true,
+        },
+      ),
     ).toBeVisible();
-    await expect(page.locator('.monitor-steps h3')).toHaveCount(5);
+    await expect(page.locator('.monitor-steps h3')).toHaveText([
+      'Understand',
+      'Choose',
+      'Build',
+      'Verify',
+      'Improve',
+    ]);
     await expect(page.locator('.monitor-about-intro')).toHaveText(
       'I started my career as a BI developer in 2017, building internal tools and automating everyday work. In 2022, I transitioned to full-stack development and began creating my own web applications. I left France in 2023 and traveled across Asia, North America and South America before settling in Vietnam in 2025.',
     );

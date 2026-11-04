@@ -77,8 +77,17 @@ test('About me is the default project pane with navigation immediately available
   ).toBeInTheDocument();
   expect(screen.getByText('My approach')).toBeInTheDocument();
   expect(
-    screen.getByText('From the first question to a running application.'),
+    screen.getByText(
+      'Solutions shaped around real needs, timelines and budgets.',
+    ),
   ).toBeInTheDocument();
+  expect(WORKFLOW_STEPS.map((step) => step.title)).toEqual([
+    'Understand',
+    'Choose',
+    'Build',
+    'Verify',
+    'Improve',
+  ]);
   for (const step of WORKFLOW_STEPS)
     expect(
       screen.getByRole('heading', { name: step.title, level: 3 }),

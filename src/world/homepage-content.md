@@ -8,7 +8,7 @@ approval.
 
 ### Guillaume Ammouche
 
-29 · French · Living in Vietnam for 1.5 years · Fluent in English · Coding since 2017
+29 · French · Fluent in English · Living abroad since 2023 · 9 years of coding experience
 
 ## Introduction
 
@@ -26,27 +26,27 @@ I started my career as a BI developer in 2017, building internal tools and autom
 
 ### How I build software
 
-From the first question to a running application.
+Solutions shaped around real needs, timelines and budgets.
 
 #### Understand
 
-Start with the problem, its constraints and the behavior people need.
+Clarify the problem, user needs and constraints—including time and budget.
 
-#### Design
+#### Choose
 
-Shape the architecture and the interface together, so the parts fit from the start.
+Find the simplest solution that fits, balancing quality, complexity and cost.
 
 #### Build
 
-Connect the frontend, APIs and background processing around real use cases.
+Design the interface and architecture together, then connect the pieces around real use cases.
 
 #### Verify
 
-Test behavior, document decisions and automate checks before delivery.
+Test behavior, document key decisions and automate checks before delivery.
 
 #### Improve
 
-Learn from the running application: performance, security, resource use and real feedback.
+Refine the running application based on real feedback, performance, security and resource use.
 
 ## Apollo
 

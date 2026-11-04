@@ -55,7 +55,7 @@ for (const width of [390, 1440])
           ),
       ).toBeGreaterThanOrEqual(32);
       await expect(page.locator('.landing-facts-readable')).toHaveText(
-        '29 · French · Living in Vietnam for 1.5 years · Fluent in English · Coding since 2017',
+        '29 · French · Fluent in English · Living abroad since 2023 · 9 years of coding experience',
       );
       await page.clock.runFor(10000);
       await expect(page.locator('.landing-facts')).toHaveAttribute(
@@ -72,7 +72,7 @@ for (const width of [390, 1440])
         reducedMotion === 'reduce' ? '0s' : '0.45s, 0.45s',
       );
       await expect(page.locator('.landing-facts-text')).toHaveText(
-        '29 · French · Living in Vietnam for 1.5 years · Fluent in English · Coding since 2017',
+        '29 · French · Fluent in English · Living abroad since 2023 · 9 years of coding experience',
       );
       await expect(page.locator('.landing-facts')).toHaveCSS(
         'white-space',
