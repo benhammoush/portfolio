@@ -128,19 +128,33 @@ export function assertDevCandidate(deployment, expected) {
 }
 
 /**
- * Emit filesystem-first SPA routes with explicit asset errors and non-launch indexing.
+ * Allow indexing only on the production origin, keeping dev and provider URLs excluded.
+ * @param target - Delivery environment; defaults to non-public dev.
+ * @param origin - Configured production origin, required for production delivery.
  * @returns Vercel Build Output API version 3 configuration.
  */
-export function hostingConfiguration() {
+export function hostingConfiguration(target = 'dev', origin) {
+  assert.ok(['dev', 'production'].includes(target));
+  const productionHost =
+    target === 'production'
+      ? new URL(applicationOrigin(origin)).hostname
+      : null;
   return {
     version: 3,
     routes: [
       {
         src: '/(.*)',
         headers: {
-          'X-Robots-Tag': 'noindex, nofollow',
           'Cache-Control': 'no-store',
         },
+        continue: true,
+      },
+      {
+        src: '/(.*)',
+        ...(productionHost
+          ? { missing: [{ type: 'host', value: productionHost }] }
+          : {}),
+        headers: { 'X-Robots-Tag': 'noindex, nofollow' },
         continue: true,
       },
       { handle: 'filesystem' },

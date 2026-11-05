@@ -191,10 +191,11 @@ describe('reviewed configuration and candidate identity', () => {
 it('hosts files before SPA fallback and rejects missing assets and file-like paths', () => {
   const config = hostingConfiguration();
   expect(config.version).toBe(3);
-  expect(config.routes[0].headers['X-Robots-Tag']).toContain('noindex');
-  expect(config.routes[1]).toEqual({ handle: 'filesystem' });
-  const assetRule = new RegExp(`^${config.routes[2].src}$`);
-  const fileRule = new RegExp(`^${config.routes[3].src}$`);
+  expect(config.routes[1].headers['X-Robots-Tag']).toContain('noindex');
+  expect(config.routes[1].missing).toBeUndefined();
+  expect(config.routes[2]).toEqual({ handle: 'filesystem' });
+  const assetRule = new RegExp(`^${config.routes[3].src}$`);
+  const fileRule = new RegExp(`^${config.routes[4].src}$`);
   for (const path of ['/assets', '/assets/missing', '/assets/missing.js'])
     expect(assetRule.test(path)).toBe(true);
   for (const path of ['/missing.svg', '/missing.json/', '/deep/missing.html'])
@@ -203,4 +204,49 @@ it('hosts files before SPA fallback and rejects missing assets and file-like pat
     expect(assetRule.test(path) || fileRule.test(path)).toBe(false);
   }
   expect(config.routes.at(-1).dest).toBe('/index.html');
+});
+
+it('exempts only the configured production host from noindex and fails closed on bad configuration', () => {
+  const config = hostingConfiguration(
+    'production',
+    'https://www.guillaumeammouche.xyz',
+  );
+  expect(config.routes[1]).toMatchObject({
+    missing: [{ type: 'host', value: 'www.guillaumeammouche.xyz' }],
+    headers: { 'X-Robots-Tag': 'noindex, nofollow' },
+  });
+  expect(() => hostingConfiguration('production')).toThrow();
+  expect(() => hostingConfiguration('preview')).toThrow();
+  expect(() =>
+    hostingConfiguration('production', 'http://example.com'),
+  ).toThrow();
+});
+
+it('publishes a crawlable robots file and sitemap covering exactly the public routes', () => {
+  const robots = readFileSync('public/robots.txt', 'utf8');
+  expect(robots).toContain('User-agent: *\nAllow: /');
+  expect(robots).toContain(
+    'Sitemap: https://www.guillaumeammouche.xyz/sitemap.xml',
+  );
+  const xml = new DOMParser().parseFromString(
+    readFileSync('public/sitemap.xml', 'utf8'),
+    'application/xml',
+  );
+  expect(xml.querySelector('parsererror')).toBeNull();
+  expect(xml.documentElement.namespaceURI).toBe(
+    'http://www.sitemaps.org/schemas/sitemap/0.9',
+  );
+  expect(
+    [...xml.querySelectorAll('loc')].map((loc) => loc.textContent),
+  ).toEqual(
+    [
+      '/',
+      '/about',
+      '/projects/apollo',
+      '/projects/iris',
+      '/projects/gateway',
+      '/projects/dripperz',
+    ].map((path) => `https://www.guillaumeammouche.xyz${path}`),
+  );
+  expect(readFileSync('index.html', 'utf8')).not.toMatch(/noindex|nofollow/);
 });

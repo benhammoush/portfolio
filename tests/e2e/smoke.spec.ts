@@ -34,10 +34,7 @@ test('serves the readable foundation and runtime identity', async ({
     page.getByText(/Local composition study|Not a public launch/),
   ).toHaveCount(0);
   await expect(page.getByTestId('app-version')).toHaveCount(0);
-  await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
-    'content',
-    /noindex/,
-  );
+  await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 

@@ -5,6 +5,9 @@ HTML workspace. A minimal landing page opens About me through an explicit Enter
 portfolio action, with no automatic redirect, loading intro or 3D scene.
 JavaScript is required.
 
+The production domain permits search indexing and publishes `robots.txt` and a
+sitemap. Delivery headers keep dev and provider deployment URLs out of search.
+
 ## Tech stack
 
 | Layer                 | Technology                           |

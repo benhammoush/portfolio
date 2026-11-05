@@ -86,13 +86,16 @@ function record(heading, record) {
  * @param origin - Explicit configured origin or verified provider deployment origin.
  * @param identity - Expected release identity generated before upload.
  * @param bypass - Optional approved automation access secret, sent only to this origin.
+ * @param indexable - Whether this is the public production origin rather than a preview.
  */
-async function smoke(origin, identity, bypass) {
+async function smoke(origin, identity, bypass, indexable = false) {
   const base = applicationOrigin(origin);
   const headers = bypass ? { 'x-vercel-protection-bypass': bypass } : {};
   for (const path of [
     '/release.json',
     '/',
+    '/robots.txt',
+    '/sitemap.xml',
     '/not-a-portfolio-route',
     '/assets/not-a-real-bundle.js',
     '/not-a-real-icon.svg',
@@ -116,8 +119,28 @@ async function smoke(origin, identity, bypass) {
         'Hosted candidate/configuration identity changed.',
       );
     } else if (!missing) {
-      assert.match(response.headers.get('x-robots-tag') ?? '', /noindex/);
-      assert.match(await response.text(), /<div id="root"><\/div>/);
+      const robots = response.headers.get('x-robots-tag') ?? '';
+      if (indexable) assert.doesNotMatch(robots, /noindex|none/i);
+      else assert.match(robots, /noindex/i);
+      const body = await response.text();
+      if (path === '/robots.txt') {
+        assert.match(body, /User-agent: \*/);
+        assert.match(
+          body,
+          /Sitemap: https:\/\/www\.guillaumeammouche\.xyz\/sitemap\.xml/,
+        );
+      } else if (path === '/sitemap.xml') {
+        assert.match(
+          body,
+          /<urlset xmlns="http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9">/,
+        );
+      } else {
+        assert.match(body, /<div id="root"><\/div>/);
+        assert.doesNotMatch(
+          body,
+          /<meta[^>]+name=["']robots["'][^>]+content=["'][^"']*(?:noindex|none)/i,
+        );
+      }
     } else {
       assert.ok(
         !(await response.text()).includes('<div id="root">'),
@@ -241,7 +264,7 @@ export async function deliver(publish) {
     );
     writeFileSync(
       join(outputRoot, 'config.json'),
-      JSON.stringify(hostingConfiguration()),
+      JSON.stringify(hostingConfiguration(target, origin)),
     );
     writeFileSync(
       join(staging, '.vercel/project.json'),
@@ -335,7 +358,7 @@ export async function deliver(publish) {
       'Target changed during deployment.',
     );
     await smoke(deployedOrigin, identity, env.SMOKE_BYPASS);
-    await smoke(origin, identity, env.SMOKE_BYPASS);
+    await smoke(origin, identity, env.SMOKE_BYPASS, target === 'production');
     record(
       'Read-only HTTP smoke passed — not human or public-launch acceptance',
       { deployment: deployment.id, previous, ...identity },

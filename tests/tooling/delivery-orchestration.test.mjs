@@ -78,6 +78,12 @@ async function response(input, options) {
         process.env.DELIVERY_TARGET === 'production' &&
         url.hostname === 'dev.example.com';
       body = isDevAcceptance ? state.devIdentity : state.identity;
+    } else if (url.pathname === '/robots.txt') {
+      body =
+        'User-agent: *\nAllow: /\nSitemap: https://www.guillaumeammouche.xyz/sitemap.xml';
+    } else if (url.pathname === '/sitemap.xml') {
+      body =
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>';
     } else if (url.pathname.includes('not-a-real')) {
       status = state.badAsset ? 200 : 404;
       body = 'Asset not found';
@@ -101,10 +107,18 @@ async function response(input, options) {
     text: async () => body,
     headers: {
       /**
-       * Model the non-launch header supplied by hosted routing.
-       * @returns The no-index directive required by smoke checks.
+       * Model host-scoped indexing policy, including deliberately broken fixtures.
+       * @returns No directive for public production, and noindex for other hosts.
        */
-      get: () => 'noindex, nofollow',
+      get: () =>
+        state.badIndexing
+          ? process.env.DELIVERY_TARGET === 'production'
+            ? 'noindex'
+            : null
+          : process.env.DELIVERY_TARGET === 'production' &&
+              url.hostname === 'portfolio.example.com'
+            ? null
+            : 'noindex, nofollow',
     },
   };
 }
@@ -397,3 +411,16 @@ it('retains recovery checkpoints and never retries after hosted smoke fails', as
     ),
   ).toBe(true);
 });
+
+it.each(['dev', 'production'])(
+  'rejects incorrect indexing headers for %s',
+  async (target) => {
+    if (target === 'production') selectProduction();
+    state.badIndexing = true;
+    await expect(deliver()).rejects.toThrow();
+    expect(mocks.publish).toHaveBeenCalledTimes(1);
+    expect(mocks.summary.mock.calls.at(-1)[1]).not.toContain(
+      'HTTP smoke passed',
+    );
+  },
+);
