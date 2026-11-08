@@ -13,14 +13,15 @@ test('serves the readable foundation and runtime identity', async ({
   const response = await page.goto('/');
   expect(response?.status()).toBe(200);
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-  await expect(page.locator('link[rel="icon"]')).toHaveAttribute(
-    'href',
-    '/favicon.svg',
-  );
-  await expect(page.locator('link[rel="icon"]')).toHaveAttribute(
-    'type',
-    'image/svg+xml',
-  );
+  await expect(
+    page.locator('link[rel="icon"][type="image/svg+xml"]'),
+  ).toHaveAttribute('href', '/favicon.svg');
+  await expect(
+    page.locator('link[rel="icon"][type="image/png"]'),
+  ).toHaveAttribute('href', '/favicon.png');
+  await expect(
+    page.locator('link[rel="icon"][type="image/png"]'),
+  ).toHaveAttribute('sizes', '96x96');
   await expect(
     page.getByRole('heading', {
       name: 'Guillaume Ammouche',
