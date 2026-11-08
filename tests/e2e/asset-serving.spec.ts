@@ -16,6 +16,26 @@ test('the favicon serves the globe SVG instead of the application shell', async 
   );
 });
 
+test('the search favicon serves the 96px globe PNG instead of the application shell', async ({
+  request,
+}) => {
+  const response = await request.get('/favicon.png');
+  expect(response.status()).toBe(200);
+  expect(response.headers()['content-type']).toContain('image/png');
+  const body = await response.body();
+  expect(
+    body.equals(
+      readFileSync(new URL('../../public/favicon.png', import.meta.url)),
+    ),
+  ).toBe(true);
+  expect(body.subarray(0, 8)).toEqual(
+    Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
+  );
+  expect(body.subarray(12, 16).toString()).toBe('IHDR');
+  expect(body.readUInt32BE(16)).toBe(96);
+  expect(body.readUInt32BE(20)).toBe(96);
+});
+
 test('the public résumé link serves the supplied PDF instead of the application shell', async ({
   request,
 }) => {
